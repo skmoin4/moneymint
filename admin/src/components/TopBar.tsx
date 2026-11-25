@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Search, Wallet, Bell, BellRing, Landmark, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, Search, IndianRupee, Mail, Bell, Landmark, LogOut } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
@@ -11,42 +11,60 @@ interface NotificationItem {
   createdAt: string;
 }
 
-export function TopBar() {
+function CountBadge({ n }: { n: number }) {
+  return (
+    <span className="ml-1 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-[3px] bg-[#ed5565] px-1 text-[10px] font-bold text-white">
+      {n}
+    </span>
+  );
+}
+
+export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [balance, setBalance] = useState<string | null>(null);
+  const isManager = user?.role !== "RETAILER";
   const [query, setQuery] = useState("");
-  const [alerts, setAlerts] = useState(0);
+  const [userQuery, setUserQuery] = useState("");
+  const [userSearchOpen, setUserSearchOpen] = useState(false);
+  const [counts, setCounts] = useState({ balanceRequests: 0, complaints: 0 });
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
 
   useEffect(() => {
-    api.get("/wallet/balance").then((res) => setBalance(res.data.balance));
-  }, [location.pathname]);
+    if (!isManager) return;
+    api
+      .get("/dashboard/pending-summary")
+      .then((res) =>
+        setCounts({ balanceRequests: res.data.pendingBalanceRequests, complaints: res.data.openComplaints })
+      )
+      .catch(() => {});
+  }, [location.pathname, isManager]);
 
   useEffect(() => {
-    if (user?.role === "RETAILER") return;
-    Promise.all([
-      api.get("/kyc/requests", { params: { status: "PENDING" } }).catch(() => ({ data: { requests: [] } })),
-      api.get("/balance-requests/team", { params: { status: "PENDING" } }).catch(() => ({ data: { requests: [] } })),
-    ]).then(([kycRes, balRes]) => {
-      setAlerts(kycRes.data.requests.length + balRes.data.requests.length);
-    });
-  }, [location.pathname, user?.role]);
-
-  useEffect(() => {
-    api.get("/broadcast/my-notifications").then((res) => {
-      setNotifications(res.data.notifications);
-      setUnreadCount(res.data.unreadCount);
-    });
+    api
+      .get("/broadcast/my-notifications")
+      .then((res) => {
+        setNotifications(res.data.notifications);
+        setUnreadCount(res.data.unreadCount);
+      })
+      .catch(() => {});
   }, [location.pathname]);
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();
     if (!query.trim()) return;
-    navigate(`/transactions?search=${encodeURIComponent(query.trim())}`);
+    navigate(`/transactions?mobile=${encodeURIComponent(query.trim())}`);
+    setQuery("");
+  }
+
+  function handleUserSearch(e: FormEvent) {
+    e.preventDefault();
+    if (!userQuery.trim()) return;
+    navigate(`/users?search=${encodeURIComponent(userQuery.trim())}`);
+    setUserSearchOpen(false);
+    setUserQuery("");
   }
 
   async function openNotifications() {
@@ -58,61 +76,83 @@ export function TopBar() {
     }
   }
 
+  const link = "flex items-center gap-1 px-2 py-1 text-[12.5px] font-semibold text-ink-500 hover:text-ink-800";
+
   return (
-    <header className="relative flex h-14 shrink-0 items-center gap-4 border-b border-ink-200 bg-white px-6">
-      <form onSubmit={handleSearch} className="relative w-72 max-w-full">
-        <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+    <header className="relative flex min-h-[60px] shrink-0 flex-wrap items-center gap-3 border-b border-ink-200 bg-white px-4">
+      <button
+        onClick={onToggleSidebar}
+        className="flex h-[30px] w-[38px] items-center justify-center rounded-[3px] bg-brand-500 text-white hover:bg-brand-600"
+        aria-label="Toggle menu"
+      >
+        <Menu size={16} />
+      </button>
+
+      <form onSubmit={handleSearch} className="min-w-0 flex-1 sm:max-w-80">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for a mobile / consumer number..."
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 py-1.5 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10"
+          placeholder="Search for number..."
+          className="w-full border-0 bg-transparent px-1 py-1.5 text-[13px] text-ink-700 outline-none placeholder:text-ink-400"
         />
       </form>
 
-      <div className="ml-auto flex items-center gap-2 text-sm">
-        <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-700">
-          <Wallet size={14} />₹{balance ?? "..."}
-        </div>
+      <nav className="ml-auto flex flex-wrap items-center gap-1">
+        <Link to="/" className={`${link} hidden md:flex`}>
+          Dashboard
+        </Link>
 
-        {user?.role !== "RETAILER" && (
-          <button
-            onClick={() => navigate("/kyc")}
-            className="relative flex h-8 w-8 items-center justify-center rounded-lg text-ink-500 hover:bg-ink-100"
-            title="Pending approvals"
-          >
-            <Bell size={16} />
-            {alerts > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
-                {alerts}
-              </span>
+        {isManager && (
+          <div className="relative">
+            <button onClick={() => setUserSearchOpen((o) => !o)} className={link}>
+              <Search size={13} /> <span className="hidden sm:inline">Search User</span>
+            </button>
+            {userSearchOpen && (
+              <form
+                onSubmit={handleUserSearch}
+                className="absolute right-0 top-9 z-30 flex w-64 gap-1 rounded-sm border border-ink-200 bg-white p-2 shadow-lg"
+              >
+                <input
+                  autoFocus
+                  value={userQuery}
+                  onChange={(e) => setUserQuery(e.target.value)}
+                  placeholder="Name or mobile"
+                  className="min-w-0 flex-1 rounded-[2px] border border-[#e5e6e7] px-2 py-1 text-[13px] outline-none focus:border-brand-500"
+                />
+                <button className="rounded-[3px] bg-brand-500 px-2.5 text-[12px] text-white">Go</button>
+              </form>
             )}
-          </button>
+          </div>
+        )}
+
+        {isManager && (
+          <>
+            <Link to="/balance-requests" className={link} title="Pending balance requests">
+              <IndianRupee size={13} />
+              <CountBadge n={counts.balanceRequests} />
+            </Link>
+            <Link to="/complaints" className={link} title="Open complaints">
+              <Mail size={13} />
+              <CountBadge n={counts.complaints} />
+            </Link>
+          </>
         )}
 
         <div className="relative">
-          <button
-            onClick={openNotifications}
-            className="relative flex h-8 w-8 items-center justify-center rounded-lg text-ink-500 hover:bg-ink-100"
-            title="Notifications"
-          >
-            <BellRing size={16} />
-            {unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
-                {unreadCount}
-              </span>
-            )}
+          <button onClick={openNotifications} className={link} title="Notifications">
+            <Bell size={13} />
+            {unreadCount > 0 && <CountBadge n={unreadCount} />}
           </button>
           {notifOpen && (
-            <div className="absolute right-0 top-10 z-20 w-80 rounded-xl border border-ink-200 bg-white p-2 shadow-lg">
+            <div className="absolute right-0 top-9 z-30 w-80 rounded-sm border border-ink-200 bg-white p-1 shadow-lg">
               {notifications.length === 0 ? (
-                <div className="p-4 text-center text-xs text-ink-400">No notifications yet.</div>
+                <div className="p-4 text-center text-[12px] text-ink-400">No notifications yet.</div>
               ) : (
-                <div className="flex max-h-80 flex-col gap-1 overflow-y-auto">
+                <div className="flex max-h-80 flex-col overflow-y-auto">
                   {notifications.map((n) => (
-                    <div key={n.id} className="rounded-lg px-3 py-2 text-xs text-ink-700 hover:bg-ink-50">
+                    <div key={n.id} className="border-b border-ink-100 px-3 py-2 text-[12px] text-ink-700 last:border-0">
                       <div>{n.message}</div>
-                      <div className="mt-1 text-[10px] text-ink-400">{new Date(n.createdAt).toLocaleString()}</div>
+                      <div className="mt-0.5 text-[10.5px] text-ink-400">{new Date(n.createdAt).toLocaleString("en-IN")}</div>
                     </div>
                   ))}
                 </div>
@@ -121,25 +161,14 @@ export function TopBar() {
           )}
         </div>
 
-        <button
-          onClick={() => navigate("/balance-requests")}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-500 hover:bg-ink-100"
-          title="Bank Details"
-        >
-          <Landmark size={16} />
+        <Link to={user?.role === "ADMIN" ? "/bank-details" : "/balance-requests"} className={link}>
+          <Landmark size={13} /> <span className="hidden sm:inline">Bank Details</span>
+        </Link>
+
+        <button onClick={logout} className={link}>
+          <LogOut size={13} /> <span className="hidden sm:inline">Log out</span>
         </button>
-
-        <div className="mx-1 h-6 w-px bg-ink-200" />
-
-        <span className="text-ink-500">Hello, {user?.name}</span>
-
-        <button
-          onClick={logout}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-ink-500 hover:bg-ink-100"
-        >
-          <LogOut size={14} /> Log out
-        </button>
-      </div>
+      </nav>
     </header>
   );
 }

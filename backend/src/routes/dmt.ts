@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requestSource } from "../utils/requestSource";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { authenticate } from "../middleware/auth";
@@ -98,7 +99,8 @@ dmtRouter.post("/transfer", transactionLimiter, requirePinIfEnabled, async (req,
     remitterId,
     beneficiaryId,
     amount,
-    mode
+    mode,
+    requestSource(req)
   );
   res.status(201).json({ transaction });
 });

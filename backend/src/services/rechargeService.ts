@@ -1,10 +1,11 @@
-import { processProviderTransaction } from "./transactionEngine";
+import { processProviderTransaction, type TransactionSource } from "./transactionEngine";
 
 export async function initiateRecharge(
   userId: string,
   operatorCode: string,
   mobileNumber: string,
-  amount: number
+  amount: number,
+  source: TransactionSource = "APP"
 ) {
   return processProviderTransaction({
     userId,
@@ -12,6 +13,7 @@ export async function initiateRecharge(
     identifier: mobileNumber,
     amount,
     transactionType: "RECHARGE",
+    source,
     descriptionLabel: "Recharge",
   });
 }

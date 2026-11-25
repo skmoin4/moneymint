@@ -1,212 +1,335 @@
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
-  Wallet,
   LayoutDashboard,
-  Smartphone,
-  Receipt,
-  BookOpen,
+  Globe,
+  SlidersHorizontal,
+  Plug,
   Users,
-  ArrowLeftRight,
-  Server,
-  Radio,
-  Percent,
-  FileText,
-  Send,
-  Fingerprint,
-  ShieldCheck,
-  MessageSquareWarning,
+  IndianRupee,
   BarChart3,
-  Clock,
-  Landmark,
+  Smartphone,
+  UserCog,
+  ChevronLeft,
   ChevronDown,
-  ShieldAlert,
-  MapPin,
-  Settings2,
-  Clock3,
-  PlusCircle,
-  Megaphone,
-  Cog,
-  CreditCard,
-  Hash,
-  Layers,
-  Gift,
+  LifeBuoy,
+  Phone,
+  Mail,
+  Clock,
+  LogOut,
+  History,
+  type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { NoticeBar } from "./NoticeBar";
 import { TopBar } from "./TopBar";
+import { api } from "../api/client";
+import { LoginHistoryModal } from "./LoginHistoryModal";
 
-interface NavItem {
+type Role = "ADMIN" | "MASTER_DISTRIBUTOR" | "DISTRIBUTOR" | "RETAILER";
+const ALL: Role[] = ["ADMIN", "MASTER_DISTRIBUTOR", "DISTRIBUTOR", "RETAILER"];
+const MANAGERS: Role[] = ["ADMIN", "MASTER_DISTRIBUTOR", "DISTRIBUTOR"];
+const ADMIN: Role[] = ["ADMIN"];
+
+interface SubItem {
   to: string;
   label: string;
-  icon: typeof LayoutDashboard;
-  end?: boolean;
+  roles: Role[];
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/recharge", label: "New Recharge", icon: Smartphone },
-  { to: "/bill-payment", label: "Bill Payments", icon: FileText },
-  { to: "/dmt", label: "Money Transfer", icon: Send },
-  { to: "/aeps", label: "AEPS", icon: Fingerprint },
-];
-
-const REPORTS_ITEMS: NavItem[] = [
-  { to: "/transactions", label: "Transactions", icon: Receipt },
-  { to: "/ledger", label: "Ledger", icon: BookOpen },
-];
-
-const MANAGER_REPORTS_ITEMS: NavItem[] = [
-  { to: "/reports", label: "Reports", icon: BarChart3 },
-  { to: "/pending", label: "Pending", icon: Clock },
-  { to: "/q-recharge", label: "Q Recharge", icon: Clock3 },
-];
-
-const SUPPORT_ITEMS: NavItem[] = [
-  { to: "/kyc", label: "KYC", icon: ShieldCheck },
-  { to: "/complaints", label: "Complaints", icon: MessageSquareWarning },
-  { to: "/balance-requests", label: "Balance Requests", icon: Landmark },
-];
-
-const MANAGER_NAV_ITEMS: NavItem[] = [
-  { to: "/users", label: "Users", icon: Users },
-  { to: "/transfer", label: "Transfer Funds", icon: ArrowLeftRight },
-  { to: "/broadcast", label: "Broadcast", icon: Megaphone },
-];
-
-const ADMIN_NAV_ITEMS: NavItem[] = [
-  { to: "/providers", label: "Providers", icon: Server },
-  { to: "/operators", label: "Operators", icon: Radio },
-  { to: "/provider-api-setting", label: "Provider API Setting", icon: Settings2 },
-  { to: "/commission", label: "Commission Slabs", icon: Percent },
-  { to: "/bank-details", label: "Bank Details", icon: Landmark },
-  { to: "/circles", label: "Circle Master", icon: MapPin },
-  { to: "/security", label: "Security", icon: ShieldAlert },
-  { to: "/manual-txn", label: "Add Transaction", icon: PlusCircle },
-  { to: "/payment-modes", label: "Payment Modes", icon: CreditCard },
-  { to: "/operator-prefixes", label: "Operator Prefixes", icon: Hash },
-  { to: "/recharge-plans", label: "Recharge Plans", icon: Layers },
-  { to: "/cashback-offers", label: "Cashback Offers", icon: Gift },
-  { to: "/settings", label: "Settings", icon: Cog },
-];
-
-function initials(name?: string) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+interface MenuItem {
+  label: string;
+  icon: LucideIcon;
+  roles: Role[];
+  to?: string; // a direct link…
+  children?: SubItem[]; // …or a collapsible group
 }
 
-function isItemActive(item: NavItem, pathname: string) {
-  return item.end ? pathname === item.to : pathname === item.to || pathname.startsWith(`${item.to}/`);
+// Sidebar menu, grouped the way operators of recharge portals expect to find things.
+const MENU: MenuItem[] = [
+  { label: "Dashboard", icon: LayoutDashboard, to: "/", roles: ALL },
+  { label: "Insights", icon: Globe, to: "/reports", roles: MANAGERS },
+  {
+    label: "Commission",
+    icon: SlidersHorizontal,
+    roles: ADMIN,
+    children: [
+      { to: "/commission", label: "Commission Packs", roles: ADMIN },
+      { to: "/cashback-offers", label: "Cashback Offers", roles: ADMIN },
+    ],
+  },
+  {
+    label: "API",
+    icon: Plug,
+    roles: ADMIN,
+    children: [
+      { to: "/providers", label: "Add API / APIs", roles: ADMIN },
+      { to: "/provider-api-setting", label: "Provider API Setting", roles: ADMIN },
+      { to: "/operators", label: "Operators", roles: ADMIN },
+      { to: "/operator-prefixes", label: "Operator Series", roles: ADMIN },
+      { to: "/recharge-plans", label: "Recharge Plans", roles: ADMIN },
+      { to: "/circles", label: "Circles", roles: ADMIN },
+    ],
+  },
+  {
+    label: "Users",
+    icon: Users,
+    roles: MANAGERS,
+    children: [
+      { to: "/users", label: "Users List", roles: MANAGERS },
+      { to: "/kyc", label: "KYC Update Requests", roles: MANAGERS },
+    ],
+  },
+  {
+    label: "Balance",
+    icon: IndianRupee,
+    roles: ALL,
+    children: [
+      { to: "/transfer", label: "Transfer Balance", roles: MANAGERS },
+      { to: "/balance-requests", label: "Balance Requests", roles: ALL },
+      { to: "/ledger", label: "Account Ledger", roles: ALL },
+      { to: "/bank-details", label: "Bank Details", roles: ADMIN },
+      { to: "/payment-modes", label: "Payment Modes", roles: ADMIN },
+    ],
+  },
+  {
+    label: "Reports",
+    icon: BarChart3,
+    roles: ALL,
+    children: [
+      { to: "/pending", label: "Pendings", roles: MANAGERS },
+      { to: "/transactions", label: "Transaction History", roles: ALL },
+      { to: "/transactions?status=REFUNDED", label: "Refunds", roles: MANAGERS },
+      { to: "/manual-txn", label: "Manual Transaction", roles: ADMIN },
+      { to: "/q-recharge", label: "Q Recharge", roles: MANAGERS },
+      { to: "/complaints", label: "Complaints", roles: ALL },
+    ],
+  },
+  {
+    label: "Services",
+    icon: Smartphone,
+    roles: ALL,
+    children: [
+      { to: "/recharge", label: "Recharge", roles: ALL },
+      { to: "/bill-payment", label: "Bill Payment", roles: ALL },
+      { to: "/dmt", label: "Money Transfer", roles: ALL },
+      { to: "/aeps", label: "AEPS", roles: ALL },
+    ],
+  },
+  {
+    label: "Admin",
+    icon: UserCog,
+    roles: MANAGERS,
+    children: [
+      { to: "/broadcast", label: "Broadcast / News", roles: MANAGERS },
+      { to: "/security", label: "Security & IP Whitelist", roles: ADMIN },
+      { to: "/settings", label: "Settings", roles: ADMIN },
+    ],
+  },
+];
+
+const ROLE_LABEL: Record<string, string> = {
+  ADMIN: "Administrator",
+  MASTER_DISTRIBUTOR: "Master Distributor",
+  DISTRIBUTOR: "Distributor",
+  RETAILER: "Retailer",
+};
+
+const SUPPORT = {
+  phone: import.meta.env.VITE_SUPPORT_PHONE as string | undefined,
+  email: import.meta.env.VITE_SUPPORT_EMAIL as string | undefined,
+  hours: (import.meta.env.VITE_SUPPORT_HOURS as string | undefined) ?? "9 am TO 9 pm",
+};
+
+function subItemActive(to: string, pathname: string, search: string) {
+  const [path, query] = to.split("?");
+  if (query) return pathname === path && search.includes(query);
+  return (pathname === path || pathname.startsWith(`${path}/`)) && !(path === "/transactions" && search.includes("status=REFUNDED"));
 }
 
-function FlatNavSection({ items }: { items: NavItem[] }) {
-  const { pathname } = useLocation();
+function Logo() {
   return (
-    <div className="flex flex-col gap-1">
-      {items.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          end={item.end}
-          className={
-            isItemActive(item, pathname)
-              ? "flex items-center gap-3 rounded-lg bg-brand-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm shadow-brand-900/40"
-              : "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-400 transition-colors hover:bg-white/5 hover:text-white"
-          }
-        >
-          <item.icon size={17} />
-          {item.label}
-        </NavLink>
-      ))}
+    <Link to="/" className="flex flex-col items-center gap-2 bg-side-900 px-4 pb-4 pt-5">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full border-[3px] border-brand-400 bg-side-800 text-[26px] font-bold text-brand-400">
+        ₹M
+      </div>
+      <span className="text-[18px] font-semibold tracking-wide text-white">
+        Money<span className="text-brand-400">Mint</span>
+      </span>
+    </Link>
+  );
+}
+
+function ProfileBlock({ balance, onLoginHistory }: { balance: string | null; onLoginHistory: () => void }) {
+  const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative border-b border-black/20 bg-side-900/60 px-5 py-4">
+      <div className="text-[13px] font-bold text-white">{user?.name}</div>
+      <button onClick={() => setOpen((o) => !o)} className="mt-0.5 flex items-center gap-1 text-[12px] text-side-300 hover:text-white">
+        {ROLE_LABEL[user?.role ?? ""] ?? user?.role}
+        <ChevronDown size={12} />
+      </button>
+      {balance !== null && <div className="mt-1 text-[12px] text-brand-400">Bal: ₹{balance}</div>}
+      {open && (
+        <div className="absolute left-4 top-[70px] z-30 w-44 rounded-sm bg-white py-1 text-[13px] shadow-lg">
+          <button
+            onClick={() => {
+              setOpen(false);
+              onLoginHistory();
+            }}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-ink-700 hover:bg-ink-50"
+          >
+            <History size={14} /> Login history
+          </button>
+          <button onClick={logout} className="flex w-full items-center gap-2 px-3 py-2 text-left text-ink-700 hover:bg-ink-50">
+            <LogOut size={14} /> Log out
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function CollapsibleNavSection({ label, items }: { label: string; items: NavItem[] }) {
-  const { pathname } = useLocation();
-  const isSectionActive = items.some((item) => isItemActive(item, pathname));
-  const [open, setOpen] = useState(true);
+function MenuGroup({ item, role, onNavigate }: { item: MenuItem; role: Role; onNavigate: () => void }) {
+  const { pathname, search } = useLocation();
+  const children = (item.children ?? []).filter((c) => c.roles.includes(role));
+  const active = children.some((c) => subItemActive(c.to, pathname, search));
+  const [open, setOpen] = useState(active);
 
   useEffect(() => {
-    if (isSectionActive) setOpen(true);
-  }, [isSectionActive]);
+    if (active) setOpen(true);
+  }, [active]);
 
+  if (children.length === 0) return null;
   return (
-    <div className="flex flex-col gap-1">
+    <li className={open ? "border-l-4 border-brand-500 bg-side-700" : "border-l-4 border-transparent"}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center justify-between px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-ink-500 transition-colors hover:text-ink-300"
+        className={`flex w-full items-center gap-2.5 py-[13px] pl-4 pr-3 text-[13px] font-semibold transition-colors ${
+          open || active ? "text-white" : "text-side-300 hover:text-white"
+        }`}
+        aria-expanded={open}
       >
-        {label}
-        <ChevronDown size={12} className={`transition-transform ${open ? "" : "-rotate-90"}`} />
+        <item.icon size={14} />
+        <span className="flex-1 text-left">{item.label}</span>
+        {open ? <ChevronDown size={13} /> : <ChevronLeft size={13} />}
       </button>
-      {open &&
-        items.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={
-              isItemActive(item, pathname)
-                ? "flex items-center gap-3 rounded-lg bg-brand-600 px-3 py-2.5 text-sm font-medium text-white shadow-sm shadow-brand-900/40"
-                : "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-400 transition-colors hover:bg-white/5 hover:text-white"
-            }
-          >
-            <item.icon size={17} />
-            {item.label}
-          </NavLink>
-        ))}
-    </div>
+      {open && (
+        <ul className="pb-2">
+          {children.map((c) => {
+            const isActive = subItemActive(c.to, pathname, search);
+            return (
+              <li key={c.to}>
+                <Link
+                  to={c.to}
+                  onClick={onNavigate}
+                  className={`block py-[7px] pl-11 pr-3 text-[12.5px] ${
+                    isActive ? "font-bold text-white" : "text-side-300 hover:text-white"
+                  }`}
+                >
+                  {c.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </li>
   );
 }
 
 export function Layout() {
   const { user } = useAuth();
-  const isRetailer = user?.role === "RETAILER";
-  const isAdmin = user?.role === "ADMIN";
+  const role = (user?.role ?? "RETAILER") as Role;
+  const location = useLocation();
+  const [balance, setBalance] = useState<string | null>(null);
+  // Desktop: sidebar shown by default and collapsible. Phone: hidden until toggled.
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  useEffect(() => {
+    api.get("/wallet/balance").then((res) => setBalance(res.data.balance)).catch(() => {});
+  }, [location.pathname]);
+
+  const closeOnPhone = () => {
+    if (window.innerWidth < 1024) setSidebarOpen(false);
+  };
 
   return (
     <div className="flex min-h-screen bg-ink-50">
-      <aside className="flex w-64 shrink-0 flex-col bg-ink-950 px-4 py-6">
-        <div className="mb-6 flex items-center gap-2.5 px-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
-            <Wallet size={18} />
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-30 bg-black/40 lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-[220px] shrink-0 flex-col bg-side-800 transition-transform lg:static lg:z-auto ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:hidden"
+        }`}
+      >
+        <Logo />
+        <ProfileBlock balance={balance} onLoginHistory={() => setHistoryOpen(true)} />
+        <nav className="flex-1 overflow-y-auto">
+          <ul>
+            {MENU.filter((m) => m.roles.includes(role)).map((m) =>
+              m.to ? (
+                <li key={m.label} className="border-l-4 border-transparent">
+                  <NavLink
+                    to={m.to}
+                    end
+                    onClick={closeOnPhone}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 py-[13px] pl-4 pr-3 text-[13px] font-semibold transition-colors ${
+                        isActive ? "bg-side-700 text-white" : "text-side-300 hover:text-white"
+                      }`
+                    }
+                  >
+                    <m.icon size={14} />
+                    {m.label}
+                  </NavLink>
+                </li>
+              ) : (
+                <MenuGroup key={m.label} item={m} role={role} onNavigate={closeOnPhone} />
+              )
+            )}
+          </ul>
+          <div className="mt-2 bg-brand-500 px-5 py-4 text-[12.5px] font-bold text-white">
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <LifeBuoy size={13} /> Support:
+            </div>
+            {SUPPORT.phone && (
+              <div className="flex items-center gap-1.5">
+                <Phone size={12} /> {SUPPORT.phone}
+              </div>
+            )}
+            {SUPPORT.email && (
+              <div className="flex items-center gap-1.5">
+                <Mail size={12} /> {SUPPORT.email}
+              </div>
+            )}
+            <div className="flex items-center gap-1.5">
+              <Clock size={12} /> {SUPPORT.hours}
+            </div>
           </div>
-          <span className="text-lg font-bold text-white">MoneyMint</span>
-        </div>
-
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
-          <FlatNavSection items={NAV_ITEMS} />
-          <CollapsibleNavSection label="Reports" items={REPORTS_ITEMS} />
-          {!isRetailer && <CollapsibleNavSection label="Ops" items={MANAGER_REPORTS_ITEMS} />}
-          <CollapsibleNavSection label="Support" items={SUPPORT_ITEMS} />
-          {!isRetailer && <CollapsibleNavSection label="Team" items={MANAGER_NAV_ITEMS} />}
-          {isAdmin && <CollapsibleNavSection label="Platform" items={ADMIN_NAV_ITEMS} />}
         </nav>
-
-        <div className="mt-4 flex items-center gap-3 rounded-xl bg-white/5 p-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/20 text-xs font-bold text-brand-300">
-            {initials(user?.name)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold text-white">{user?.name}</div>
-            <div className="truncate text-xs text-ink-400">{user?.role.replace("_", " ")}</div>
-          </div>
-        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar />
+        <TopBar onToggleSidebar={() => setSidebarOpen((o) => !o)} />
         <NoticeBar />
-        <main className="flex-1 overflow-x-hidden p-8">
+        <main className="flex-1 overflow-x-hidden p-4 md:px-6 md:py-5">
           <Outlet />
         </main>
+        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-200 bg-white px-5 py-3 text-[12.5px] text-ink-700">
+          <span>
+            Copyright MoneyMint © {new Date().getFullYear()} - Logged in as {ROLE_LABEL[role] ?? role} |{" "}
+            <button onClick={() => setHistoryOpen(true)} className="text-[#337ab7] hover:underline">
+              Login history
+            </button>
+          </span>
+          <span>v{import.meta.env.VITE_APP_VERSION ?? "1.0.0"}</span>
+        </footer>
       </div>
+      {historyOpen && <LoginHistoryModal onClose={() => setHistoryOpen(false)} />}
     </div>
   );
 }

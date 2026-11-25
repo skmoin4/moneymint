@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { UserPlus, Users as UsersIcon, Search } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { PageHeader } from "../components/ui/PageHeader";
@@ -49,8 +50,16 @@ export function UsersPage() {
   const [referredByCode, setReferredByCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get("search") ?? "";
+  const [searchInput, setSearchInput] = useState(urlSearch);
+  const [search, setSearch] = useState(urlSearch);
+
+  // The top bar's "Search User" navigates here with ?search=; follow it while mounted.
+  useEffect(() => {
+    setSearchInput(urlSearch);
+    setSearch(urlSearch);
+  }, [urlSearch]);
 
   useEffect(() => {
     const timer = setTimeout(() => setSearch(searchInput), 350);

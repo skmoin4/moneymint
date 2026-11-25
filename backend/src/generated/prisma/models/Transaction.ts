@@ -50,6 +50,7 @@ export type TransactionMinAggregateOutputType = {
   deduction: runtime.Decimal | null
   status: $Enums.TransactionStatus | null
   providerRefId: string | null
+  source: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +67,7 @@ export type TransactionMaxAggregateOutputType = {
   deduction: runtime.Decimal | null
   status: $Enums.TransactionStatus | null
   providerRefId: string | null
+  source: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -83,6 +85,7 @@ export type TransactionCountAggregateOutputType = {
   status: number
   providerRefId: number
   apiResponse: number
+  source: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -113,6 +116,7 @@ export type TransactionMinAggregateInputType = {
   deduction?: true
   status?: true
   providerRefId?: true
+  source?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -129,6 +133,7 @@ export type TransactionMaxAggregateInputType = {
   deduction?: true
   status?: true
   providerRefId?: true
+  source?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -146,6 +151,7 @@ export type TransactionCountAggregateInputType = {
   status?: true
   providerRefId?: true
   apiResponse?: true
+  source?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -250,6 +256,7 @@ export type TransactionGroupByOutputType = {
   status: $Enums.TransactionStatus
   providerRefId: string | null
   apiResponse: runtime.JsonValue | null
+  source: string
   createdAt: Date
   updatedAt: Date
   _count: TransactionCountAggregateOutputType | null
@@ -290,6 +297,7 @@ export type TransactionWhereInput = {
   status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   providerRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   apiResponse?: Prisma.JsonNullableFilter<"Transaction">
+  source?: Prisma.StringFilter<"Transaction"> | string
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -310,6 +318,7 @@ export type TransactionOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrderInput | Prisma.SortOrder
   apiResponse?: Prisma.SortOrderInput | Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -333,6 +342,7 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   providerRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   apiResponse?: Prisma.JsonNullableFilter<"Transaction">
+  source?: Prisma.StringFilter<"Transaction"> | string
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -353,6 +363,7 @@ export type TransactionOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrderInput | Prisma.SortOrder
   apiResponse?: Prisma.SortOrderInput | Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TransactionCountOrderByAggregateInput
@@ -378,6 +389,7 @@ export type TransactionScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumTransactionStatusWithAggregatesFilter<"Transaction"> | $Enums.TransactionStatus
   providerRefId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   apiResponse?: Prisma.JsonNullableWithAggregatesFilter<"Transaction">
+  source?: Prisma.StringWithAggregatesFilter<"Transaction"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
 }
@@ -392,6 +404,7 @@ export type TransactionCreateInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -412,6 +425,7 @@ export type TransactionUncheckedCreateInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -426,6 +440,7 @@ export type TransactionUpdateInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -446,6 +461,7 @@ export type TransactionUncheckedUpdateInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -463,6 +479,7 @@ export type TransactionCreateManyInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -477,6 +494,7 @@ export type TransactionUpdateManyMutationInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -494,6 +512,7 @@ export type TransactionUncheckedUpdateManyInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -521,6 +540,7 @@ export type TransactionCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrder
   apiResponse?: Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -543,6 +563,7 @@ export type TransactionMaxOrderByAggregateInput = {
   deduction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -559,6 +580,7 @@ export type TransactionMinOrderByAggregateInput = {
   deduction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -713,6 +735,7 @@ export type TransactionCreateWithoutUserInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   operator: Prisma.OperatorCreateNestedOneWithoutTransactionsInput
@@ -731,6 +754,7 @@ export type TransactionUncheckedCreateWithoutUserInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -777,6 +801,7 @@ export type TransactionScalarWhereInput = {
   status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   providerRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   apiResponse?: Prisma.JsonNullableFilter<"Transaction">
+  source?: Prisma.StringFilter<"Transaction"> | string
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
 }
@@ -791,6 +816,7 @@ export type TransactionCreateWithoutApiProviderInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -809,6 +835,7 @@ export type TransactionUncheckedCreateWithoutApiProviderInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -849,6 +876,7 @@ export type TransactionCreateWithoutOperatorInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTransactionsInput
@@ -867,6 +895,7 @@ export type TransactionUncheckedCreateWithoutOperatorInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -909,6 +938,7 @@ export type TransactionCreateManyUserInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -923,6 +953,7 @@ export type TransactionUpdateWithoutUserInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operator?: Prisma.OperatorUpdateOneRequiredWithoutTransactionsNestedInput
@@ -941,6 +972,7 @@ export type TransactionUncheckedUpdateWithoutUserInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -957,6 +989,7 @@ export type TransactionUncheckedUpdateManyWithoutUserInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -973,6 +1006,7 @@ export type TransactionCreateManyApiProviderInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -987,6 +1021,7 @@ export type TransactionUpdateWithoutApiProviderInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1005,6 +1040,7 @@ export type TransactionUncheckedUpdateWithoutApiProviderInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1021,6 +1057,7 @@ export type TransactionUncheckedUpdateManyWithoutApiProviderInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1037,6 +1074,7 @@ export type TransactionCreateManyOperatorInput = {
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1051,6 +1089,7 @@ export type TransactionUpdateWithoutOperatorInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1069,6 +1108,7 @@ export type TransactionUncheckedUpdateWithoutOperatorInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1085,6 +1125,7 @@ export type TransactionUncheckedUpdateManyWithoutOperatorInput = {
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1104,6 +1145,7 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   status?: boolean
   providerRefId?: boolean
   apiResponse?: boolean
+  source?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1124,6 +1166,7 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   status?: boolean
   providerRefId?: boolean
   apiResponse?: boolean
+  source?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1144,6 +1187,7 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   status?: boolean
   providerRefId?: boolean
   apiResponse?: boolean
+  source?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1164,11 +1208,12 @@ export type TransactionSelectScalar = {
   status?: boolean
   providerRefId?: boolean
   apiResponse?: boolean
+  source?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "operatorId" | "apiProviderId" | "type" | "identifier" | "amount" | "commission" | "deduction" | "status" | "providerRefId" | "apiResponse" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "operatorId" | "apiProviderId" | "type" | "identifier" | "amount" | "commission" | "deduction" | "status" | "providerRefId" | "apiResponse" | "source" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   operator?: boolean | Prisma.OperatorDefaultArgs<ExtArgs>
@@ -1205,6 +1250,7 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     status: $Enums.TransactionStatus
     providerRefId: string | null
     apiResponse: runtime.JsonValue | null
+    source: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["transaction"]>
@@ -1645,6 +1691,7 @@ export interface TransactionFieldRefs {
   readonly status: Prisma.FieldRef<"Transaction", 'TransactionStatus'>
   readonly providerRefId: Prisma.FieldRef<"Transaction", 'String'>
   readonly apiResponse: Prisma.FieldRef<"Transaction", 'Json'>
+  readonly source: Prisma.FieldRef<"Transaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Transaction", 'DateTime'>
 }

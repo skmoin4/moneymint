@@ -42,7 +42,7 @@ async function processDueEntries(scopeUserIds: string[]) {
   });
   for (const entry of due) {
     try {
-      const result = await initiateRecharge(entry.userId, entry.operatorCode, entry.identifier, Number(entry.amount));
+      const result = await initiateRecharge(entry.userId, entry.operatorCode, entry.identifier, Number(entry.amount), "QUEUE");
       await prisma.queuedRecharge.update({
         where: { id: entry.id },
         data: {

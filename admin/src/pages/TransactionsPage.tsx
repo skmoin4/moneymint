@@ -12,6 +12,8 @@ import { Modal } from "../components/ui/Modal";
 import { Pagination } from "../components/ui/Pagination";
 import { inputClasses, compactInputClasses } from "../components/ui/FormField";
 import { Table, THead, Th, Td, Tr } from "../components/ui/Table";
+import { useAuth } from "../context/AuthContext";
+import { TransactionHistoryAdmin } from "./TransactionHistoryAdmin";
 
 interface Transaction {
   id: string;
@@ -31,7 +33,7 @@ const STATUS_OPTIONS = ["", "PENDING", "SUCCESS", "FAILED", "REFUNDED"];
 const TYPE_OPTIONS = ["", "RECHARGE", "BBPS", "DMT", "AEPS"];
 const PAGE_SIZE = 10;
 
-export function TransactionsPage() {
+function RetailerTransactions() {
   const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get("search") ?? "";
 
@@ -92,7 +94,7 @@ export function TransactionsPage() {
   return (
     <div>
       <PageHeader
-        title="Transactions"
+        title="Transaction History"
         subtitle="Every recharge, bill payment, and transfer you've processed."
         action={
           <Button variant="secondary" onClick={handleExport}>
@@ -201,4 +203,11 @@ export function TransactionsPage() {
       )}
     </div>
   );
+}
+
+// Managers get the full admin Transaction History (whole downline, every filter, bulk
+// actions); retailers get their own simpler list.
+export function TransactionsPage() {
+  const { user } = useAuth();
+  return user?.role === "RETAILER" ? <RetailerTransactions /> : <TransactionHistoryAdmin />;
 }

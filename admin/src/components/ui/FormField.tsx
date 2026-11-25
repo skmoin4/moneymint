@@ -4,25 +4,25 @@ export function FormField({
   label,
   children,
   hint,
+  className = "",
 }: {
   label: string;
   children: ReactNode;
   hint?: string;
+  className?: string;
 }) {
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-ink-700">{label}</span>
+    <label className={`flex flex-col gap-1 ${className}`}>
+      <span className="text-[12.5px] font-bold text-ink-700">{label}</span>
       {children}
-      {hint && <span className="text-xs text-ink-400">{hint}</span>}
+      {hint && <span className="text-[11.5px] text-ink-400">{hint}</span>}
     </label>
   );
 }
 
 export const inputClasses =
-  "w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 outline-none transition-shadow focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10";
+  "w-full rounded-[2px] border border-[#e5e6e7] bg-white px-3 py-[6px] text-[13px] text-ink-800 placeholder:text-ink-400 outline-none transition-colors focus:border-brand-500";
 
-// Same visual treatment as inputClasses but without a baked-in width, so callers can size
-// it explicitly (w-24, inline-block, etc.) for compact inline controls — e.g. filter bars
-// and inline table editors — without fighting Tailwind's w-full for specificity.
+// Same treatment without a baked-in width, for inline filter bars and table editors.
 export const compactInputClasses =
-  "rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 outline-none transition-shadow focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10";
+  "rounded-[2px] border border-[#e5e6e7] bg-white px-2.5 py-[6px] text-[13px] text-ink-800 placeholder:text-ink-400 outline-none transition-colors focus:border-brand-500";

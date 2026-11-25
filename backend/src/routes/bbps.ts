@@ -5,6 +5,7 @@ import { HttpError } from "../utils/httpError";
 import { fetchBillAmount, payBill } from "../services/billPaymentService";
 import { transactionLimiter } from "../middleware/rateLimiters";
 import { requirePinIfEnabled } from "../middleware/requirePin";
+import { requestSource } from "../utils/requestSource";
 
 export const bbpsRouter = Router();
 
@@ -36,6 +37,6 @@ bbpsRouter.post("/pay", transactionLimiter, requirePinIfEnabled, async (req, res
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
   }
   const { operatorCode, consumerNumber, amount } = parsed.data;
-  const transaction = await payBill(req.user!.userId, operatorCode, consumerNumber, amount);
+  const transaction = await payBill(req.user!.userId, operatorCode, consumerNumber, amount, requestSource(req));
   res.status(201).json({ transaction });
 });

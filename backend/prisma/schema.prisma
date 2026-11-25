@@ -306,6 +306,10 @@ model Transaction {
   status        TransactionStatus @default(PENDING)
   providerRefId String?
   apiResponse   Json?
+  // Where the request came from: APP (retailer mobile app), WEB (admin/retailer web
+  // panel), API (an API user's server), MANUAL (admin "Add Transaction"), QUEUE
+  // (a scheduled Q-Recharge). Shown as the "Source" column in Transaction History.
+  source        String            @default("APP")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -313,6 +317,7 @@ model Transaction {
   @@index([userId])
   @@index([status])
   @@index([identifier])
+  @@index([createdAt])
 }
 
 model FundTransfer {

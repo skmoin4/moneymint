@@ -49,6 +49,7 @@ async function createAndSettle(
           amount: input.amount,
           deduction: input.amount,
           status: "PENDING",
+          source: "MANUAL",
         },
       });
       await tx.ledgerEntry.create({

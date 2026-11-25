@@ -9,6 +9,8 @@ import { transactionLimiter } from "../middleware/rateLimiters";
 import { getDescendantUserIds } from "../utils/hierarchy";
 import { settleTransaction } from "../services/transactionEngine";
 import { requirePinIfEnabled } from "../middleware/requirePin";
+import { PROVIDER_PUBLIC_SELECT, PROVIDER_ADMIN_SELECT } from "../utils/providerSelect";
+import { requestSource } from "../utils/requestSource";
 
 export const rechargeRouter = Router();
 
@@ -26,7 +28,7 @@ rechargeRouter.post("/", transactionLimiter, requirePinIfEnabled, async (req, re
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
   }
   const { operatorCode, mobileNumber, amount } = parsed.data;
-  const transaction = await initiateRecharge(req.user!.userId, operatorCode, mobileNumber, amount);
+  const transaction = await initiateRecharge(req.user!.userId, operatorCode, mobileNumber, amount, requestSource(req));
   res.status(201).json({ transaction });
 });
 
@@ -78,7 +80,7 @@ rechargeRouter.get("/history", async (req, res) => {
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
-      include: { operator: true, apiProvider: true },
+      include: { operator: true, apiProvider: { select: PROVIDER_PUBLIC_SELECT } },
     }),
     prisma.transaction.count({ where }),
   ]);
@@ -92,7 +94,7 @@ rechargeRouter.get("/history/export", async (req, res) => {
     where,
     orderBy: { createdAt: "desc" },
     take: 5000,
-    include: { operator: true, apiProvider: true },
+    include: { operator: true, apiProvider: { select: PROVIDER_PUBLIC_SELECT } },
   });
 
   const rows = transactions.map((t) => ({
@@ -267,56 +269,54 @@ rechargeRouter.get(
   async (req, res) => {
     const descendantIds = await getDescendantUserIds(req.user!.userId);
 
-    const [transactions, fundTransfers, wallets] = await Promise.all([
-      prisma.transaction.findMany({
+    // Every downline user is listed (not just those who transacted), so the dashboard's
+    // user table also shows idle outlets and their balance.
+    const [users, transactions, fundTransfers] = await Promise.all([
+      prisma.user.findMany({
+        where: { id: { in: descendantIds } },
+        select: { id: true, name: true, phone: true, wallet: { select: { balance: true } } },
+      }),
+      prisma.transaction.groupBy({
+        by: ["userId", "status"],
         where: { userId: { in: descendantIds } },
-        select: {
-          userId: true,
-          status: true,
-          amount: true,
-          user: { select: { name: true, phone: true } },
-        },
+        _count: { _all: true },
+        _sum: { amount: true },
       }),
       prisma.fundTransfer.groupBy({
         by: ["fromUserId"],
         where: { fromUserId: { in: descendantIds } },
         _sum: { amount: true },
       }),
-      prisma.wallet.findMany({
-        where: { userId: { in: descendantIds } },
-        select: { userId: true, balance: true },
-      }),
     ]);
 
     const fundTransferredMap = new Map(fundTransfers.map((f) => [f.fromUserId, Number(f._sum.amount ?? 0)]));
-    const balanceMap = new Map(wallets.map((w) => [w.userId, Number(w.balance)]));
-
     const map = new Map<
       string,
       { id: string; name: string; phone: string; total: number; success: number; amount: number; fundTransferred: number; balance: number }
     >();
+    for (const u of users) {
+      map.set(u.id, {
+        id: u.id,
+        name: u.name,
+        phone: u.phone,
+        total: 0,
+        success: 0,
+        amount: 0,
+        fundTransferred: fundTransferredMap.get(u.id) ?? 0,
+        balance: Number(u.wallet?.balance ?? 0),
+      });
+    }
     for (const t of transactions) {
-      if (!map.has(t.userId)) {
-        map.set(t.userId, {
-          id: t.userId,
-          name: t.user.name,
-          phone: t.user.phone,
-          total: 0,
-          success: 0,
-          amount: 0,
-          fundTransferred: fundTransferredMap.get(t.userId) ?? 0,
-          balance: balanceMap.get(t.userId) ?? 0,
-        });
-      }
-      const entry = map.get(t.userId)!;
-      entry.total++;
+      const entry = map.get(t.userId);
+      if (!entry) continue;
+      entry.total += t._count._all;
       if (t.status === "SUCCESS") {
-        entry.success++;
-        entry.amount += Number(t.amount);
+        entry.success += t._count._all;
+        entry.amount += Number(t._sum.amount ?? 0);
       }
     }
 
-    res.json({ users: Array.from(map.values()).sort((a, b) => b.amount - a.amount) });
+    res.json({ users: Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name)) });
   }
 );
 
@@ -348,7 +348,11 @@ rechargeRouter.get(
     const transactions = await prisma.transaction.findMany({
       where,
       orderBy: { createdAt: "asc" },
-      include: { operator: true, apiProvider: true, user: { select: { name: true, phone: true } } },
+      include: {
+        operator: true,
+        apiProvider: { select: req.user!.role === "ADMIN" ? PROVIDER_ADMIN_SELECT : PROVIDER_PUBLIC_SELECT },
+        user: { select: { name: true, phone: true } },
+      },
     });
     res.json({ transactions });
   }
@@ -398,7 +402,7 @@ rechargeRouter.get(
         where,
         orderBy: { createdAt: "desc" },
         take: 50,
-        include: { operator: true, apiProvider: true },
+        include: { operator: true, apiProvider: { select: PROVIDER_PUBLIC_SELECT } },
       }),
     ]);
 

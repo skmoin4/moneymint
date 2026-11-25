@@ -3081,6 +3081,7 @@ export const TransactionScalarFieldEnum = {
   status: 'status',
   providerRefId: 'providerRefId',
   apiResponse: 'apiResponse',
+  source: 'source',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

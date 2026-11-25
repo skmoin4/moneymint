@@ -15,14 +15,25 @@ dashboardRouter.get(
     const descendantIds = await getDescendantUserIds(req.user!.userId);
     const userIds = [req.user!.userId, ...descendantIds];
 
-    const [pendingKyc, openComplaints, pendingBalanceRequests, totalUsers] = await Promise.all([
-      prisma.kycRequest.count({ where: { userId: { in: userIds }, status: "PENDING" } }),
-      prisma.complaint.count({ where: { userId: { in: userIds }, status: { in: ["OPEN", "IN_PROGRESS"] } } }),
-      prisma.balanceRequest.count({ where: { user: { parentId: req.user!.userId }, status: "PENDING" } }),
-      prisma.user.count({ where: { id: { in: descendantIds } } }),
-    ]);
+    const [pendingKyc, openComplaints, pendingBalanceRequests, totalUsers, pendingGatewayOrders, pendingTransactions] =
+      await Promise.all([
+        prisma.kycRequest.count({ where: { userId: { in: userIds }, status: "PENDING" } }),
+        prisma.complaint.count({ where: { userId: { in: userIds }, status: { in: ["OPEN", "IN_PROGRESS"] } } }),
+        prisma.balanceRequest.count({ where: { user: { parentId: req.user!.userId }, status: "PENDING" } }),
+        prisma.user.count({ where: { id: { in: descendantIds } } }),
+        // "Balance Requests Gateway" — online top-ups started but not yet confirmed by the gateway.
+        prisma.paymentOrder.count({ where: { userId: { in: userIds }, status: "PENDING" } }),
+        prisma.transaction.count({ where: { userId: { in: userIds }, status: "PENDING" } }),
+      ]);
 
-    res.json({ pendingKyc, openComplaints, pendingBalanceRequests, totalUsers });
+    res.json({
+      pendingKyc,
+      openComplaints,
+      pendingBalanceRequests,
+      totalUsers,
+      pendingGatewayOrders,
+      pendingTransactions,
+    });
   }
 );
 

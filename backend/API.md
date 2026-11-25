@@ -407,6 +407,42 @@ needs a file-upload endpoint + storage that doesn't exist yet. Flag if needed.)*
 
 ---
 
+## Admin: Transaction History & Pendings (MASTER_DISTRIBUTOR/DISTRIBUTOR/ADMIN)
+
+Powers the panel's Transaction History and Pendings screens. Scope is the caller's whole
+downline (the entire platform for ADMIN). Provider `apiKey`/`apiSecret` are never included;
+`apiProvider.walletBalance` (the "apibalance" column) is included for ADMIN only.
+
+Clients should send `X-Client-Source: WEB` (web panel) or `APP` (mobile app, the default) on
+money-movement calls; it is stored as `transaction.source` and shown/filterable as "Source".
+Other values: `MANUAL` (admin Add Transaction), `QUEUE` (Q Recharge).
+
+### `GET /admin/transactions`
+Query (all optional): `from`, `to` (ISO date or datetime), `mobile`, `user` (name/phone),
+`txnId` (prefix), `opRefId`, `status`, `type` (RECHARGE/BBPS/DMT/AEPS), `operatorId`,
+`apiProviderId`, `source`, `amount`, `parentUser` (name/phone), `blankOpTxn=1`,
+`blankResponse=1`, `onlyComplaints=1`, `disablePaging=1`, `page`, `pageSize` (≤200),
+`order=asc|desc`.
+Returns `{ transactions, total, page, pageSize, summary }` — `summary` has
+`{ count, amount }` per status for the whole filtered set (the S/F/P/R chips).
+
+### `GET /admin/transactions/export` — same filters, CSV download (max 5000 rows).
+
+### `POST /admin/transactions/:id/action`
+`{ outcome: "SUCCESS" | "FAILED" | "REFUND", providerRefId?, remark? }`
+- SUCCESS / FAILED settle a PENDING transaction (FAILED refunds the user).
+- REFUND reverses a SUCCESS transaction: the user gets the full amount back; commission,
+  cashback and referral reward are debited back from whoever received them; the provider's
+  Wallet 1 float is credited back; status becomes REFUNDED.
+
+### `POST /admin/transactions/bulk-action` — `{ ids: string[] (≤500), outcome }`
+Applies the same outcome to each row independently. Returns `{ done, failures: [{ id, error }] }`.
+
+### `POST /admin/transactions/send-to-api` (ADMIN only)
+`{ ids: string[], apiProviderId, background?: boolean }` — re-submits PENDING rows to the
+chosen provider. If that provider is unreachable the row stays PENDING. With
+`background: true` it returns `202 { queued }` immediately.
+
 ## Known gaps / roadmap (not built yet, flag if the app needs them)
 
 - **No push notifications** — `/broadcast/my-notifications` is poll-based. Real-time

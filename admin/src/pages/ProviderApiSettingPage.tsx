@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { OctagonAlert, RefreshCw, Shuffle, ChevronRight, Filter } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import { PageHeader } from "../components/ui/PageHeader";
-import { Card } from "../components/ui/Card";
+import { Panel } from "../components/ui/Card";
+import { Modal } from "../components/ui/Modal";
 import { Button } from "../components/ui/Button";
-import { FormField, compactInputClasses } from "../components/ui/FormField";
+import { FormField, compactInputClasses, inputClasses } from "../components/ui/FormField";
 import { Table, THead, Th, Td, Tr } from "../components/ui/Table";
+import { errorText } from "../components/txn/types";
 
 interface Provider {
   id: string;
@@ -30,10 +32,54 @@ interface Operator {
   apiMappings: Mapping[];
 }
 
-const PRIORITY_SLOTS = [1, 2, 3, 4, 5];
+const SLOTS = [1, 2, 3, 4, 5];
 
-function operatorTypes(operators: Operator[]) {
-  return Array.from(new Set(operators.map((o) => o.type))).sort();
+// Stable colour per operator for the logo badge (no operator artwork is stored).
+const LOGO_COLOURS = ["#e40000", "#0a3a8c", "#1ab394", "#f8ac59", "#6f42c1", "#23c6c8", "#d63384", "#2f4050"];
+function OperatorLogo({ name }: { name: string }) {
+  const hash = [...name].reduce((h, c) => h + c.charCodeAt(0), 0);
+  const initials = name
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  return (
+    <span
+      className="flex h-9 w-9 items-center justify-center rounded-full text-[12px] font-bold text-white"
+      style={{ background: LOGO_COLOURS[hash % LOGO_COLOURS.length] }}
+      aria-hidden
+    >
+      {initials}
+    </span>
+  );
+}
+
+const slotBtn = "bg-brand-500 px-2.5 py-[7px] text-[12.5px] text-white hover:bg-brand-600 disabled:opacity-50 border-r border-brand-600 last:border-r-0";
+
+function SlotButtons({ disabled, busy, onClick }: { disabled: boolean; busy: number | null; onClick: (slot: number) => void }) {
+  return (
+    <div className="flex flex-wrap overflow-hidden rounded-[3px]">
+      {SLOTS.map((s) => (
+        <button key={s} type="button" disabled={disabled || busy !== null} onClick={() => onClick(s)} className={slotBtn}>
+          {busy === s ? "Updating…" : `Update API ${s}`}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ProviderSelect({ value, onChange, providers }: { value: string; onChange: (v: string) => void; providers: Provider[] }) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} className={`${compactInputClasses} min-w-44`}>
+      <option value="">- Select -</option>
+      {providers.map((p) => (
+        <option key={p.id} value={p.id}>
+          {p.name}
+        </option>
+      ))}
+    </select>
+  );
 }
 
 export function ProviderApiSettingPage() {
@@ -41,379 +87,366 @@ export function ProviderApiSettingPage() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [stopAll, setStopAll] = useState(false);
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   const [globalProviderId, setGlobalProviderId] = useState("");
-  const [globalBusySlot, setGlobalBusySlot] = useState<number | null>(null);
-
+  const [globalBusy, setGlobalBusy] = useState<number | null>(null);
   const [typeFilter, setTypeFilter] = useState("");
   const [typeProviderId, setTypeProviderId] = useState("");
-  const [typeBusySlot, setTypeBusySlot] = useState<number | null>(null);
-
+  const [typeBusy, setTypeBusy] = useState<number | null>(null);
   const [fromProviderId, setFromProviderId] = useState("");
   const [toProviderId, setToProviderId] = useState("");
-  const [switching, setSwitching] = useState(false);
-  const [message, setMessage] = useState("");
+  const [switchBusy, setSwitchBusy] = useState<number | null>(null);
+
+  const [searchType, setSearchType] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [searchApi, setSearchApi] = useState("");
+  const [applied, setApplied] = useState({ type: "", text: "", api: "" });
+
+  const [adding, setAdding] = useState(false);
 
   function load() {
-    setLoading(true);
-    Promise.all([
-      api.get("/operators", { params: { withMappings: 1 } }),
-      api.get("/providers"),
-      api.get("/settings/stopAllApiUsers"),
-    ]).then(([opRes, provRes, settingRes]) => {
-      setOperators(opRes.data.operators);
-      setProviders(provRes.data.providers);
-      setStopAll(settingRes.data.value === "true");
-      setLoading(false);
-    });
+    Promise.all([api.get("/operators", { params: { withMappings: 1 } }), api.get("/providers"), api.get("/settings/stopAllApiUsers")]).then(
+      ([opRes, provRes, settingRes]) => {
+        setOperators(opRes.data.operators);
+        setProviders(provRes.data.providers);
+        setStopAll(settingRes.data.value === "true");
+        setLoading(false);
+      }
+    );
   }
 
   useEffect(load, []);
 
+  const types = useMemo(() => Array.from(new Set(operators.map((o) => o.type))).sort(), [operators]);
+
+  const visible = operators.filter((o) => {
+    if (applied.type && o.type !== applied.type) return false;
+    if (applied.text) {
+      const q = applied.text.toLowerCase();
+      if (!o.name.toLowerCase().includes(q) && !o.code.toLowerCase().includes(q)) return false;
+    }
+    if (applied.api && !o.apiMappings.some((m) => m.apiProvider.id === applied.api)) return false;
+    return true;
+  });
+
+  async function guarded(fn: () => Promise<string>) {
+    setMessage(null);
+    try {
+      setMessage({ ok: true, text: await fn() });
+      load();
+    } catch (err) {
+      setMessage({ ok: false, text: errorText(err) });
+    }
+  }
+
   async function toggleStopAll() {
     const next = !stopAll;
+    if (next && !window.confirm("Stop ALL transactions platform-wide? Every recharge, bill payment, DMT and AEPS request will be rejected.")) return;
     setStopAll(next);
     await api.put("/settings/stopAllApiUsers", { value: next ? "true" : "false" });
   }
 
-  async function runGlobalUpdate(priority: number) {
-    if (!globalProviderId) return;
-    setGlobalBusySlot(priority);
-    setMessage("");
-    try {
-      const res = await api.post("/operators/global-api-update", { priority, apiProviderId: globalProviderId });
-      setMessage(`API ${priority} updated for ${res.data.updated} operators.`);
-      load();
-    } finally {
-      setGlobalBusySlot(null);
-    }
+  async function globalUpdate(slot: number) {
+    setGlobalBusy(slot);
+    await guarded(async () => {
+      const res = await api.post("/operators/global-api-update", { priority: slot, apiProviderId: globalProviderId });
+      return `API ${slot} set for ${res.data.updated} operator(s).`;
+    });
+    setGlobalBusy(null);
   }
 
-  async function runTypeUpdate(priority: number) {
-    if (!typeProviderId || !typeFilter) return;
-    setTypeBusySlot(priority);
-    setMessage("");
-    try {
-      const res = await api.post("/operators/global-api-update", {
-        priority,
-        apiProviderId: typeProviderId,
-        type: typeFilter,
-      });
-      setMessage(`API ${priority} updated for ${res.data.updated} ${typeFilter} operator(s).`);
-      load();
-    } finally {
-      setTypeBusySlot(null);
-    }
+  async function typeUpdate(slot: number) {
+    setTypeBusy(slot);
+    await guarded(async () => {
+      const res = await api.post("/operators/global-api-update", { priority: slot, apiProviderId: typeProviderId, type: typeFilter });
+      return `API ${slot} set for ${res.data.updated} ${typeFilter} operator(s).`;
+    });
+    setTypeBusy(null);
   }
 
-  async function runSwitch() {
-    if (!fromProviderId || !toProviderId) return;
-    setSwitching(true);
-    setMessage("");
-    try {
-      const res = await api.post("/operators/api-switch", {
-        fromApiProviderId: fromProviderId,
-        toApiProviderId: toProviderId,
-      });
-      setMessage(`Switched ${res.data.updated} mapping(s) across all operators.`);
-      load();
-    } finally {
-      setSwitching(false);
-    }
+  async function apiSwitch(slot: number) {
+    setSwitchBusy(slot);
+    await guarded(async () => {
+      const res = await api.post("/operators/api-switch", { fromApiProviderId: fromProviderId, toApiProviderId: toProviderId, priority: slot });
+      return `Switched API ${slot} on ${res.data.updated} operator(s).`;
+    });
+    setSwitchBusy(null);
+  }
+
+  async function assignSlot(o: Operator, slot: number, apiProviderId: string) {
+    const existing = o.apiMappings.find((m) => m.priority === slot);
+    await guarded(async () => {
+      if (!apiProviderId) {
+        // "STOP RECHARGE" = this slot is switched off.
+        if (existing) await api.patch(`/operators/mappings/${existing.id}`, { isActive: false });
+        return `${o.name}: API ${slot} stopped.`;
+      }
+      await api.put(`/operators/${o.id}/mappings`, { priority: slot, apiProviderId });
+      return `${o.name}: API ${slot} updated.`;
+    });
   }
 
   async function bulkStatus(isActive: boolean) {
-    await api.post("/operators/bulk-status", { isActive });
-    load();
+    if (!window.confirm(`${isActive ? "Enable" : "Disable"} ALL operators?`)) return;
+    await guarded(async () => {
+      const res = await api.post("/operators/bulk-status", { isActive });
+      return `${res.data.updated} operator(s) ${isActive ? "enabled" : "disabled"}.`;
+    });
   }
 
   async function toggleOperator(o: Operator) {
-    await api.patch(`/operators/${o.id}`, { isActive: !o.isActive });
-    load();
+    await guarded(async () => {
+      await api.patch(`/operators/${o.id}`, { isActive: !o.isActive });
+      return `${o.name} ${o.isActive ? "disabled" : "enabled"}.`;
+    });
   }
 
-  async function assignSlot(operatorId: string, priority: number, apiProviderId: string, existingMapping?: Mapping) {
-    if (!apiProviderId) {
-      // "STOP RECHARGE" selected: deactivate the existing slot rather than silently ignoring it.
-      if (existingMapping) {
-        await api.patch(`/operators/mappings/${existingMapping.id}`, { isActive: false });
-        load();
-      }
-      return;
-    }
-    await api.put(`/operators/${operatorId}/mappings`, { priority, apiProviderId });
-    load();
+  async function deleteOperator(o: Operator) {
+    if (!window.confirm(`Delete operator ${o.name}? This can't be undone.`)) return;
+    await guarded(async () => {
+      await api.delete(`/operators/${o.id}`);
+      return `${o.name} deleted.`;
+    });
   }
 
-  async function toggleSlot(mapping: Mapping) {
-    await api.patch(`/operators/mappings/${mapping.id}`, { isActive: !mapping.isActive });
-    load();
+  function search(e: FormEvent) {
+    e.preventDefault();
+    setApplied({ type: searchType, text: searchText.trim(), api: searchApi });
   }
 
   return (
     <div>
-      <PageHeader
-        title="Provider API Setting"
-        subtitle="Configure failover routing for every operator, in bulk, from one screen."
-      />
+      <PageHeader title="Provider API Setting" />
 
-      <div className="flex flex-col gap-6">
-        <Card className="p-6">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
-              <OctagonAlert size={18} />
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-ink-900">Stop All API Users</div>
-              <div className="text-xs text-ink-500">
-                Instantly blocks every recharge/BBPS/DMT/AEPS transaction platform-wide.
-              </div>
-            </div>
-          </div>
-          <label className="flex items-center gap-2 text-sm font-medium text-ink-700">
-            <input type="checkbox" checked={stopAll} onChange={toggleStopAll} className="h-4 w-4" />
-            {stopAll ? "Stopped — all transactions are being rejected" : "Running normally"}
-          </label>
-        </Card>
+      <Panel title="Stop All Api Users" bodyClassName="px-3 py-2.5">
+        <label className="flex items-center gap-1.5 text-[12.5px]">
+          <input type="checkbox" checked={stopAll} onChange={toggleStopAll} />
+          Stop All Api Users
+          {stopAll && <span className="ml-2 font-bold text-[#ed5565]">— all transactions are currently being rejected</span>}
+        </label>
+      </Panel>
 
-        <Card className="p-6">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-              <RefreshCw size={18} />
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-ink-900">Global API Update</div>
-              <div className="text-xs text-ink-500">
-                Assign one provider to a slot across every operator at once.
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-end gap-3">
-            <FormField label="Provider">
-              <select
-                value={globalProviderId}
-                onChange={(e) => setGlobalProviderId(e.target.value)}
-                className={`${compactInputClasses} min-w-55`}
-              >
-                <option value="">- Select -</option>
-                {providers.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.code})
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            {PRIORITY_SLOTS.map((slot) => (
-              <Button
-                key={slot}
-                variant="secondary"
-                disabled={!globalProviderId}
-                loading={globalBusySlot === slot}
-                onClick={() => runGlobalUpdate(slot)}
-              >
-                Update API {slot}
-              </Button>
-            ))}
-          </div>
-        </Card>
+      <Panel title="Global API Update" bodyClassName="flex flex-wrap items-center gap-2 px-3 py-2.5">
+        <span className="text-[12.5px] font-bold">API:</span>
+        <ProviderSelect value={globalProviderId} onChange={setGlobalProviderId} providers={providers} />
+        <SlotButtons disabled={!globalProviderId} busy={globalBusy} onClick={globalUpdate} />
+      </Panel>
 
-        <Card className="p-6">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-              <Filter size={18} />
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-ink-900">Set API Provider Wise</div>
-              <div className="text-xs text-ink-500">
-                Same bulk assignment, but scoped to just one operator type (e.g. only AEPS) instead of every operator.
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-end gap-3">
-            <FormField label="Provider Type">
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className={`${compactInputClasses} min-w-40`}
-              >
-                <option value="">- Select -</option>
-                {operatorTypes(operators).map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            <FormField label="Provider">
-              <select
-                value={typeProviderId}
-                onChange={(e) => setTypeProviderId(e.target.value)}
-                className={`${compactInputClasses} min-w-55`}
-              >
-                <option value="">- Select -</option>
-                {providers.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.code})
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            {PRIORITY_SLOTS.map((slot) => (
-              <Button
-                key={slot}
-                variant="secondary"
-                disabled={!typeProviderId || !typeFilter}
-                loading={typeBusySlot === slot}
-                onClick={() => runTypeUpdate(slot)}
-              >
-                Update API {slot}
-              </Button>
-            ))}
-          </div>
-        </Card>
+      <Panel title="Set API Provider wise" bodyClassName="flex flex-wrap items-center gap-2 px-3 py-2.5">
+        <span className="text-[12.5px] font-bold">Provider Type:</span>
+        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={`${compactInputClasses} min-w-40`}>
+          <option value="">- Select -</option>
+          {types.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+        <span className="text-[12.5px] font-bold">API:</span>
+        <ProviderSelect value={typeProviderId} onChange={setTypeProviderId} providers={providers} />
+        <SlotButtons disabled={!typeFilter || !typeProviderId} busy={typeBusy} onClick={typeUpdate} />
+      </Panel>
 
-        <Card className="p-6">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-              <Shuffle size={18} />
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-ink-900">Api to Api Switch</div>
-              <div className="text-xs text-ink-500">
-                Replace one provider with another everywhere it's currently assigned (any slot, any operator).
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-end gap-3">
-            <FormField label="From API">
-              <select
-                value={fromProviderId}
-                onChange={(e) => setFromProviderId(e.target.value)}
-                className={`${compactInputClasses} min-w-50`}
-              >
-                <option value="">- Select -</option>
-                {providers.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.code})
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            <FormField label="To API">
-              <select
-                value={toProviderId}
-                onChange={(e) => setToProviderId(e.target.value)}
-                className={`${compactInputClasses} min-w-50`}
-              >
-                <option value="">- Select -</option>
-                {providers.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.code})
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            <Button
-              variant="secondary"
-              disabled={!fromProviderId || !toProviderId}
-              loading={switching}
-              onClick={runSwitch}
-            >
-              Switch
-            </Button>
-          </div>
-        </Card>
+      <Panel title="Api to Api Switch" bodyClassName="flex flex-wrap items-center gap-2 px-3 py-2.5">
+        <span className="text-[12.5px] font-bold">From API:</span>
+        <ProviderSelect value={fromProviderId} onChange={setFromProviderId} providers={providers} />
+        <span className="text-[12.5px] font-bold">To API:</span>
+        <ProviderSelect value={toProviderId} onChange={setToProviderId} providers={providers} />
+        <SlotButtons disabled={!fromProviderId || !toProviderId || fromProviderId === toProviderId} busy={switchBusy} onClick={apiSwitch} />
+      </Panel>
 
-        {message && (
-          <div className="rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700">
-            {message}
-          </div>
-        )}
-
-        <div>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-500">Operators</h2>
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => bulkStatus(true)}>
-                Enable All Operators
-              </Button>
-              <Button variant="secondary" onClick={() => bulkStatus(false)}>
-                Disable All Operators
-              </Button>
-            </div>
-          </div>
-
-          {loading ? null : (
-            <Table>
-              <THead>
-                <Th>Name</Th>
-                <Th>Code</Th>
-                <Th>Type</Th>
-                {PRIORITY_SLOTS.map((s) => (
-                  <Th key={s}>API {s}</Th>
-                ))}
-                <Th>Status</Th>
-                <Th />
-              </THead>
-              <tbody>
-                {operators.map((o) => (
-                  <Tr key={o.id}>
-                    <Td className="font-medium text-ink-900">{o.name}</Td>
-                    <Td className="font-mono text-xs text-ink-500">{o.code}</Td>
-                    <Td className="text-ink-500">{o.type}</Td>
-                    {PRIORITY_SLOTS.map((s) => {
-                      const m = o.apiMappings.find((x) => x.priority === s);
-                      return (
-                        <Td key={s} className="text-ink-500">
-                          <div className="flex items-center gap-1">
-                            <select
-                              value={m?.apiProvider.id ?? ""}
-                              onChange={(e) => assignSlot(o.id, s, e.target.value, m)}
-                              className="w-28 rounded border border-ink-200 bg-white px-1 py-1 text-[11px] outline-none focus:border-brand-500"
-                            >
-                              <option value="">STOP RECHARGE</option>
-                              {providers.map((p) => (
-                                <option key={p.id} value={p.id}>{p.code}</option>
-                              ))}
-                            </select>
-                            {m && (
-                              <button
-                                onClick={() => toggleSlot(m)}
-                                title={m.isActive ? "Active — click to disable" : "Disabled — click to enable"}
-                                className={`h-2.5 w-2.5 shrink-0 rounded-full ${m.isActive ? "bg-emerald-500" : "bg-ink-300"}`}
-                              />
-                            )}
-                          </div>
-                        </Td>
-                      );
-                    })}
-                    <Td>
-                      <button
-                        onClick={() => toggleOperator(o)}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset transition-colors ${
-                          o.isActive
-                            ? "bg-emerald-50 text-emerald-700 ring-emerald-600/20 hover:bg-emerald-100"
-                            : "bg-ink-100 text-ink-500 ring-ink-500/20 hover:bg-ink-200"
-                        }`}
-                      >
-                        {o.isActive ? "Active" : "Inactive"}
-                      </button>
-                    </Td>
-                    <Td className="text-right">
-                      <Link
-                        to={`/operators/${o.id}`}
-                        className="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
-                      >
-                        Manage <ChevronRight size={14} />
-                      </Link>
-                    </Td>
-                  </Tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
+      {message && (
+        <div
+          className={`mb-4 flex items-center justify-between rounded-sm px-3 py-2 text-[12.5px] ${
+            message.ok ? "bg-row-success text-[#3c763d]" : "bg-row-failed text-[#a94442]"
+          }`}
+        >
+          {message.text}
+          <button onClick={() => setMessage(null)}>✕</button>
         </div>
-      </div>
+      )}
+
+      <h2 className="mb-2 text-[17px] text-ink-800">Operators</h2>
+      <form onSubmit={search} className="mb-2 flex flex-wrap items-center gap-2 text-[12.5px]">
+        <span className="font-bold">Search Operator:</span>
+        <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className={`${compactInputClasses} min-w-36`}>
+          <option value="">All types</option>
+          {types.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+        <span className="text-ink-500">And</span>
+        <input value={searchText} onChange={(e) => setSearchText(e.target.value)} className={`${compactInputClasses} w-44`} placeholder="Name or code" />
+        <span className="text-ink-500">Or</span>
+        <ProviderSelect value={searchApi} onChange={setSearchApi} providers={providers} />
+        <button type="submit" className="rounded-[3px] bg-brand-500 px-3 py-[6px] text-white hover:bg-brand-600">
+          Search
+        </button>
+        <button type="button" onClick={() => bulkStatus(true)} className="rounded-[3px] border border-ink-200 bg-ink-50 px-2.5 py-[5px] hover:bg-ink-100">
+          Enable All Operators
+        </button>
+        <button type="button" onClick={() => bulkStatus(false)} className="rounded-[3px] border border-ink-200 bg-ink-50 px-2.5 py-[5px] hover:bg-ink-100">
+          Disable All Operators
+        </button>
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="ml-auto rounded-[3px] bg-brand-500 px-3 py-[6px] text-white hover:bg-brand-600"
+        >
+          Add Operator
+        </button>
+      </form>
+
+      {loading ? null : (
+        <Table>
+          <THead>
+            <Th>S#</Th>
+            <Th />
+            <Th>Code</Th>
+            <Th>Logo</Th>
+            <Th>Provider</Th>
+            <Th>providertype</Th>
+            {SLOTS.map((s) => (
+              <Th key={s}>API {s}</Th>
+            ))}
+            <Th>Status</Th>
+            <Th>Delete</Th>
+          </THead>
+          <tbody>
+            {visible.length === 0 ? (
+              <Tr>
+                <Td colSpan={13} className="py-8 text-center text-ink-400">
+                  No operators match this search.
+                </Td>
+              </Tr>
+            ) : (
+              visible.map((o, i) => (
+                <Tr key={o.id}>
+                  <Td>{i + 1}</Td>
+                  <Td>
+                    <Link to={`/operators/${o.id}`} className="text-[#337ab7] hover:underline">
+                      Edit
+                    </Link>
+                  </Td>
+                  <Td className="font-mono">{o.code}</Td>
+                  <Td>
+                    <OperatorLogo name={o.name} />
+                  </Td>
+                  <Td>{o.name}</Td>
+                  <Td className="capitalize">{o.type.toLowerCase()}</Td>
+                  {SLOTS.map((s) => {
+                    const m = o.apiMappings.find((x) => x.priority === s);
+                    const value = m && m.isActive ? m.apiProvider.id : "";
+                    return (
+                      <Td key={s}>
+                        <select
+                          value={value}
+                          onChange={(e) => assignSlot(o, s, e.target.value)}
+                          className={`w-32 border-0 bg-transparent py-0.5 text-[12px] uppercase outline-none focus:ring-1 focus:ring-brand-500 ${
+                            value ? "text-ink-800" : "text-ink-400"
+                          }`}
+                          aria-label={`${o.name} API ${s}`}
+                        >
+                          <option value="">STOP RECHARGE</option>
+                          {providers.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
+                      </Td>
+                    );
+                  })}
+                  <Td>
+                    <button
+                      onClick={() => toggleOperator(o)}
+                      className={`rounded-[3px] px-2 py-[2px] text-[11px] font-semibold text-white ${o.isActive ? "bg-brand-500" : "bg-ink-400"}`}
+                    >
+                      {o.isActive ? "Enabled" : "Disabled"}
+                    </button>
+                  </Td>
+                  <Td>
+                    <button
+                      onClick={() => deleteOperator(o)}
+                      className="flex h-7 w-7 items-center justify-center rounded-[3px] bg-[#ed5565] text-white hover:bg-[#da4453]"
+                      aria-label={`Delete ${o.name}`}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </Td>
+                </Tr>
+              ))
+            )}
+          </tbody>
+        </Table>
+      )}
+
+      {adding && (
+        <AddOperatorModal
+          types={types}
+          onClose={() => setAdding(false)}
+          onSaved={(name) => {
+            setAdding(false);
+            setMessage({ ok: true, text: `${name} added. Assign its APIs in the table below.` });
+            load();
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+function AddOperatorModal({ types, onClose, onSaved }: { types: string[]; onClose: () => void; onSaved: (name: string) => void }) {
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
+  const [type, setType] = useState(types[0] ?? "PREPAID");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      await api.post("/operators", { name: name.trim(), code: code.trim(), type: type.trim().toUpperCase() });
+      onSaved(name.trim());
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Modal title="Add Operator" onClose={onClose}>
+      <form onSubmit={save} className="flex flex-col gap-3">
+        <FormField label="Operator name">
+          <input value={name} onChange={(e) => setName(e.target.value)} className={inputClasses} required minLength={2} placeholder="e.g. Jio Express" />
+        </FormField>
+        <FormField label="Code (SMS code)" hint="Short unique code, used in API requests and SMS — e.g. JIOX">
+          <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} className={inputClasses} required minLength={2} />
+        </FormField>
+        <FormField label="Provider type">
+          <input value={type} onChange={(e) => setType(e.target.value)} list="operator-types" className={inputClasses} required />
+          <datalist id="operator-types">
+            {types.map((t) => (
+              <option key={t} value={t} />
+            ))}
+          </datalist>
+        </FormField>
+        {error && <div className="rounded-sm bg-row-failed px-3 py-2 text-[12.5px] text-[#a94442]">{error}</div>}
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" loading={saving}>
+            Save
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

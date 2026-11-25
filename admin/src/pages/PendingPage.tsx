@@ -1,217 +1,189 @@
-import { useCallback, useEffect, useState } from "react";
-import { Clock, CheckCircle2, XCircle, RefreshCw, Code2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { Navigate } from "react-router-dom";
 import { api } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import { PageHeader } from "../components/ui/PageHeader";
-import { Card } from "../components/ui/Card";
-import { EmptyState } from "../components/ui/EmptyState";
-import { Modal } from "../components/ui/Modal";
 import { compactInputClasses } from "../components/ui/FormField";
-import { Table, THead, Th, Td, Tr } from "../components/ui/Table";
+import { TxnTable } from "../components/txn/TxnTable";
+import { TxnActionModal, TxnResponseModal } from "../components/txn/TxnModals";
+import { BulkActionBar } from "../components/txn/BulkActionBar";
+import { inr, type AdminTxn, type OperatorOption, type ProviderOption } from "../components/txn/types";
 
-interface PendingTxn {
-  id: string;
-  type: string;
-  identifier: string;
-  amount: string;
-  providerRefId: string | null;
-  apiResponse: Record<string, unknown> | null;
-  operator: { id: string; name: string };
-  apiProvider: { id: string; name: string };
-  user: { name: string; phone: string };
-  createdAt: string;
+const REFRESH_SECONDS = 7;
+const STALE_MINUTES = 30;
+
+// Pending rows older than STALE_MINUTES are highlighted red: those are the ones a provider
+// has most likely dropped and that need a manual Action or Send to API.
+function pendingTint(t: AdminTxn) {
+  const ageMin = (Date.now() - new Date(t.createdAt).getTime()) / 60000;
+  return ageMin > STALE_MINUTES ? "bg-row-failed" : "bg-row-success";
 }
 
-interface Operator {
-  id: string;
-  name: string;
-}
-
-interface Provider {
-  id: string;
-  name: string;
-}
-
-function ageMinutes(createdAt: string) {
-  return (Date.now() - new Date(createdAt).getTime()) / 60000;
-}
-
-function rowTone(createdAt: string) {
-  const mins = ageMinutes(createdAt);
-  if (mins > 30) return "bg-rose-50/60";
-  if (mins > 10) return "bg-amber-50/60";
-  return "bg-emerald-50/40";
-}
-
+// Pendings is a manager tool; retailers who open the URL directly see their own history.
 export function PendingPage() {
-  const [pending, setPending] = useState<PendingTxn[]>([]);
-  const [operators, setOperators] = useState<Operator[]>([]);
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [userSearch, setUserSearch] = useState("");
+  const { user } = useAuth();
+  if (user?.role === "RETAILER") return <Navigate to="/transactions?status=PENDING" replace />;
+  return <PendingScreen isAdmin={user?.role === "ADMIN"} />;
+}
+
+function PendingScreen({ isAdmin }: { isAdmin: boolean }) {
+
+  const [userQuery, setUserQuery] = useState("");
   const [operatorId, setOperatorId] = useState("");
   const [apiProviderId, setApiProviderId] = useState("");
+  const [applied, setApplied] = useState({ user: "", operatorId: "", apiProviderId: "" });
+
+  const [rows, setRows] = useState<AdminTxn[]>([]);
+  const [totalAmount, setTotalAmount] = useState("0");
+  const [loaded, setLoaded] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [operators, setOperators] = useState<OperatorOption[]>([]);
+  const [providers, setProviders] = useState<ProviderOption[]>([]);
+  const [acting, setActing] = useState<AdminTxn | null>(null);
+  const [viewing, setViewing] = useState<AdminTxn | null>(null);
+  const [message, setMessage] = useState("");
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [viewing, setViewing] = useState<PendingTxn | null>(null);
+  const [countdown, setCountdown] = useState(REFRESH_SECONDS);
+  const modalOpen = useRef(false);
+  modalOpen.current = Boolean(acting || viewing);
+
+  useEffect(() => {
+    api.get("/operators").then((res) => setOperators(res.data.operators)).catch(() => {});
+    if (isAdmin) api.get("/providers").then((res) => setProviders(res.data.providers)).catch(() => {});
+  }, [isAdmin]);
 
   const load = useCallback(() => {
-    api.get("/recharge/pending", { params: { operatorId, apiProviderId } }).then((res) => {
-      setPending(res.data.transactions);
-      setLoading(false);
-    });
-  }, [operatorId, apiProviderId]);
+    api
+      .get("/admin/transactions", {
+        params: { status: "PENDING", order: "asc", disablePaging: "1", ...Object.fromEntries(Object.entries(applied).filter(([, v]) => v)) },
+      })
+      .then((res) => {
+        const list: AdminTxn[] = res.data.transactions;
+        setRows(list);
+        setTotalAmount(res.data.summary.PENDING.amount);
+        // Keep ticks only on rows that are still pending.
+        setSelected((s) => new Set([...s].filter((id) => list.some((t) => t.id === id))));
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, [applied]);
 
-  const visible = pending.filter((t) => {
-    const q = userSearch.trim().toLowerCase();
-    if (!q) return true;
-    return t.user.name.toLowerCase().includes(q) || t.user.phone.includes(q);
-  });
-  const totalPending = visible.reduce((sum, t) => sum + Number(t.amount), 0);
+  useEffect(load, [load]);
 
-  useEffect(() => {
-    api.get("/operators").then((res) => setOperators(res.data.operators));
-    api.get("/providers").then((res) => setProviders(res.data.providers)).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    load();
-  }, [load]);
-
+  // "Refresh seconds: N" — counts down and reloads, paused while a dialog is open so
+  // the row being worked on doesn't vanish underneath the operator.
   useEffect(() => {
     if (!autoRefresh) return;
-    const id = setInterval(load, 7000);
+    const id = setInterval(() => {
+      if (modalOpen.current) return;
+      setCountdown((c) => {
+        if (c <= 1) {
+          load();
+          return REFRESH_SECONDS;
+        }
+        return c - 1;
+      });
+    }, 1000);
     return () => clearInterval(id);
   }, [autoRefresh, load]);
 
-  async function resolve(id: string, outcome: "SUCCESS" | "FAILED") {
-    await api.post(`/recharge/${id}/resolve`, { outcome });
-    load();
+  function search(e: FormEvent) {
+    e.preventDefault();
+    setApplied({ user: userQuery.trim(), operatorId, apiProviderId });
+    setCountdown(REFRESH_SECONDS);
   }
 
   return (
     <div>
-      <PageHeader
-        title="Pending Transactions"
-        subtitle="Transactions your providers never confirmed. Resolve them manually once you've verified the real outcome."
-      />
+      <PageHeader title="Pendings" />
 
-      <Card className="mb-4 flex flex-wrap items-end gap-3 p-4">
-        <label className="flex flex-col gap-1 text-xs font-medium text-ink-500">
-          User
-          <input
-            value={userSearch}
-            onChange={(e) => setUserSearch(e.target.value)}
-            placeholder="Name or phone"
-            className={`${compactInputClasses} w-44`}
-          />
+      <form onSubmit={search} className="mb-4 flex flex-wrap items-end gap-4 rounded-sm border border-ink-200 bg-white p-4">
+        <label className="flex flex-col gap-1">
+          <span className="text-[12.5px] font-bold">User</span>
+          <input value={userQuery} onChange={(e) => setUserQuery(e.target.value)} className={`${compactInputClasses} w-52`} placeholder="Name or mobile" />
         </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-ink-500">
-          Provider
-          <select value={apiProviderId} onChange={(e) => setApiProviderId(e.target.value)} className={`${compactInputClasses} w-auto`}>
-            <option value="">All</option>
-            {providers.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-ink-500">
-          API / Operator
-          <select value={operatorId} onChange={(e) => setOperatorId(e.target.value)} className={`${compactInputClasses} w-auto`}>
-            <option value="">All</option>
+        <label className="flex flex-col gap-1">
+          <span className="text-[12.5px] font-bold">Provider</span>
+          <select value={operatorId} onChange={(e) => setOperatorId(e.target.value)} className={`${compactInputClasses} w-52`}>
+            <option value="">Select</option>
             {operators.map((o) => (
-              <option key={o.id} value={o.id}>{o.name}</option>
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
             ))}
           </select>
         </label>
-        <button onClick={load} className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
+        {isAdmin && (
+          <label className="flex flex-col gap-1">
+            <span className="text-[12.5px] font-bold">API</span>
+            <select value={apiProviderId} onChange={(e) => setApiProviderId(e.target.value)} className={`${compactInputClasses} w-52`}>
+              <option value="">ALL</option>
+              {providers.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        <button type="submit" className="rounded-[3px] bg-brand-500 px-3 py-[6px] text-[12.5px] text-white hover:bg-brand-600">
           Search
         </button>
-        <label className="ml-auto flex items-center gap-2 text-sm font-medium text-ink-600">
+        <label className="flex items-center gap-1.5 pb-1.5 text-[12.5px]">
           <input type="checkbox" checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} />
-          <RefreshCw size={14} className={autoRefresh ? "animate-spin" : ""} style={autoRefresh ? { animationDuration: "3s" } : {}} />
-          Refresh seconds: 7
+          Refresh seconds: {autoRefresh ? countdown : "off"}
         </label>
-      </Card>
+      </form>
 
-      {!loading && (
-        <div className="mb-4 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-bold text-white">
-          P: ₹{totalPending.toFixed(2)}
+      <div className="mb-2 rounded-sm border border-ink-200 bg-white px-4 py-3">
+        <BulkActionBar
+          selectedIds={[...selected]}
+          providers={providers}
+          canSendToApi={isAdmin}
+          onDone={(m) => {
+            setMessage(m);
+            load();
+          }}
+        />
+      </div>
+
+      {message && (
+        <div className="mb-2 flex items-center justify-between rounded-sm bg-row-success px-3 py-2 text-[12.5px] text-[#3c763d]">
+          {message}
+          <button onClick={() => setMessage("")}>✕</button>
         </div>
       )}
 
-      {loading ? null : visible.length === 0 ? (
-        <Card>
-          <EmptyState icon={<Clock size={22} />} message="Nothing pending. Everything has settled." />
-        </Card>
+      <div className="mb-2 flex items-center justify-center">
+        <span className="rounded-[3px] bg-[#f8ac59] px-2 py-[3px] text-[12px] font-bold text-white">
+          P: {inr(totalAmount)} ({rows.length})
+        </span>
+      </div>
+
+      {!loaded ? null : rows.length === 0 ? (
+        <div className="rounded-sm border border-ink-200 bg-white py-12 text-center text-ink-500">Nothing pending — every transaction has settled.</div>
       ) : (
-        <Table>
-          <THead>
-            <Th>User</Th>
-            <Th>Type</Th>
-            <Th>Mobile / Consumer #</Th>
-            <Th>Operator</Th>
-            <Th>Provider</Th>
-            <Th>Amount</Th>
-            <Th>Age</Th>
-            <Th>Action</Th>
-          </THead>
-          <tbody>
-            {visible.map((t) => {
-              const mins = ageMinutes(t.createdAt);
-              return (
-                <Tr key={t.id} className={rowTone(t.createdAt)}>
-                  <Td className="font-medium text-ink-900">
-                    {t.user.name}
-                    <div className="text-xs text-ink-400">{t.user.phone}</div>
-                  </Td>
-                  <Td>{t.type}</Td>
-                  <Td>{t.identifier}</Td>
-                  <Td>{t.operator.name}</Td>
-                  <Td className="text-ink-500">{t.apiProvider.name}</Td>
-                  <Td>₹{t.amount}</Td>
-                  <Td className="text-ink-500">{mins < 60 ? `${Math.floor(mins)}m` : `${Math.floor(mins / 60)}h ${Math.floor(mins % 60)}m`}</Td>
-                  <Td>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => resolve(t.id, "SUCCESS")}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                        title="Mark Success"
-                      >
-                        <CheckCircle2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => resolve(t.id, "FAILED")}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100"
-                        title="Mark Failed (refunds the user)"
-                      >
-                        <XCircle size={16} />
-                      </button>
-                      <button
-                        onClick={() => setViewing(t)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink-100 text-ink-500 hover:bg-ink-200"
-                        title="View raw provider response"
-                      >
-                        <Code2 size={16} />
-                      </button>
-                    </div>
-                  </Td>
-                </Tr>
-              );
-            })}
-          </tbody>
-        </Table>
+        <TxnTable
+          transactions={rows}
+          selected={selected}
+          onToggle={(id) =>
+            setSelected((s) => {
+              const next = new Set(s);
+              if (next.has(id)) next.delete(id);
+              else next.add(id);
+              return next;
+            })
+          }
+          onToggleAll={(checked) => setSelected(checked ? new Set(rows.map((r) => r.id)) : new Set())}
+          onAction={setActing}
+          onResponse={setViewing}
+          showApiBalance={isAdmin}
+          rowTint={pendingTint}
+        />
       )}
 
-      {viewing && (
-        <Modal title={`Provider Response — ${viewing.identifier}`} onClose={() => setViewing(null)}>
-          <div className="mb-3 text-xs text-ink-500">
-            Provider Ref: <span className="font-mono text-ink-700">{viewing.providerRefId ?? "—"}</span>
-          </div>
-          <pre className="overflow-x-auto rounded-lg bg-ink-50 p-4 text-xs text-ink-700">
-            {viewing.apiResponse ? JSON.stringify(viewing.apiResponse, null, 2) : "No response recorded yet — the provider hasn't answered."}
-          </pre>
-        </Modal>
-      )}
+      {acting && <TxnActionModal txn={acting} onClose={() => setActing(null)} onDone={load} />}
+      {viewing && <TxnResponseModal txn={viewing} onClose={() => setViewing(null)} />}
     </div>
   );
 }

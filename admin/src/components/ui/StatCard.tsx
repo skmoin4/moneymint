@@ -13,20 +13,18 @@ export function StatCard({
   tone?: "brand" | "emerald" | "rose" | "amber";
 }) {
   const toneClasses: Record<string, string> = {
-    brand: "bg-brand-50 text-brand-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-    rose: "bg-rose-50 text-rose-600",
-    amber: "bg-amber-50 text-amber-600",
+    brand: "bg-brand-500 text-white",
+    emerald: "bg-[#1c84c6] text-white",
+    rose: "bg-[#ed5565] text-white",
+    amber: "bg-[#f8ac59] text-white",
   };
 
   return (
-    <Card className="flex items-center gap-4 p-5">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${toneClasses[tone]}`}>
-        {icon}
-      </div>
+    <Card className="flex items-center gap-3 p-3">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-sm ${toneClasses[tone]}`}>{icon}</div>
       <div className="min-w-0">
-        <div className="text-xs font-medium text-ink-500">{label}</div>
-        <div className="mt-0.5 truncate text-xl font-bold text-ink-900">{value}</div>
+        <div className="text-[12px] text-ink-500">{label}</div>
+        <div className="truncate text-[18px] font-semibold text-ink-800">{value}</div>
       </div>
     </Card>
   );

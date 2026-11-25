@@ -1,6 +1,6 @@
 import { prisma } from "../config/prisma";
 import { HttpError } from "../utils/httpError";
-import { processProviderTransaction } from "./transactionEngine";
+import { processProviderTransaction, type TransactionSource } from "./transactionEngine";
 
 const DMT_OPERATOR_CODE = "DMT";
 const UNVERIFIED_REMITTER_LIMIT = 5000;
@@ -39,7 +39,8 @@ export async function transferToBeneficiary(
   remitterId: string,
   beneficiaryId: string,
   amount: number,
-  mode: "IMPS" | "NEFT"
+  mode: "IMPS" | "NEFT",
+  source: TransactionSource = "APP"
 ) {
   const remitter = await prisma.remitter.findUnique({ where: { id: remitterId } });
   if (!remitter || remitter.userId !== userId) {
@@ -67,6 +68,7 @@ export async function transferToBeneficiary(
     identifier: `${beneficiary.accountNumber} - ${beneficiary.name}`,
     amount,
     transactionType: "DMT",
+    source,
     descriptionLabel: `Money transfer (${mode})`,
   });
 }

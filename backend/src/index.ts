@@ -29,6 +29,7 @@ import { dashboardRouter } from "./routes/dashboard";
 import { plansRouter } from "./routes/plans";
 import { cashbackRouter } from "./routes/cashback";
 import { paymentGatewayRouter } from "./routes/paymentGateway";
+import { adminTransactionsRouter } from "./routes/adminTransactions";
 import { errorHandler } from "./middleware/errorHandler";
 import { authLimiter, apiLimiter } from "./middleware/rateLimiters";
 
@@ -73,6 +74,7 @@ app.use("/manual-txn", manualTxnRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/plans", plansRouter);
 app.use("/cashback-offers", cashbackRouter);
+app.use("/admin/transactions", adminTransactionsRouter);
 
 app.use(errorHandler);
 

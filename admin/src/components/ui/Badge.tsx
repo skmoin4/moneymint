@@ -1,45 +1,46 @@
 import type { ReactNode } from "react";
-import { CheckCircle2, XCircle, Clock, RotateCcw, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 
 type Variant = "success" | "danger" | "warning" | "neutral" | "info";
 
 const VARIANT_CLASSES: Record<Variant, string> = {
-  success: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
-  danger: "bg-rose-50 text-rose-700 ring-rose-600/20",
-  warning: "bg-amber-50 text-amber-700 ring-amber-600/20",
-  neutral: "bg-ink-100 text-ink-600 ring-ink-500/20",
-  info: "bg-brand-50 text-brand-700 ring-brand-600/20",
+  success: "bg-brand-500 text-white",
+  danger: "bg-[#ed5565] text-white",
+  warning: "bg-[#f8ac59] text-white",
+  neutral: "bg-ink-200 text-ink-600",
+  info: "bg-[#23c6c8] text-white",
 };
 
-const STATUS_MAP: Record<string, { variant: Variant; icon?: ReactNode }> = {
-  SUCCESS: { variant: "success", icon: <CheckCircle2 size={13} /> },
-  ACTIVE: { variant: "success", icon: <CheckCircle2 size={13} /> },
-  APPROVED: { variant: "success", icon: <CheckCircle2 size={13} /> },
-  FAILED: { variant: "danger", icon: <XCircle size={13} /> },
-  SUSPENDED: { variant: "danger", icon: <XCircle size={13} /> },
-  REJECTED: { variant: "danger", icon: <XCircle size={13} /> },
-  PENDING: { variant: "warning", icon: <Clock size={13} /> },
-  REFUNDED: { variant: "warning", icon: <RotateCcw size={13} /> },
-  INACTIVE: { variant: "neutral" },
-  CREDIT: { variant: "success", icon: <ArrowDownCircle size={13} /> },
-  DEBIT: { variant: "danger", icon: <ArrowUpCircle size={13} /> },
+const STATUS_MAP: Record<string, Variant> = {
+  SUCCESS: "success",
+  ACTIVE: "success",
+  APPROVED: "success",
+  PAID: "success",
+  RESOLVED: "success",
+  CREDIT: "success",
+  FAILED: "danger",
+  SUSPENDED: "danger",
+  REJECTED: "danger",
+  DEBIT: "danger",
+  PENDING: "warning",
+  OPEN: "warning",
+  IN_PROGRESS: "info",
+  REFUNDED: "info",
+  INACTIVE: "neutral",
+  CLOSED: "neutral",
 };
 
 export function Badge({
   children,
   variant,
+  icon,
 }: {
   children: string;
   variant?: Variant;
+  icon?: ReactNode;
 }) {
-  const mapped = STATUS_MAP[children];
-  const v = variant ?? mapped?.variant ?? "neutral";
-  const icon = mapped?.icon;
-
+  const v = variant ?? STATUS_MAP[children] ?? "neutral";
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10.5px] font-bold ring-1 ring-inset ${VARIANT_CLASSES[v]}`}
-    >
+    <span className={`inline-flex items-center gap-1 rounded-[3px] px-1.5 py-[1px] text-[11px] font-semibold ${VARIANT_CLASSES[v]}`}>
       {icon}
       {children.replace(/_/g, " ")}
     </span>

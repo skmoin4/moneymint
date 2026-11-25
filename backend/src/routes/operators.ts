@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { authenticate, authorize } from "../middleware/auth";
 import { HttpError } from "../utils/httpError";
+import { PROVIDER_PUBLIC_SELECT } from "../utils/providerSelect";
 
 export const operatorsRouter = Router();
 
@@ -17,7 +18,7 @@ operatorsRouter.get("/", async (req, res) => {
     where: activeOnly ? { isActive: true } : undefined,
     orderBy: { name: "asc" },
     ...(withMappings
-      ? { include: { apiMappings: { include: { apiProvider: true }, orderBy: { priority: "asc" as const } } } }
+      ? { include: { apiMappings: { include: { apiProvider: { select: PROVIDER_PUBLIC_SELECT } }, orderBy: { priority: "asc" as const } } } }
       : {}),
   });
   res.json({ operators });
@@ -77,7 +78,7 @@ operatorsRouter.get("/:id", authorize("ADMIN"), async (req, res) => {
     where: { id: String(req.params.id) },
     include: {
       apiMappings: {
-        include: { apiProvider: true },
+        include: { apiProvider: { select: PROVIDER_PUBLIC_SELECT } },
         orderBy: { priority: "asc" },
       },
     },
@@ -124,6 +125,25 @@ operatorsRouter.patch("/:id", authorize("ADMIN"), async (req, res) => {
 });
 
 const bulkStatusSchema = z.object({ isActive: z.boolean() });
+
+// Delete an operator that was never used. Operators with transaction history can only be
+// disabled — deleting them would orphan reports and the ledger trail.
+operatorsRouter.delete("/:id", authorize("ADMIN"), async (req, res) => {
+  const id = String(req.params.id);
+  const used = await prisma.transaction.count({ where: { operatorId: id } });
+  if (used > 0) {
+    throw new HttpError(409, `This operator has ${used} transaction(s) and can't be deleted — disable it instead`);
+  }
+  await prisma.$transaction([
+    prisma.operatorApiMapping.deleteMany({ where: { operatorId: id } }),
+    prisma.commissionSlab.deleteMany({ where: { operatorId: id } }),
+    prisma.operatorPrefix.deleteMany({ where: { operatorId: id } }),
+    prisma.rechargePlan.deleteMany({ where: { operatorId: id } }),
+    prisma.cashbackOffer.deleteMany({ where: { operatorId: id } }),
+    prisma.operator.delete({ where: { id } }),
+  ]);
+  res.status(204).send();
+});
 
 operatorsRouter.post("/bulk-status", authorize("ADMIN"), async (req, res) => {
   const parsed = bulkStatusSchema.safeParse(req.body);
@@ -174,6 +194,9 @@ operatorsRouter.post("/global-api-update", authorize("ADMIN"), async (req, res) 
 const apiSwitchSchema = z.object({
   fromApiProviderId: z.string().uuid(),
   toApiProviderId: z.string().uuid(),
+  // Omit to switch the provider in every slot; pass 1-5 to switch only that slot
+  // (the per-slot "Update API N" buttons on the Api to Api Switch row).
+  priority: z.number().int().min(1).max(5).optional(),
 });
 
 operatorsRouter.post("/api-switch", authorize("ADMIN"), async (req, res) => {
@@ -189,7 +212,10 @@ operatorsRouter.post("/api-switch", authorize("ADMIN"), async (req, res) => {
     throw new HttpError(404, "Target provider not found");
   }
   const result = await prisma.operatorApiMapping.updateMany({
-    where: { apiProviderId: parsed.data.fromApiProviderId },
+    where: {
+      apiProviderId: parsed.data.fromApiProviderId,
+      ...(parsed.data.priority ? { priority: parsed.data.priority } : {}),
+    },
     data: { apiProviderId: parsed.data.toApiProviderId },
   });
   res.json({ updated: result.count });
@@ -219,7 +245,7 @@ operatorsRouter.put("/:id/mappings", authorize("ADMIN"), async (req, res) => {
       priority: parsed.data.priority,
       apiProviderId: parsed.data.apiProviderId,
     },
-    include: { apiProvider: true },
+    include: { apiProvider: { select: PROVIDER_PUBLIC_SELECT } },
   });
   res.status(201).json({ mapping });
 });
@@ -237,7 +263,7 @@ operatorsRouter.patch("/mappings/:mappingId", authorize("ADMIN"), async (req, re
     .update({
       where: { id: String(req.params.mappingId) },
       data: { isActive: parsed.data.isActive },
-      include: { apiProvider: true },
+      include: { apiProvider: { select: PROVIDER_PUBLIC_SELECT } },
     })
     .catch(() => null);
   if (!mapping) {

@@ -1,6 +1,6 @@
 import { prisma } from "../config/prisma";
 import { HttpError } from "../utils/httpError";
-import { processProviderTransaction } from "./transactionEngine";
+import { processProviderTransaction, type TransactionSource } from "./transactionEngine";
 
 export interface BillDetails {
   consumerName: string;
@@ -35,7 +35,8 @@ export async function payBill(
   userId: string,
   operatorCode: string,
   consumerNumber: string,
-  amount: number
+  amount: number,
+  source: TransactionSource = "APP"
 ) {
   return processProviderTransaction({
     userId,
@@ -43,6 +44,7 @@ export async function payBill(
     identifier: consumerNumber,
     amount,
     transactionType: "BBPS",
+    source,
     descriptionLabel: "Bill payment",
   });
 }

@@ -1,34 +1,60 @@
 @import "tailwindcss";
 
+/*
+ * Classic recharge-portal admin look: dark slate sidebar, flat teal actions, dense
+ * bordered tables and status-tinted rows. "brand" is the teal action colour, "ink" the
+ * neutral greys, "side" the sidebar palette. Every page builds on these tokens, so
+ * changing them here re-themes the whole panel.
+ */
 @theme {
-  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-900: #312e81;
+  --color-brand-50: #e8f7f3;
+  --color-brand-100: #d1efe7;
+  --color-brand-200: #a3dfcf;
+  --color-brand-300: #75cfb7;
+  --color-brand-400: #3fbfa0;
+  --color-brand-500: #1ab394;
+  --color-brand-600: #18a689;
+  --color-brand-700: #138a72;
+  --color-brand-800: #0f6e5b;
+  --color-brand-900: #0b5243;
 
-  --color-ink-50: #f8fafc;
-  --color-ink-100: #f1f5f9;
-  --color-ink-200: #e2e8f0;
-  --color-ink-300: #cbd5e1;
-  --color-ink-400: #94a3b8;
-  --color-ink-500: #64748b;
-  --color-ink-600: #475569;
-  --color-ink-700: #334155;
-  --color-ink-800: #1e293b;
-  --color-ink-900: #0f172a;
-  --color-ink-950: #0b1120;
+  --color-ink-50: #f3f3f4;
+  --color-ink-100: #f0f0f1;
+  --color-ink-200: #e7eaec;
+  --color-ink-300: #d5d8db;
+  --color-ink-400: #9aa3ab;
+  --color-ink-500: #6b737b;
+  --color-ink-600: #555c63;
+  --color-ink-700: #444b52;
+  --color-ink-800: #333a40;
+  --color-ink-900: #262b30;
+  --color-ink-950: #1c2126;
+
+  --color-side-900: #23303c;
+  --color-side-800: #2f4050;
+  --color-side-700: #293846;
+  --color-side-300: #a7b1c2;
+
+  --color-news: #d9232d;
+
+  /* Status row tints (success / failed / pending / refunded). */
+  --color-row-success: #dff0d8;
+  --color-row-failed: #f2dede;
+  --color-row-pending: #fcf8e3;
+  --color-row-refund: #d9edf7;
+}
+
+html {
+  font-size: 13px;
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
   background: var(--color-ink-50);
-  color: var(--color-ink-800);
+  color: var(--color-ink-700);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -40,10 +66,9 @@ body {
   background: var(--color-brand-100);
 }
 
-/* Scrollbar polish */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -52,4 +77,46 @@ body {
   background: var(--color-ink-300);
   border-radius: 999px;
   border: 2px solid var(--color-ink-50);
+}
+
+/* News ticker */
+/* padding-left = container width, so the text starts just off the right edge and
+   translateX(-100%) carries it fully past the left edge. */
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+.ticker-track {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%;
+  animation: ticker 28s linear infinite;
+}
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+/* Arrow tail on the red "News" tag */
+.news-tag {
+  position: relative;
+}
+.news-tag::after {
+  content: "";
+  position: absolute;
+  right: -12px;
+  top: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 12px solid var(--color-news);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+    padding-left: 0;
+  }
 }

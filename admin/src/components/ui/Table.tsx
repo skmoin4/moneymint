@@ -1,27 +1,24 @@
 import type { ReactNode } from "react";
-import { Card } from "./Card";
 
-export function Table({ children }: { children: ReactNode }) {
+export function Table({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <Card className="overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">{children}</table>
-      </div>
-    </Card>
+    <div className={`overflow-x-auto rounded-sm border border-ink-200 bg-white ${className}`}>
+      <table className="w-full border-collapse text-left text-[12.5px]">{children}</table>
+    </div>
   );
 }
 
 export function THead({ children }: { children: ReactNode }) {
   return (
     <thead>
-      <tr className="border-b border-ink-200 bg-ink-100/70">{children}</tr>
+      <tr className="border-b-2 border-ink-200 bg-white">{children}</tr>
     </thead>
   );
 }
 
-export function Th({ children }: { children?: ReactNode }) {
+export function Th({ children, className = "" }: { children?: ReactNode; className?: string }) {
   return (
-    <th className="whitespace-nowrap px-3.5 py-2 text-[10.5px] font-bold uppercase tracking-wide text-ink-500">
+    <th className={`whitespace-nowrap border-r border-ink-200 px-2.5 py-2 text-[12.5px] font-bold text-ink-700 last:border-r-0 ${className}`}>
       {children}
     </th>
   );
@@ -33,13 +30,17 @@ export function Td({
   colSpan,
   title,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
   colSpan?: number;
   title?: string;
 }) {
   return (
-    <td colSpan={colSpan} title={title} className={`whitespace-nowrap px-3.5 py-2 text-ink-700 ${className}`}>
+    <td
+      colSpan={colSpan}
+      title={title}
+      className={`border-r border-ink-200/70 px-2.5 py-2 align-top text-ink-700 last:border-r-0 ${className}`}
+    >
       {children}
     </td>
   );
@@ -47,6 +48,8 @@ export function Td({
 
 export function Tr({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <tr className={`border-b border-ink-100 last:border-0 hover:bg-brand-50/40 ${className}`}>{children}</tr>
+    <tr className={`border-b border-ink-200 last:border-0 ${className || "odd:bg-[#f9f9f9] hover:bg-[#f5f5f5]"}`}>
+      {children}
+    </tr>
   );
 }

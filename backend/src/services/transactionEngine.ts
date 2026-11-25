@@ -178,7 +178,10 @@ interface ProcessTransactionInput {
   amount: number;
   transactionType: EngineTransactionType;
   descriptionLabel: string; // e.g. "Recharge", "Bill payment"
+  source?: TransactionSource;
 }
+
+export type TransactionSource = "APP" | "WEB" | "API" | "MANUAL" | "QUEUE";
 
 export async function processProviderTransaction({
   userId,
@@ -187,6 +190,7 @@ export async function processProviderTransaction({
   amount,
   transactionType,
   descriptionLabel,
+  source = "APP",
 }: ProcessTransactionInput) {
   const stopSetting = await prisma.systemSetting.findUnique({ where: { key: "stopAllApiUsers" } });
   if (stopSetting?.value === "true") {
@@ -229,6 +233,7 @@ export async function processProviderTransaction({
         amount,
         deduction: amount,
         status: "PENDING",
+        source,
       },
     });
 
@@ -368,5 +373,138 @@ export async function settleTransaction(
     return commission > 0
       ? tx.transaction.update({ where: { id: transactionId }, data: { commission } })
       : updated;
+  });
+}
+
+/**
+ * "Send to API" — re-submits a transaction that is still PENDING to a specific provider
+ * (chosen by an admin, typically because the original provider never answered). The
+ * user's wallet was already debited when the transaction was created, so this only calls
+ * the provider and settles: success keeps the debit and pays rewards, failure refunds.
+ */
+export async function resendToProvider(transactionId: string, apiProviderId: string) {
+  const txn = await prisma.transaction.findUnique({
+    where: { id: transactionId },
+    include: { operator: { select: { code: true } } },
+  });
+  if (!txn) throw new HttpError(404, "Transaction not found");
+  if (txn.status !== "PENDING") throw new HttpError(409, `Transaction is already ${txn.status}`);
+  if (txn.type === "AEPS") throw new HttpError(400, "AEPS transactions cannot be re-sent to another API");
+
+  const provider = await prisma.apiProvider.findUnique({ where: { id: apiProviderId } });
+  if (!provider) throw new HttpError(404, "API provider not found");
+  if (!provider.isActive) throw new HttpError(400, `${provider.name} is disabled`);
+  if (Number(provider.walletBalance) < Number(txn.amount)) {
+    throw new HttpError(400, `${provider.name} has insufficient Wallet 1 balance`);
+  }
+
+  let result: ProviderResult | null = null;
+  const attempts = Math.max(1, provider.retryCount);
+  for (let attempt = 0; attempt < attempts && !result; attempt++) {
+    try {
+      result = await callProvider(provider.code, {
+        mobileNumber: txn.identifier,
+        amount: Number(txn.amount),
+        operatorCode: txn.operator.code,
+      });
+    } catch (err) {
+      if (!(err instanceof ProviderDownError)) throw err;
+    }
+  }
+  if (!result) {
+    // Provider unreachable: leave the transaction PENDING so it can be sent elsewhere,
+    // rather than refunding a transaction that might still go through.
+    throw new HttpError(502, `${provider.name} is unreachable — transaction left pending`);
+  }
+
+  return settleTransaction(transactionId, txn.userId, labelFor(txn.type), result, apiProviderId);
+}
+
+function labelFor(type: string) {
+  return type === "BBPS" ? "Bill payment" : type === "DMT" ? "Money transfer" : "Recharge";
+}
+
+/**
+ * Refunds a transaction that was already SUCCESS (e.g. the operator later reversed it or
+ * a complaint was upheld). Everything the success path paid out is reversed from the
+ * ledger itself — commission, cashback and referral reward are debited back from whoever
+ * received them, the vendor float is credited back, and the user gets the full amount.
+ */
+export async function refundSuccessfulTransaction(transactionId: string, remark?: string) {
+  return prisma.$transaction(async (tx) => {
+    const txn = await tx.transaction.findUniqueOrThrow({ where: { id: transactionId } });
+    if (txn.status !== "SUCCESS") {
+      throw new HttpError(409, `Only SUCCESS transactions can be refunded (this one is ${txn.status})`);
+    }
+
+    const rewardEntries = await tx.ledgerEntry.findMany({
+      where: {
+        referenceId: transactionId,
+        type: "CREDIT",
+        referenceType: { in: ["COMMISSION", "CASHBACK", "REFERRAL_REWARD"] },
+      },
+    });
+    for (const entry of rewardEntries) {
+      const wallet = await tx.wallet.update({
+        where: { id: entry.walletId },
+        data: { balance: { decrement: entry.amount } },
+      });
+      await tx.ledgerEntry.create({
+        data: {
+          walletId: wallet.id,
+          type: "DEBIT",
+          amount: entry.amount,
+          balanceAfter: wallet.balance,
+          referenceType: "ADJUSTMENT",
+          referenceId: transactionId,
+          description: `Reversal of ${entry.referenceType.toLowerCase().replace("_", " ")} — transaction refunded`,
+        },
+      });
+    }
+
+    // AEPS never debited the user's wallet (deduction 0), so only refund what was taken.
+    if (Number(txn.deduction) > 0) {
+      const wallet = await tx.wallet.update({
+        where: { userId: txn.userId },
+        data: { balance: { increment: txn.deduction } },
+      });
+      await tx.ledgerEntry.create({
+        data: {
+          walletId: wallet.id,
+          type: "CREDIT",
+          amount: txn.deduction,
+          balanceAfter: wallet.balance,
+          referenceType: "REFUND",
+          referenceId: transactionId,
+          description: `Refund for ${txn.type.toLowerCase()} ${txn.identifier}${remark ? ` — ${remark}` : ""}`,
+        },
+      });
+    }
+
+    const floatDebits = await tx.providerWalletEntry.findMany({
+      where: { referenceId: transactionId, walletSlot: 1, type: "DEBIT" },
+    });
+    for (const entry of floatDebits) {
+      const provider = await tx.apiProvider.update({
+        where: { id: entry.apiProviderId },
+        data: { walletBalance: { increment: entry.amount } },
+      });
+      await tx.providerWalletEntry.create({
+        data: {
+          apiProviderId: entry.apiProviderId,
+          walletSlot: 1,
+          type: "CREDIT",
+          amount: entry.amount,
+          balanceAfter: provider.walletBalance,
+          referenceId: transactionId,
+          description: `Float returned — transaction refunded (${txn.identifier})`,
+        },
+      });
+    }
+
+    return tx.transaction.update({
+      where: { id: transactionId },
+      data: { status: "REFUNDED", commission: 0 },
+    });
   });
 }
