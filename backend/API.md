@@ -1,5 +1,17 @@
 # MoneyMint API Reference
 
+> **Mobile app developers:** use `docs/app-api/` — `APP_INTEGRATION.md` (guide),
+> `openapi.yaml` (exact spec, contract-tested with `npm run test:contract`) and the Postman
+> collection. This file is the broader backend reference (admin, partner API, internals).
+>
+> Recent app-relevant changes: optional `clientRef` (idempotency key) on `POST /recharge`,
+> `/bbps/pay`, `/dmt/transfer` — a repeat returns the original transaction with `200
+> {duplicate: true}`; PIN errors are now 400 `PIN_REQUIRED`/`PIN_INCORRECT` and 423
+> `PIN_LOCKED` (5 wrong → 15 min), changing/disabling a PIN needs the current PIN, forgot-PIN
+> via `/auth/pin/reset-request` + `/auth/pin/reset`; new `GET /app/config`,
+> `POST|DELETE /app/devices`, `PATCH /auth/me`.
+
+
 This is the REST API that powers both the admin web panel and the retailer/consumer
 mobile app (built separately). Every endpoint below works identically for any client —
 there is no separate "app API" and "web API": one backend, one contract.

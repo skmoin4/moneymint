@@ -5,6 +5,23 @@ and what the owner must do. Update together with "Current status" in `CLAUDE.md`
 
 ---
 
+## 2026-11-26 — Handover package for the Flutter developer — done
+
+- `docs/app-api/APP_INTEGRATION.md`: conventions (money as decimal strings, headers, errors
+  table — only 401 logs out), app start (version gate), OTP/password login, PIN, recharge
+  with PENDING handling, bills, DMT, wallet + Razorpay code, QR, balance requests, other
+  screens, not-yet-available features, release checklist.
+- `docs/app-api/openapi.yaml`: 56 operations with operationIds (lint-clean with Redocly);
+  `MoneyMint-App.postman_collection.json` generated from it (token auto-saved after login,
+  `X-Client-Source: APP` added automatically).
+- `backend/scripts/contract-test.mjs` (`npm run test:contract`): calls the app endpoints and
+  validates responses against the spec — 47/47 pass.
+- Found while documenting and fixed: app payments had no idempotency → optional `clientRef` on
+  `/recharge`, `/bbps/pay`, `/dmt/transfer` (repeat → original transaction, 200 `duplicate`);
+  test servers had no way to get an OTP → `DEV_FIXED_OTP` (ignored when NODE_ENV=production).
+  Reference app now sends clientRef.
+- Tested: 3 concurrent bill payments with one clientRef → 1 transaction; fixed OTP login.
+
 ## 2026-11-26 — Handover package (in progress): missing app APIs + PIN hardening
 
 - New app APIs: `GET /app/config` (public: min/latest app version, update URL, maintenance

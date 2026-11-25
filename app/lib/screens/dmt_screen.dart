@@ -26,6 +26,9 @@ class _DmtScreenState extends State<DmtScreen> {
   List<Map<String, dynamic>> _beneficiaries = [];
   Map<String, dynamic>? _beneficiary;
   String _mode = 'IMPS';
+  // One idempotency key per payment attempt on this screen: a retry after a network
+  // error reuses it, so the server never charges twice.
+  final String _clientRef = newClientRef();
   bool _busy = false;
   String? _error;
 
@@ -138,6 +141,7 @@ class _DmtScreenState extends State<DmtScreen> {
       'amount': toDouble(_amount.text),
       'mode': _mode,
       'pin': ?pin,
+      'clientRef': _clientRef,
     });
     if (!mounted) return;
     await Navigator.pushReplacement(

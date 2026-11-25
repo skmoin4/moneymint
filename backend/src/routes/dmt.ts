@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { requestSource } from "../utils/requestSource";
+import { clientRefField, runOnce } from "../utils/idempotency";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { authenticate } from "../middleware/auth";
@@ -86,6 +87,7 @@ const transferSchema = z.object({
   beneficiaryId: z.string().uuid(),
   amount: z.number().positive(),
   mode: z.enum(["IMPS", "NEFT"]),
+  clientRef: clientRefField,
 });
 
 dmtRouter.post("/transfer", transactionLimiter, requirePinIfEnabled, async (req, res) => {
@@ -93,14 +95,10 @@ dmtRouter.post("/transfer", transactionLimiter, requirePinIfEnabled, async (req,
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
   }
-  const { remitterId, beneficiaryId, amount, mode } = parsed.data;
-  const transaction = await transferToBeneficiary(
-    req.user!.userId,
-    remitterId,
-    beneficiaryId,
-    amount,
-    mode,
-    requestSource(req)
+  const { remitterId, beneficiaryId, amount, mode, clientRef } = parsed.data;
+  const userId = req.user!.userId;
+  const { transaction, duplicate } = await runOnce(userId, clientRef, () =>
+    transferToBeneficiary(userId, remitterId, beneficiaryId, amount, mode, requestSource(req), clientRef)
   );
-  res.status(201).json({ transaction });
+  res.status(duplicate ? 200 : 201).json({ transaction, ...(duplicate ? { duplicate } : {}) });
 });

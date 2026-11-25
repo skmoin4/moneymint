@@ -24,6 +24,9 @@ class _BillScreenState extends State<BillScreen> {
   List<Operator> _billers = [];
   Operator? _biller;
   Map<String, dynamic>? _bill;
+  // One idempotency key per payment attempt on this screen: a retry after a network
+  // error reuses it, so the server never charges twice.
+  final String _clientRef = newClientRef();
   bool _busy = false;
   String? _error;
 
@@ -77,6 +80,7 @@ class _BillScreenState extends State<BillScreen> {
       'consumerNumber': _consumer.text.trim(),
       'amount': toDouble(_amount.text),
       'pin': ?pin,
+      'clientRef': _clientRef,
     });
     if (!mounted) return;
     await Navigator.pushReplacement(

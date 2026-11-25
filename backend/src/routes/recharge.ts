@@ -11,6 +11,7 @@ import { settleTransaction, checkPendingTransaction } from "../services/transact
 import { requirePinIfEnabled } from "../middleware/requirePin";
 import { PROVIDER_PUBLIC_SELECT, PROVIDER_ADMIN_SELECT } from "../utils/providerSelect";
 import { requestSource } from "../utils/requestSource";
+import { clientRefField, runOnce } from "../utils/idempotency";
 
 export const rechargeRouter = Router();
 
@@ -20,6 +21,7 @@ const rechargeSchema = z.object({
   operatorCode: z.string().min(2),
   mobileNumber: z.string().min(10).max(15),
   amount: z.number().positive(),
+  clientRef: clientRefField,
 });
 
 rechargeRouter.post("/", transactionLimiter, requirePinIfEnabled, async (req, res) => {
@@ -27,9 +29,12 @@ rechargeRouter.post("/", transactionLimiter, requirePinIfEnabled, async (req, re
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
   }
-  const { operatorCode, mobileNumber, amount } = parsed.data;
-  const transaction = await initiateRecharge(req.user!.userId, operatorCode, mobileNumber, amount, requestSource(req));
-  res.status(201).json({ transaction });
+  const { operatorCode, mobileNumber, amount, clientRef } = parsed.data;
+  const userId = req.user!.userId;
+  const { transaction, duplicate } = await runOnce(userId, clientRef, () =>
+    initiateRecharge(userId, operatorCode, mobileNumber, amount, requestSource(req), clientRef)
+  );
+  res.status(duplicate ? 200 : 201).json({ transaction, ...(duplicate ? { duplicate } : {}) });
 });
 
 // The app's "transaction status" screen. Polled after a PENDING reply; if the vendor has

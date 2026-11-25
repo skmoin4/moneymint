@@ -36,6 +36,9 @@ class _RechargeScreenState extends State<RechargeScreen> {
   List<Operator> _operators = [];
   Operator? _operator;
   bool _autoDetected = false;
+  // One idempotency key per payment attempt on this screen: a retry after a network
+  // error reuses it, so the server never charges twice.
+  final String _clientRef = newClientRef();
   bool _busy = false;
   String? _error;
   Timer? _detectDebounce;
@@ -133,6 +136,7 @@ class _RechargeScreenState extends State<RechargeScreen> {
         'mobileNumber': _number.text.trim(),
         'amount': toDouble(_amount.text),
         'pin': ?pin,
+        'clientRef': _clientRef,
       });
       if (!mounted) return;
       await Navigator.pushReplacement(

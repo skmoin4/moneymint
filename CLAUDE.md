@@ -45,7 +45,7 @@ Local DB used so far: `postgresql://postgres:postgres@localhost:5432/moneymint`
 Demo logins (only after `demo-data.mjs`): admin `9000000001`/`admin123`, MD `9000000002`,
 Distributor `9000000003`, retailers `9000000011`–`14`, all `pass1234`.
 
-Checks before committing: `cd backend && npx tsc --noEmit`; `cd admin && npx tsc -b && npx oxlint && npx vite build`
+Checks before committing: `cd backend && npx tsc --noEmit` (+ `npm run test:contract` if an app API changed); `cd admin && npx tsc -b && npx oxlint && npx vite build`
 (oxlint has 4 known pre-existing warnings).
 
 Gotchas:
@@ -120,14 +120,16 @@ Done (steps 1–4, plus admin redesign):
 - Step 2 — commission chain (MD/Distributor/Retailer), surcharge, vendor margin, TDS, reports.
 - Step 3 — wallet load: Razorpay checkout + webhooks, per-user UPI QR, balance requests fixed.
 - Step 4 — partner API for API users (token + IP, idempotent client_ref, signed callbacks, docs page).
+- Handover package for the external Flutter developer: `docs/app-api/` (guide, OpenAPI spec
+  contract-tested against the server, Postman); new app APIs (`/app/config`, `/app/devices`,
+  `PATCH /auth/me`), `clientRef` idempotency on app payments, PIN lockout/reset, `DEV_FIXED_OTP`.
 - Step 5 — `app/` Flutter reference app (analyze clean, unit tests pass; end-to-end UI run and
   APK build were not finished — the owner then decided an external developer builds the app).
 
 Next (agreed order):
-1. **API handover package for the Flutter developer** — IN PROGRESS. Done: missing app APIs
-   (`/app/config`, `/app/devices`, `PATCH /auth/me`) and PIN hardening. Remaining: OpenAPI spec
-   of the app-facing APIs (`docs/app-api/`), Postman collection, app integration guide
-   (auth/OTP, PIN, pending polling, Razorpay, errors; money values are decimal strings).
+1. ~~API handover package~~ — DONE (`docs/app-api/`: APP_INTEGRATION.md, openapi.yaml,
+   Postman collection). **Whenever an app-facing API changes, update `openapi.yaml` and run
+   `cd backend && npm run test:contract` (needs demo data + backend on :4000).**
 2. Step 6 — remaining reports (Account Summary, Activation report, etc.), admin complaints
    workflow, real SMS (DLT).
 3. Step 7 — production: hosting, backups, monitoring, deployment.

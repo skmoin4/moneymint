@@ -1,0 +1,1382 @@
+openapi: 3.1.0
+info:
+  title: MoneyMint App API
+  version: 1.0.0
+  description: |
+    Backend API used by the MoneyMint mobile app (retailer / distributor app).
+    Read `APP_INTEGRATION.md` (same folder) first — it explains login, the transaction PIN,
+    PENDING transactions, wallet top-up and error handling.
+
+    **Conventions**
+    - JSON in and out. Send `Authorization: Bearer <token>` on every call except the
+      public ones (`/auth/otp/*`, `/auth/login`, `/auth/password/*`, `/app/config`).
+    - Send `X-Client-Source: APP` on every call (tags transactions as coming from the app).
+    - **Money values are decimal strings** (e.g. `"199"`, `"16388.50"`); a few computed
+      values are plain numbers. Parse every amount with `double.parse(value.toString())`.
+    - Timestamps are ISO-8601 UTC strings.
+    - Errors: non-2xx with `{ "error": "<message to show the user>", "code"?: "..." }`.
+      **401 = session invalid → go to login.** Everything else: show `error`.
+  contact:
+    name: MoneyMint backend team
+servers:
+  - url: http://localhost:4000
+    description: Local development
+  - url: https://api.example.com
+    description: Production (replace with the real URL)
+security:
+  - bearer: []
+tags:
+  - name: Auth
+  - name: App
+  - name: Wallet
+  - name: Add money
+  - name: Catalog
+  - name: Recharge
+  - name: Bill payment
+  - name: Money transfer
+  - name: AEPS
+  - name: KYC
+  - name: Support
+  - name: Balance request
+  - name: Account
+  - name: Notifications
+
+paths:
+  # ---------------------------------------------------------------- Auth
+  /auth/otp/request:
+    post:
+      operationId: postAuthOtpRequest
+      tags: [Auth]
+      summary: Send a login OTP to a registered mobile number
+      security: []
+      description: OTP is valid 5 minutes; a new one can be requested after 45 seconds.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone: { type: string, example: "9876543210" }
+      responses:
+        "200": { $ref: "#/components/responses/OtpSent" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { description: Number not registered (accounts are created by a distributor), content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "429": { description: Asked again too soon, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /auth/otp/verify:
+    post:
+      operationId: postAuthOtpVerify
+      tags: [Auth]
+      summary: Verify the OTP and get a session token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, otp]
+              properties:
+                phone: { type: string, example: "9876543210" }
+                otp: { type: string, minLength: 6, maxLength: 6, example: "123456" }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "401": { description: Wrong or expired OTP, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /auth/login:
+    post:
+      operationId: postAuthLogin
+      tags: [Auth]
+      summary: Login with mobile number + password (alternative to OTP)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password]
+              properties:
+                phone: { type: string }
+                password: { type: string, minLength: 6 }
+      responses:
+        "200": { $ref: "#/components/responses/Session" }
+        "401": { description: Wrong phone or password, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "403": { description: Account suspended/inactive, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /auth/password/reset-request:
+    post:
+      operationId: postAuthPasswordResetRequest
+      tags: [Auth]
+      summary: Forgot password — send a reset OTP
+      security: []
+      description: Always answers the same way, whether or not the number is registered.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [phone], properties: { phone: { type: string } } }
+      responses:
+        "200": { $ref: "#/components/responses/OtpSent" }
+        "429": { $ref: "#/components/responses/Error" }
+
+  /auth/password/reset:
+    post:
+      operationId: postAuthPasswordReset
+      tags: [Auth]
+      summary: Set a new password with the reset OTP (logs out all devices)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, otp, newPassword]
+              properties:
+                phone: { type: string }
+                otp: { type: string, minLength: 6, maxLength: 6 }
+                newPassword: { type: string, minLength: 6 }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /auth/me:
+    get:
+      operationId: getAuthMe
+      tags: [Auth]
+      summary: Current user (use on app start to check a saved token)
+      responses:
+        "200":
+          description: Logged-in user
+          content: { application/json: { schema: { $ref: "#/components/schemas/Me" } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    patch:
+      operationId: patchAuthMe
+      tags: [Auth]
+      summary: Update profile (email). Name and mobile are changed by the distributor/admin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: [string, "null"], format: email }
+      responses:
+        "200":
+          description: Updated user
+          content: { application/json: { schema: { $ref: "#/components/schemas/SessionUser" } } }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /auth/logout-all:
+    post:
+      operationId: postAuthLogoutAll
+      tags: [Auth]
+      summary: Log out every device (invalidates all tokens, including this one)
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+
+  /auth/login-history:
+    get:
+      operationId: getAuthLoginHistory
+      tags: [Auth]
+      summary: Last 20 successful logins
+      responses:
+        "200":
+          description: Logins
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ipAddress: { type: [string, "null"] }
+                        userAgent: { type: [string, "null"] }
+                        details: { type: [string, "null"] }
+                        createdAt: { type: string, format: date-time }
+
+  /auth/pin/status:
+    get:
+      operationId: getAuthPinStatus
+      tags: [Auth]
+      summary: Whether a transaction PIN is set / required
+      responses:
+        "200":
+          description: PIN state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [hasPin, pinEnabled]
+                properties:
+                  hasPin: { type: boolean }
+                  pinEnabled: { type: boolean, description: "If true, send `pin` with recharge / bill pay / transfer / AEPS withdrawal" }
+
+  /auth/pin/set:
+    post:
+      operationId: postAuthPinSet
+      tags: [Auth]
+      summary: Set the first PIN, or change it (changing needs currentPin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pin]
+              properties:
+                pin: { type: string, pattern: "^\\d{4,6}$" }
+                currentPin: { type: string, description: Required when a PIN already exists }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+        "400": { $ref: "#/components/responses/PinError" }
+        "423": { $ref: "#/components/responses/PinError" }
+
+  /auth/pin/toggle:
+    post:
+      operationId: postAuthPinToggle
+      tags: [Auth]
+      summary: Turn PIN on/off for payments (turning off needs the PIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [enabled]
+              properties:
+                enabled: { type: boolean }
+                pin: { type: string, description: Required when turning the PIN off }
+      responses:
+        "200":
+          description: New state
+          content: { application/json: { schema: { type: object, properties: { pinEnabled: { type: boolean } } } } }
+        "400": { $ref: "#/components/responses/PinError" }
+        "423": { $ref: "#/components/responses/PinError" }
+
+  /auth/pin/reset-request:
+    post:
+      operationId: postAuthPinResetRequest
+      tags: [Auth]
+      summary: Forgot PIN — send an OTP to the account's mobile
+      responses:
+        "200": { $ref: "#/components/responses/OtpSent" }
+        "429": { $ref: "#/components/responses/Error" }
+
+  /auth/pin/reset:
+    post:
+      operationId: postAuthPinReset
+      tags: [Auth]
+      summary: Set a new PIN using the OTP (also clears a PIN lockout)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [otp, newPin]
+              properties:
+                otp: { type: string, minLength: 6, maxLength: 6 }
+                newPin: { type: string, pattern: "^\\d{4,6}$" }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+        "400": { $ref: "#/components/responses/Error" }
+
+  # ---------------------------------------------------------------- App
+  /app/config:
+    get:
+      operationId: getAppConfig
+      tags: [App]
+      summary: Startup config — version gate, maintenance notice, support contacts
+      security: []
+      description: |
+        Call on every app start, before login. If the app's version < `minVersion` show a
+        blocking "Update required" screen (button opens `updateUrl`); if < `latestVersion`
+        show an optional update prompt. If `maintenance.active`, show `maintenance.message`.
+      responses:
+        "200":
+          description: Config
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [minVersion, latestVersion, maintenance, support]
+                properties:
+                  minVersion: { type: string, example: "1.0.0" }
+                  latestVersion: { type: string, example: "1.2.0" }
+                  updateUrl: { type: [string, "null"] }
+                  maintenance:
+                    type: object
+                    properties:
+                      active: { type: boolean }
+                      message: { type: [string, "null"] }
+                  support:
+                    type: object
+                    properties:
+                      phone: { type: [string, "null"] }
+                      email: { type: [string, "null"] }
+                      hours: { type: [string, "null"] }
+
+  /app/devices:
+    post:
+      operationId: postAppDevices
+      tags: [App]
+      summary: Register this device's FCM push token (after login and on token refresh)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, platform]
+              properties:
+                token: { type: string }
+                platform: { type: string, enum: [android, ios, web] }
+                appVersion: { type: string, example: "1.0.0" }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+    delete:
+      operationId: deleteAppDevices
+      tags: [App]
+      summary: Remove this device's token (call on logout, before dropping the session token)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [token], properties: { token: { type: string } } }
+      responses:
+        "200": { $ref: "#/components/responses/Ok" }
+
+  # ---------------------------------------------------------------- Wallet
+  /wallet/balance:
+    get:
+      operationId: getWalletBalance
+      tags: [Wallet]
+      summary: Wallet balance
+      responses:
+        "200":
+          description: Balance
+          content: { application/json: { schema: { type: object, required: [balance], properties: { balance: { $ref: "#/components/schemas/Money" } } } } }
+
+  /wallet/ledger:
+    get:
+      operationId: getWalletLedger
+      tags: [Wallet]
+      summary: Account statement (every credit/debit), newest first
+      parameters:
+        - { $ref: "#/components/parameters/Page" }
+        - { $ref: "#/components/parameters/PageSize" }
+        - { name: type, in: query, schema: { type: string, enum: [CREDIT, DEBIT] } }
+        - { name: referenceType, in: query, schema: { $ref: "#/components/schemas/LedgerReferenceType" } }
+        - { $ref: "#/components/parameters/From" }
+        - { $ref: "#/components/parameters/To" }
+      responses:
+        "200":
+          description: Page of entries
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [entries, total, page, pageSize]
+                properties:
+                  entries: { type: array, items: { $ref: "#/components/schemas/LedgerEntry" } }
+                  total: { type: integer }
+                  page: { type: integer }
+                  pageSize: { type: integer }
+
+  /wallet/cashback-summary:
+    get:
+      operationId: getWalletCashbackSummary
+      tags: [Wallet]
+      summary: Total cashback earned + recent cashback entries
+      responses:
+        "200":
+          description: Cashback
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCashback: { $ref: "#/components/schemas/Money" }
+                  entries: { type: array, items: { $ref: "#/components/schemas/LedgerEntry" } }
+
+  # ---------------------------------------------------------------- Add money
+  /wallet/add-money/config:
+    get:
+      operationId: getWalletAddMoneyConfig
+      tags: [Add money]
+      summary: Whether online top-up is available, which gateway, limits and charges
+      responses:
+        "200":
+          description: Config
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [enabled, limits, chargePercents]
+                properties:
+                  enabled: { type: boolean }
+                  gateway: { type: string, enum: [RAZORPAY, MOCK], description: "MOCK = test server: pay with /wallet/add-money/mock-pay" }
+                  keyId: { type: string, description: Razorpay key id (only for RAZORPAY) }
+                  limits: { type: object, properties: { min: { type: number }, max: { type: number } } }
+                  chargePercents:
+                    type: object
+                    additionalProperties: { type: number }
+                    description: 'Fee % by method, e.g. {"upi":0,"card":1.8,"default":1.5}. Missing method → "default" → 0.'
+
+  /wallet/add-money/order:
+    post:
+      operationId: postWalletAddMoneyOrder
+      tags: [Add money]
+      summary: Create a top-up order and get Razorpay checkout options
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [amount], properties: { amount: { type: number, example: 500 } } }
+      responses:
+        "201":
+          description: Order created — open checkout with `checkout`
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [order, checkout]
+                properties:
+                  order: { $ref: "#/components/schemas/PaymentOrder" }
+                  checkout:
+                    type: object
+                    properties:
+                      gateway: { type: string, enum: [RAZORPAY, MOCK] }
+                      keyId: { type: string, description: "Razorpay `key`" }
+                      orderId: { type: string, description: "Razorpay `order_id`" }
+                      amount: { type: integer, description: Paise }
+                      currency: { type: string, example: INR }
+                      name: { type: string }
+                      description: { type: string }
+                      prefill: { type: object, properties: { name: { type: string }, contact: { type: string }, email: { type: string } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "503": { description: Online top-up not configured, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /wallet/add-money/verify:
+    post:
+      operationId: postWalletAddMoneyVerify
+      tags: [Add money]
+      summary: Confirm a Razorpay checkout success (credits the wallet)
+      description: |
+        Call from Razorpay's success callback with its three values. If `pending` is true the
+        payment is authorised but not yet captured — the wallet is credited automatically by
+        the gateway webhook within a minute; refresh the balance/history later.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [orderId, paymentId, signature]
+              properties:
+                orderId: { type: string, description: razorpay_order_id }
+                paymentId: { type: string, description: razorpay_payment_id }
+                signature: { type: string, description: razorpay_signature }
+      responses:
+        "200":
+          description: Result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order: { $ref: "#/components/schemas/PaymentOrder" }
+                  pending: { type: boolean }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /wallet/add-money/mock-pay:
+    post:
+      operationId: postWalletAddMoneyMockPay
+      tags: [Add money]
+      summary: TEST SERVERS ONLY (gateway = MOCK) — simulate paying an order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [gatewayOrderId]
+              properties:
+                gatewayOrderId: { type: string, description: "checkout.orderId" }
+                method: { type: string, enum: [upi, card, netbanking], default: upi }
+      responses:
+        "200":
+          description: Paid
+          content: { application/json: { schema: { type: object, properties: { order: { $ref: "#/components/schemas/PaymentOrder" } } } } }
+        "404": { description: Not available on this server, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /wallet/add-money/history:
+    get:
+      operationId: getWalletAddMoneyHistory
+      tags: [Add money]
+      summary: The user's top-ups (online and UPI QR), newest first
+      responses:
+        "200":
+          description: Orders
+          content: { application/json: { schema: { type: object, properties: { orders: { type: array, items: { $ref: "#/components/schemas/PaymentOrder" } } } } } }
+
+  /wallet/add-money/qr:
+    get:
+      operationId: getWalletAddMoneyQr
+      tags: [Add money]
+      summary: The user's own static UPI QR (payments to it auto-credit the wallet)
+      description: Show `imageUrl` if present, else decode `qrDataUrl` (a base64 PNG data URL).
+      responses:
+        "200":
+          description: QR
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  qr:
+                    type: object
+                    properties:
+                      upiId: { type: [string, "null"] }
+                      imageUrl: { type: [string, "null"] }
+                      qrDataUrl: { type: [string, "null"] }
+                      provider: { type: string }
+        "503": { $ref: "#/components/responses/Error" }
+
+  # ---------------------------------------------------------------- Catalog
+  /operators:
+    get:
+      operationId: getOperators
+      tags: [Catalog]
+      summary: Operators / billers. Always pass activeOnly=1 in the app.
+      description: "Group by `type`: PREPAID, DTH, FASTAG, OTT → /recharge; ELECTRICITY, GAS, WATER… → /bbps; DMT and AEPS are internal."
+      parameters:
+        - { name: activeOnly, in: query, schema: { type: string, enum: ["1"] } }
+      responses:
+        "200":
+          description: Operators
+          content: { application/json: { schema: { type: object, properties: { operators: { type: array, items: { $ref: "#/components/schemas/Operator" } } } } } }
+
+  /operators/detect:
+    get:
+      operationId: getOperatorsDetect
+      tags: [Catalog]
+      summary: Guess the operator from a mobile number (best effort — let the user change it)
+      parameters:
+        - { name: mobileNumber, in: query, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Detected operator or null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operator: { oneOf: [{ $ref: "#/components/schemas/Operator" }, { type: "null" }] }
+
+  /plans:
+    get:
+      operationId: getPlans
+      tags: [Catalog]
+      summary: Recharge plans of an operator
+      parameters:
+        - { name: operatorCode, in: query, required: true, schema: { type: string, example: JIO } }
+      responses:
+        "200":
+          description: Plans
+          content: { application/json: { schema: { type: object, properties: { plans: { type: array, items: { $ref: "#/components/schemas/Plan" } } } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  # ---------------------------------------------------------------- Recharge
+  /recharge:
+    post:
+      operationId: postRecharge
+      tags: [Recharge]
+      summary: Recharge (prepaid, DTH, FASTag, OTT)
+      description: |
+        Result `transaction.status`: SUCCESS, FAILED (already refunded) or PENDING (operator
+        hasn't confirmed — poll `/recharge/status/{id}`). Rate limit: 20 payment requests/min.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operatorCode, mobileNumber, amount]
+              properties:
+                operatorCode: { type: string, example: JIO }
+                mobileNumber: { type: string, minLength: 10, maxLength: 15, description: Mobile / subscriber / account number }
+                amount: { type: number, example: 299 }
+                pin: { type: string, description: "Required when /auth/pin/status says pinEnabled" }
+                clientRef: { type: string, minLength: 8, maxLength: 64, pattern: "^[A-Za-z0-9_.-]+$", description: "Recommended. A new UUID per payment; reuse it when retrying the same payment — a repeat returns the original transaction (200, duplicate: true) instead of charging twice." }
+      responses:
+        "201": { $ref: "#/components/responses/TransactionResult" }
+        "200": { $ref: "#/components/responses/DuplicateTransaction" }
+        "400": { $ref: "#/components/responses/PaymentError" }
+        "423": { $ref: "#/components/responses/PinError" }
+        "503": { description: Operator disabled / services paused, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  /recharge/history:
+    get:
+      operationId: getRechargeHistory
+      tags: [Recharge]
+      summary: The user's transactions (all services), newest first
+      parameters:
+        - { $ref: "#/components/parameters/Page" }
+        - { $ref: "#/components/parameters/PageSize" }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/TxnStatus" } }
+        - { name: type, in: query, schema: { type: string, enum: [RECHARGE, BBPS, DMT, AEPS] } }
+        - { name: search, in: query, description: Part of the mobile / consumer number, schema: { type: string } }
+        - { $ref: "#/components/parameters/From" }
+        - { $ref: "#/components/parameters/To" }
+      responses:
+        "200":
+          description: Page of transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [transactions, total, page, pageSize]
+                properties:
+                  transactions: { type: array, items: { $ref: "#/components/schemas/Transaction" } }
+                  total: { type: integer }
+                  page: { type: integer }
+                  pageSize: { type: integer }
+
+  /recharge/status/{id}:
+    get:
+      operationId: getRechargeStatusById
+      tags: [Recharge]
+      summary: Current status of one of the user's transactions (poll while PENDING)
+      description: Poll every 5–10 s. After 30 s of PENDING this also asks the operator live.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      type: { type: string }
+                      identifier: { type: string }
+                      amount: { $ref: "#/components/schemas/Money" }
+                      commission: { $ref: "#/components/schemas/Money" }
+                      status: { $ref: "#/components/schemas/TxnStatus" }
+                      providerRefId: { type: [string, "null"] }
+                      statusMessage: { type: [string, "null"] }
+                      createdAt: { type: string, format: date-time }
+                      updatedAt: { type: string, format: date-time }
+                      operator: { type: object, properties: { name: { type: string }, code: { type: string } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  # ---------------------------------------------------------------- BBPS
+  /bbps/fetch-bill:
+    post:
+      operationId: postBbpsFetchBill
+      tags: [Bill payment]
+      summary: Fetch the due bill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operatorCode, consumerNumber]
+              properties:
+                operatorCode: { type: string, example: MSEB }
+                consumerNumber: { type: string }
+      responses:
+        "200":
+          description: Bill
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bill:
+                    type: object
+                    properties:
+                      consumerName: { type: string }
+                      dueAmount: { type: number }
+                      dueDate: { type: string, example: "2026-11-30" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /bbps/pay:
+    post:
+      operationId: postBbpsPay
+      tags: [Bill payment]
+      summary: Pay a bill (same result handling as /recharge)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operatorCode, consumerNumber, amount]
+              properties:
+                operatorCode: { type: string }
+                consumerNumber: { type: string, minLength: 3, maxLength: 30 }
+                amount: { type: number }
+                pin: { type: string }
+                clientRef: { type: string, minLength: 8, maxLength: 64, pattern: "^[A-Za-z0-9_.-]+$", description: "Recommended. A new UUID per payment; reuse it when retrying the same payment — a repeat returns the original transaction (200, duplicate: true) instead of charging twice." }
+      responses:
+        "201": { $ref: "#/components/responses/TransactionResult" }
+        "200": { $ref: "#/components/responses/DuplicateTransaction" }
+        "400": { $ref: "#/components/responses/PaymentError" }
+        "423": { $ref: "#/components/responses/PinError" }
+
+  # ---------------------------------------------------------------- DMT
+  /dmt/remitters:
+    get:
+      operationId: getDmtRemitters
+      tags: [Money transfer]
+      summary: Senders (remitters) registered by this user
+      responses:
+        "200":
+          description: Remitters
+          content: { application/json: { schema: { type: object, properties: { remitters: { type: array, items: { $ref: "#/components/schemas/Remitter" } } } } } }
+    post:
+      operationId: postDmtRemitters
+      tags: [Money transfer]
+      summary: Register a new sender
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, mobileNumber]
+              properties:
+                name: { type: string }
+                mobileNumber: { type: string, minLength: 10, maxLength: 15 }
+      responses:
+        "201":
+          description: Registered
+          content: { application/json: { schema: { type: object, properties: { remitter: { $ref: "#/components/schemas/Remitter" } } } } }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /dmt/remitters/search:
+    get:
+      operationId: getDmtRemittersSearch
+      tags: [Money transfer]
+      summary: Find a sender by mobile (null if not registered by this user)
+      parameters:
+        - { name: mobileNumber, in: query, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Remitter or null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  remitter: { oneOf: [{ $ref: "#/components/schemas/Remitter" }, { type: "null" }] }
+
+  /dmt/remitters/{id}/verify:
+    post:
+      operationId: postDmtRemittersByIdVerify
+      tags: [Money transfer]
+      summary: Mark the sender KYC-verified (raises the limit from ₹5,000 to ₹25,000)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Verified
+          content: { application/json: { schema: { type: object, properties: { remitter: { $ref: "#/components/schemas/Remitter" } } } } }
+
+  /dmt/remitters/{id}/beneficiaries:
+    get:
+      operationId: getDmtRemittersByIdBeneficiaries
+      tags: [Money transfer]
+      summary: The sender's beneficiaries
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Beneficiaries
+          content: { application/json: { schema: { type: object, properties: { beneficiaries: { type: array, items: { $ref: "#/components/schemas/Beneficiary" } } } } } }
+    post:
+      operationId: postDmtRemittersByIdBeneficiaries
+      tags: [Money transfer]
+      summary: Add a beneficiary bank account
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, accountNumber, ifsc, bankName]
+              properties:
+                name: { type: string }
+                accountNumber: { type: string, minLength: 6, maxLength: 20 }
+                ifsc: { type: string, minLength: 6, maxLength: 11 }
+                bankName: { type: string }
+      responses:
+        "201":
+          description: Added
+          content: { application/json: { schema: { type: object, properties: { beneficiary: { $ref: "#/components/schemas/Beneficiary" } } } } }
+
+  /dmt/transfer:
+    post:
+      operationId: postDmtTransfer
+      tags: [Money transfer]
+      summary: Send money to a beneficiary (IMPS/NEFT). Charges, if any, appear as `surcharge`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [remitterId, beneficiaryId, amount, mode]
+              properties:
+                remitterId: { type: string }
+                beneficiaryId: { type: string }
+                amount: { type: number }
+                mode: { type: string, enum: [IMPS, NEFT] }
+                pin: { type: string }
+                clientRef: { type: string, minLength: 8, maxLength: 64, pattern: "^[A-Za-z0-9_.-]+$", description: "Recommended. A new UUID per payment; reuse it when retrying the same payment — a repeat returns the original transaction (200, duplicate: true) instead of charging twice." }
+      responses:
+        "201": { $ref: "#/components/responses/TransactionResult" }
+        "200": { $ref: "#/components/responses/DuplicateTransaction" }
+        "400": { $ref: "#/components/responses/PaymentError" }
+        "423": { $ref: "#/components/responses/PinError" }
+
+  # ---------------------------------------------------------------- AEPS
+  /aeps/withdrawal:
+    post:
+      operationId: postAepsWithdrawal
+      tags: [AEPS]
+      summary: AEPS cash withdrawal (needs a certified fingerprint device — not live yet)
+      description: The biometric capture (RD service PID block) is not wired yet; this endpoint currently runs against a simulator.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [aadhaarNumber, bankName, amount]
+              properties:
+                aadhaarNumber: { type: string, pattern: "^\\d{12}$" }
+                bankName: { type: string }
+                amount: { type: number, maximum: 10000 }
+                pin: { type: string }
+      responses:
+        "201": { $ref: "#/components/responses/TransactionResult" }
+        "400": { $ref: "#/components/responses/PaymentError" }
+
+  /aeps/balance-enquiry:
+    post:
+      operationId: postAepsBalanceEnquiry
+      tags: [AEPS]
+      summary: AEPS balance enquiry (simulator for now)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [aadhaarNumber, bankName]
+              properties:
+                aadhaarNumber: { type: string, pattern: "^\\d{12}$" }
+                bankName: { type: string }
+      responses:
+        "201": { $ref: "#/components/responses/TransactionResult" }
+
+  # ---------------------------------------------------------------- KYC
+  /kyc/me:
+    get:
+      operationId: getKycMe
+      tags: [KYC]
+      summary: KYC status and latest request
+      responses:
+        "200":
+          description: KYC
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kycStatus: { type: string, enum: [NOT_SUBMITTED, PENDING, APPROVED, REJECTED] }
+                  latest: { oneOf: [{ $ref: "#/components/schemas/KycRequest" }, { type: "null" }] }
+
+  /kyc:
+    post:
+      operationId: postKyc
+      tags: [KYC]
+      summary: Submit Aadhaar + PAN for KYC (reviewed by the distributor/admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [aadhaarNumber, panNumber]
+              properties:
+                aadhaarNumber: { type: string, pattern: "^\\d{12}$" }
+                panNumber: { type: string, pattern: "^[A-Z]{5}\\d{4}[A-Z]$" }
+      responses:
+        "201":
+          description: Submitted
+          content: { application/json: { schema: { type: object, properties: { request: { $ref: "#/components/schemas/KycRequest" } } } } }
+        "409": { $ref: "#/components/responses/Error" }
+
+  # ---------------------------------------------------------------- Support
+  /complaints:
+    get:
+      operationId: getComplaints
+      tags: [Support]
+      summary: The user's complaints
+      responses:
+        "200":
+          description: Complaints
+          content: { application/json: { schema: { type: object, properties: { complaints: { type: array, items: { $ref: "#/components/schemas/Complaint" } } } } } }
+    post:
+      operationId: postComplaints
+      tags: [Support]
+      summary: Raise a complaint (pass the transaction id as transactionRef)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject, description]
+              properties:
+                subject: { type: string, minLength: 3 }
+                description: { type: string, minLength: 5 }
+                transactionRef: { type: string }
+      responses:
+        "201":
+          description: Created
+          content: { application/json: { schema: { type: object, properties: { complaint: { $ref: "#/components/schemas/Complaint" } } } } }
+
+  # ---------------------------------------------------------------- Balance request
+  /bank-accounts:
+    get:
+      operationId: getBankAccounts
+      tags: [Balance request]
+      summary: Bank accounts the user can deposit into (their distributor's, or the company's)
+      responses:
+        "200":
+          description: Accounts
+          content: { application/json: { schema: { type: object, properties: { accounts: { type: array, items: { $ref: "#/components/schemas/BankAccount" } } } } } }
+
+  /payment-modes:
+    get:
+      operationId: getPaymentModes
+      tags: [Balance request]
+      summary: Deposit modes (show only isActive)
+      responses:
+        "200":
+          description: Modes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modes:
+                    type: array
+                    items: { type: object, properties: { id: { type: string }, name: { type: string }, isActive: { type: boolean } } }
+
+  /balance-requests:
+    get:
+      operationId: getBalanceRequests
+      tags: [Balance request]
+      summary: The user's balance requests
+      responses:
+        "200":
+          description: Requests
+          content: { application/json: { schema: { type: object, properties: { requests: { type: array, items: { $ref: "#/components/schemas/BalanceRequest" } } } } } }
+    post:
+      operationId: postBalanceRequests
+      tags: [Balance request]
+      summary: Claim a bank deposit (UTR) for the distributor to approve
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, utrNumber]
+              properties:
+                amount: { type: number }
+                utrNumber: { type: string, minLength: 4, maxLength: 40 }
+                bankAccountId: { type: string, description: One of GET /bank-accounts }
+                paymentMode: { type: string }
+                depositedAt: { type: string, format: date, example: "2026-11-25" }
+      responses:
+        "201":
+          description: Created
+          content: { application/json: { schema: { type: object, properties: { request: { $ref: "#/components/schemas/BalanceRequest" } } } } }
+        "409": { description: UTR already used, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+
+  # ---------------------------------------------------------------- Account
+  /users/my-commission:
+    get:
+      operationId: getUsersMyCommission
+      tags: [Account]
+      summary: The user's own commission / charge rates per operator
+      responses:
+        "200":
+          description: Pack or null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pack:
+                    oneOf:
+                      - type: "null"
+                      - type: object
+                        properties:
+                          name: { type: string }
+                          globalCommissionType: { type: [string, "null"], enum: [PERCENT, FLAT, null] }
+                          globalValue: { oneOf: [{ $ref: "#/components/schemas/Money" }, { type: "null" }] }
+                          slabs:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                chargeType: { type: string, enum: [COMMISSION, SURCHARGE] }
+                                commissionType: { type: string, enum: [PERCENT, FLAT] }
+                                value: { $ref: "#/components/schemas/Money" }
+                                minAmount: { oneOf: [{ $ref: "#/components/schemas/Money" }, { type: "null" }] }
+                                maxAmount: { oneOf: [{ $ref: "#/components/schemas/Money" }, { type: "null" }] }
+                                operator: { type: object, properties: { name: { type: string }, code: { type: string }, type: { type: string } } }
+
+  /users/my-referrals:
+    get:
+      operationId: getUsersMyReferrals
+      tags: [Account]
+      summary: Referral code, referred users and total reward earned
+      responses:
+        "200":
+          description: Referrals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  referralCode: { type: [string, "null"] }
+                  referredUsers: { type: array, items: { type: object } }
+                  totalEarned: { $ref: "#/components/schemas/Money" }
+
+  # ---------------------------------------------------------------- Notifications
+  /notices/active:
+    get:
+      operationId: getNoticesActive
+      tags: [Notifications]
+      summary: Current news/announcement banner (or null)
+      responses:
+        "200":
+          description: Notice
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notice:
+                    oneOf:
+                      - type: "null"
+                      - type: object
+                        properties:
+                          id: { type: string }
+                          message: { type: string }
+                          createdAt: { type: string, format: date-time }
+
+  /broadcast/my-notifications:
+    get:
+      operationId: getBroadcastMyNotifications
+      tags: [Notifications]
+      summary: In-app notifications + unread count
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        message: { type: string }
+                        isRead: { type: boolean }
+                        createdAt: { type: string, format: date-time }
+                  unreadCount: { type: integer }
+
+  /broadcast/my-notifications/mark-read:
+    post:
+      operationId: postBroadcastMyNotificationsMarkRead
+      tags: [Notifications]
+      summary: Mark all notifications read
+      responses:
+        "200":
+          description: Done
+          content: { application/json: { schema: { type: object } } }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    PageSize: { name: pageSize, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+    From: { name: from, in: query, description: "Start date, YYYY-MM-DD", schema: { type: string, format: date } }
+    To: { name: to, in: query, description: "End date (inclusive), YYYY-MM-DD", schema: { type: string, format: date } }
+
+  responses:
+    Ok:
+      description: Done
+      content: { application/json: { schema: { type: object, properties: { ok: { type: boolean } } } } }
+    OtpSent:
+      description: OTP sent
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              sent: { type: boolean }
+              expiresInSeconds: { type: integer, example: 300 }
+    Session:
+      description: Logged in — store `token` securely and send it as Bearer
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [token, user]
+            properties:
+              token: { type: string }
+              user: { $ref: "#/components/schemas/SessionUser" }
+    TransactionResult:
+      description: Transaction created — check `transaction.status`
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [transaction]
+            properties:
+              transaction: { $ref: "#/components/schemas/Transaction" }
+    DuplicateTransaction:
+      description: Same clientRef sent again — the original transaction, nothing new was charged
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [transaction, duplicate]
+            properties:
+              transaction: { $ref: "#/components/schemas/Transaction" }
+              duplicate: { type: boolean, const: true }
+    Error:
+      description: Error — show `error` to the user
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Unauthorized:
+      description: Session missing/expired/revoked — go to login
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    PaymentError:
+      description: "Rejected before any money moved: validation, insufficient balance, PIN_REQUIRED / PIN_INCORRECT, limits"
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    PinError:
+      description: "PIN problem — code PIN_REQUIRED / PIN_INCORRECT (400) or PIN_LOCKED (423, 15 min after 5 wrong PINs)"
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string, description: Human-readable message to show }
+        code: { type: string, description: "Machine-readable code where provided (PIN_REQUIRED, PIN_INCORRECT, PIN_LOCKED, PIN_NOT_SET)" }
+
+    Money:
+      type: [string, number]
+      description: Decimal amount in rupees — usually a string like "199" or "16388.50".
+      example: "199.00"
+
+    TxnStatus:
+      type: string
+      enum: [PENDING, SUCCESS, FAILED, REFUNDED]
+      description: "FAILED and REFUNDED mean the money is back in the wallet."
+
+    LedgerReferenceType:
+      type: string
+      enum: [RECHARGE, BBPS, DMT, AEPS, FUND_TRANSFER, COMMISSION, REFUND, ADJUSTMENT, RENT, CASHBACK, REFERRAL_REWARD, WALLET_TOPUP, SURCHARGE, GATEWAY_CHARGE, BALANCE_REQUEST]
+
+    SessionUser:
+      type: object
+      required: [id, name, phone, role]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        role: { type: string, enum: [ADMIN, MASTER_DISTRIBUTOR, DISTRIBUTOR, RETAILER] }
+        apiEnabled: { type: boolean }
+        email: { type: [string, "null"] }
+
+    Me:
+      allOf:
+        - $ref: "#/components/schemas/SessionUser"
+        - type: object
+          properties:
+            kycStatus: { type: string, enum: [NOT_SUBMITTED, PENDING, APPROVED, REJECTED] }
+            walletBalance: { $ref: "#/components/schemas/Money" }
+
+    Operator:
+      type: object
+      required: [id, name, code, type]
+      properties:
+        id: { type: string }
+        name: { type: string, example: Jio }
+        code: { type: string, example: JIO }
+        type: { type: string, example: PREPAID }
+        isActive: { type: boolean }
+
+    Plan:
+      type: object
+      properties:
+        id: { type: string }
+        amount: { $ref: "#/components/schemas/Money" }
+        validity: { type: [string, "null"], example: "28 days" }
+        data: { type: [string, "null"], example: "1.5GB/day" }
+        talktime: { type: [string, "null"] }
+        sms: { type: [string, "null"] }
+        description: { type: [string, "null"] }
+        category: { type: string, example: Popular }
+
+    Transaction:
+      type: object
+      required: [id, type, identifier, amount, status, createdAt]
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [RECHARGE, BBPS, DMT, AEPS] }
+        identifier: { type: string, description: Mobile / consumer / account number }
+        amount: { $ref: "#/components/schemas/Money" }
+        surcharge: { $ref: "#/components/schemas/Money" }
+        deduction: { $ref: "#/components/schemas/Money" }
+        commission: { $ref: "#/components/schemas/Money" }
+        status: { $ref: "#/components/schemas/TxnStatus" }
+        providerRefId: { type: [string, "null"], description: Operator reference — show on the receipt }
+        statusMessage: { type: [string, "null"] }
+        source: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        operator:
+          type: object
+          description: Present in history; not in the create response
+          properties:
+            name: { type: string }
+            code: { type: string }
+            type: { type: string }
+
+    LedgerEntry:
+      type: object
+      required: [id, type, amount, balanceAfter, referenceType, createdAt]
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [CREDIT, DEBIT] }
+        amount: { $ref: "#/components/schemas/Money" }
+        balanceAfter: { $ref: "#/components/schemas/Money" }
+        referenceType: { $ref: "#/components/schemas/LedgerReferenceType" }
+        referenceId: { type: [string, "null"] }
+        description: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+
+    PaymentOrder:
+      type: object
+      properties:
+        id: { type: string }
+        amount: { $ref: "#/components/schemas/Money" }
+        gatewayOrderId: { type: string }
+        gatewayPaymentId: { type: [string, "null"] }
+        provider: { type: string }
+        status: { type: string, enum: [PENDING, PAID, FAILED] }
+        channel: { type: string, enum: [GATEWAY, QR] }
+        method: { type: [string, "null"] }
+        charges: { $ref: "#/components/schemas/Money" }
+        netAmount: { oneOf: [{ $ref: "#/components/schemas/Money" }, { type: "null" }], description: Amount actually credited }
+        failureReason: { type: [string, "null"] }
+        paidAt: { type: [string, "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    Remitter:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        mobileNumber: { type: string }
+        isVerified: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    Beneficiary:
+      type: object
+      properties:
+        id: { type: string }
+        remitterId: { type: string }
+        name: { type: string }
+        accountNumber: { type: string }
+        ifsc: { type: string }
+        bankName: { type: string }
+
+    KycRequest:
+      type: object
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [PENDING, APPROVED, REJECTED] }
+        remarks: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+
+    Complaint:
+      type: object
+      properties:
+        id: { type: string }
+        subject: { type: string }
+        description: { type: string }
+        status: { type: string, enum: [OPEN, IN_PROGRESS, RESOLVED, CLOSED] }
+        adminRemarks: { type: [string, "null"] }
+        transactionRef: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+
+    BankAccount:
+      type: object
+      properties:
+        id: { type: string }
+        accountName: { type: string }
+        accountNumber: { type: string }
+        ifsc: { type: string }
+        bankName: { type: string }
+        upiId: { type: [string, "null"] }
+
+    BalanceRequest:
+      type: object
+      properties:
+        id: { type: string }
+        amount: { $ref: "#/components/schemas/Money" }
+        utrNumber: { type: string }
+        status: { type: string, enum: [PENDING, APPROVED, REJECTED] }
+        remarks: { type: [string, "null"] }
+        paymentMode: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }

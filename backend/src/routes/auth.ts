@@ -121,8 +121,14 @@ const OTP_TTL_MINUTES = 5;
 const OTP_MAX_ATTEMPTS = 5;
 const OTP_REQUEST_COOLDOWN_SECONDS = 45;
 
+// DEV_FIXED_OTP lets an external app developer log in on a test server while SMS isn't
+// connected. Ignored when NODE_ENV=production, so it can never weaken a live server.
+const FIXED_OTP =
+  process.env.NODE_ENV !== "production" && /^\d{6}$/.test(process.env.DEV_FIXED_OTP ?? "") ? process.env.DEV_FIXED_OTP! : null;
+if (FIXED_OTP) console.warn("DEV_FIXED_OTP is set: every OTP is", FIXED_OTP, "(development only)");
+
 function generateOtp() {
-  return String(crypto.randomInt(100000, 999999));
+  return FIXED_OTP ?? String(crypto.randomInt(100000, 999999));
 }
 
 const otpRequestSchema = z.object({ phone: z.string().min(10).max(15) });

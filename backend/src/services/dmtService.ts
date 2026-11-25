@@ -40,7 +40,8 @@ export async function transferToBeneficiary(
   beneficiaryId: string,
   amount: number,
   mode: "IMPS" | "NEFT",
-  source: TransactionSource = "APP"
+  source: TransactionSource = "APP",
+  clientRef?: string
 ) {
   const remitter = await prisma.remitter.findUnique({ where: { id: remitterId } });
   if (!remitter || remitter.userId !== userId) {
@@ -69,6 +70,7 @@ export async function transferToBeneficiary(
     amount,
     transactionType: "DMT",
     source,
+    clientRef,
     descriptionLabel: `Money transfer (${mode})`,
   });
 }

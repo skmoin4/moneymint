@@ -1,3 +1,5 @@
+import 'dart:math';
+
 /// ₹ amounts in Indian digit grouping: 1,23,456.50
 String inr(dynamic value, {bool decimals = true}) {
   final n = value is num ? value.toDouble() : double.tryParse(value?.toString() ?? '') ?? 0;
@@ -30,5 +32,8 @@ String dateTime(String iso) {
   final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
   return '${d.day} ${_months[d.month - 1]} ${d.year}, $h:${_two(d.minute)} ${d.hour < 12 ? 'AM' : 'PM'}';
 }
+
+/// A fresh idempotency key for one payment (sent as `clientRef`; reuse it on retry).
+String newClientRef() => 'app-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32).toRadixString(36)}';
 
 double toDouble(dynamic v) => v is num ? v.toDouble() : double.tryParse(v?.toString() ?? '') ?? 0;
