@@ -35,6 +35,7 @@ interface SubItem {
   to: string;
   label: string;
   roles: Role[];
+  apiUsersOnly?: boolean; // shown only to users with API access enabled
 }
 
 interface MenuItem {
@@ -63,8 +64,11 @@ const MENU: MenuItem[] = [
   {
     label: "API",
     icon: Plug,
-    roles: ADMIN,
+    roles: ALL,
     children: [
+      { to: "/api-settings", label: "API Token & Callback", roles: ALL, apiUsersOnly: true },
+      { to: "/api-document", label: "API Document", roles: ALL, apiUsersOnly: true },
+      { to: "/api-users", label: "API Users", roles: ADMIN },
       { to: "/providers", label: "Add API / APIs", roles: ADMIN },
       { to: "/provider-api-setting", label: "Provider API Setting", roles: ADMIN },
       { to: "/api-parsing-setting", label: "API Parsing Setting", roles: ADMIN },
@@ -196,9 +200,9 @@ function ProfileBlock({ balance, onLoginHistory }: { balance: string | null; onL
   );
 }
 
-function MenuGroup({ item, role, onNavigate }: { item: MenuItem; role: Role; onNavigate: () => void }) {
+function MenuGroup({ item, role, apiEnabled, onNavigate }: { item: MenuItem; role: Role; apiEnabled: boolean; onNavigate: () => void }) {
   const { pathname, search } = useLocation();
-  const children = (item.children ?? []).filter((c) => c.roles.includes(role));
+  const children = (item.children ?? []).filter((c) => c.roles.includes(role) && (!c.apiUsersOnly || apiEnabled));
   const active = children.some((c) => subItemActive(c.to, pathname, search));
   const [open, setOpen] = useState(active);
 
@@ -293,7 +297,7 @@ export function Layout() {
                   </NavLink>
                 </li>
               ) : (
-                <MenuGroup key={m.label} item={m} role={role} onNavigate={closeOnPhone} />
+                <MenuGroup key={m.label} item={m} role={role} apiEnabled={Boolean(user?.apiEnabled)} onNavigate={closeOnPhone} />
               )
             )}
           </ul>

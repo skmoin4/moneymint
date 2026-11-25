@@ -5,7 +5,8 @@ export async function initiateRecharge(
   operatorCode: string,
   mobileNumber: string,
   amount: number,
-  source: TransactionSource = "APP"
+  source: TransactionSource = "APP",
+  clientRef?: string
 ) {
   return processProviderTransaction({
     userId,
@@ -14,6 +15,7 @@ export async function initiateRecharge(
     amount,
     transactionType: "RECHARGE",
     source,
+    clientRef,
     descriptionLabel: "Recharge",
   });
 }

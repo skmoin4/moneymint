@@ -432,7 +432,9 @@ export const ModelName = {
   RechargePlan: 'RechargePlan',
   CashbackOffer: 'CashbackOffer',
   PaymentOrder: 'PaymentOrder',
-  UserPaymentQr: 'UserPaymentQr'
+  UserPaymentQr: 'UserPaymentQr',
+  ApiCredential: 'ApiCredential',
+  PartnerCallback: 'PartnerCallback'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -448,7 +450,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "commissionPayout" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder" | "userPaymentQr"
+    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "commissionPayout" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder" | "userPaymentQr" | "apiCredential" | "partnerCallback"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3116,6 +3118,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ApiCredential: {
+      payload: Prisma.$ApiCredentialPayload<ExtArgs>
+      fields: Prisma.ApiCredentialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ApiCredentialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ApiCredentialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>
+        }
+        findFirst: {
+          args: Prisma.ApiCredentialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ApiCredentialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>
+        }
+        findMany: {
+          args: Prisma.ApiCredentialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>[]
+        }
+        create: {
+          args: Prisma.ApiCredentialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>
+        }
+        createMany: {
+          args: Prisma.ApiCredentialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ApiCredentialCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>[]
+        }
+        delete: {
+          args: Prisma.ApiCredentialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>
+        }
+        update: {
+          args: Prisma.ApiCredentialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>
+        }
+        deleteMany: {
+          args: Prisma.ApiCredentialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ApiCredentialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ApiCredentialUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>[]
+        }
+        upsert: {
+          args: Prisma.ApiCredentialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ApiCredentialPayload>
+        }
+        aggregate: {
+          args: Prisma.ApiCredentialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateApiCredential>
+        }
+        groupBy: {
+          args: Prisma.ApiCredentialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApiCredentialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ApiCredentialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ApiCredentialCountAggregateOutputType> | number
+        }
+      }
+    }
+    PartnerCallback: {
+      payload: Prisma.$PartnerCallbackPayload<ExtArgs>
+      fields: Prisma.PartnerCallbackFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PartnerCallbackFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PartnerCallbackFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>
+        }
+        findFirst: {
+          args: Prisma.PartnerCallbackFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PartnerCallbackFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>
+        }
+        findMany: {
+          args: Prisma.PartnerCallbackFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>[]
+        }
+        create: {
+          args: Prisma.PartnerCallbackCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>
+        }
+        createMany: {
+          args: Prisma.PartnerCallbackCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PartnerCallbackCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>[]
+        }
+        delete: {
+          args: Prisma.PartnerCallbackDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>
+        }
+        update: {
+          args: Prisma.PartnerCallbackUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>
+        }
+        deleteMany: {
+          args: Prisma.PartnerCallbackDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PartnerCallbackUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PartnerCallbackUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>[]
+        }
+        upsert: {
+          args: Prisma.PartnerCallbackUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PartnerCallbackPayload>
+        }
+        aggregate: {
+          args: Prisma.PartnerCallbackAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePartnerCallback>
+        }
+        groupBy: {
+          args: Prisma.PartnerCallbackGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PartnerCallbackGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PartnerCallbackCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PartnerCallbackCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3334,6 +3484,7 @@ export const TransactionScalarFieldEnum = {
   source: 'source',
   vendorRefId: 'vendorRefId',
   statusMessage: 'statusMessage',
+  clientRef: 'clientRef',
   statusCheckCount: 'statusCheckCount',
   lastStatusCheckAt: 'lastStatusCheckAt',
   createdAt: 'createdAt',
@@ -3692,6 +3843,43 @@ export const UserPaymentQrScalarFieldEnum = {
 } as const
 
 export type UserPaymentQrScalarFieldEnum = (typeof UserPaymentQrScalarFieldEnum)[keyof typeof UserPaymentQrScalarFieldEnum]
+
+
+export const ApiCredentialScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  isActive: 'isActive',
+  tokenHash: 'tokenHash',
+  tokenPrefix: 'tokenPrefix',
+  allowedIps: 'allowedIps',
+  callbackUrl: 'callbackUrl',
+  callbackMethod: 'callbackMethod',
+  callbackSecret: 'callbackSecret',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApiCredentialScalarFieldEnum = (typeof ApiCredentialScalarFieldEnum)[keyof typeof ApiCredentialScalarFieldEnum]
+
+
+export const PartnerCallbackScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  transactionId: 'transactionId',
+  url: 'url',
+  method: 'method',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  lastHttpStatus: 'lastHttpStatus',
+  lastError: 'lastError',
+  nextAttemptAt: 'nextAttemptAt',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PartnerCallbackScalarFieldEnum = (typeof PartnerCallbackScalarFieldEnum)[keyof typeof PartnerCallbackScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -4214,6 +4402,8 @@ export type GlobalOmitConfig = {
   cashbackOffer?: Prisma.CashbackOfferOmit
   paymentOrder?: Prisma.PaymentOrderOmit
   userPaymentQr?: Prisma.UserPaymentQrOmit
+  apiCredential?: Prisma.ApiCredentialOmit
+  partnerCallback?: Prisma.PartnerCallbackOmit
 }
 
 /* Types for Logging */

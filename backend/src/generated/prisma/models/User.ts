@@ -329,6 +329,7 @@ export type UserWhereInput = {
   queuedRecharges?: Prisma.QueuedRechargeListRelationFilter
   notifications?: Prisma.UserNotificationListRelationFilter
   commissionPayouts?: Prisma.CommissionPayoutListRelationFilter
+  apiCredential?: Prisma.XOR<Prisma.ApiCredentialNullableScalarRelationFilter, Prisma.ApiCredentialWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -366,6 +367,7 @@ export type UserOrderByWithRelationInput = {
   queuedRecharges?: Prisma.QueuedRechargeOrderByRelationAggregateInput
   notifications?: Prisma.UserNotificationOrderByRelationAggregateInput
   commissionPayouts?: Prisma.CommissionPayoutOrderByRelationAggregateInput
+  apiCredential?: Prisma.ApiCredentialOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -406,6 +408,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   queuedRecharges?: Prisma.QueuedRechargeListRelationFilter
   notifications?: Prisma.UserNotificationListRelationFilter
   commissionPayouts?: Prisma.CommissionPayoutListRelationFilter
+  apiCredential?: Prisma.XOR<Prisma.ApiCredentialNullableScalarRelationFilter, Prisma.ApiCredentialWhereInput> | null
 }, "id" | "email" | "phone" | "referralCode">
 
 export type UserOrderByWithAggregationInput = {
@@ -488,6 +491,7 @@ export type UserCreateInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -522,6 +526,7 @@ export type UserUncheckedCreateInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -556,6 +561,7 @@ export type UserUpdateInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -590,6 +596,7 @@ export type UserUncheckedUpdateInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1099,6 +1106,20 @@ export type UserUpdateOneRequiredWithoutPaymentOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPaymentOrdersInput, Prisma.UserUpdateWithoutPaymentOrdersInput>, Prisma.UserUncheckedUpdateWithoutPaymentOrdersInput>
 }
 
+export type UserCreateNestedOneWithoutApiCredentialInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApiCredentialInput, Prisma.UserUncheckedCreateWithoutApiCredentialInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApiCredentialInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutApiCredentialNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApiCredentialInput, Prisma.UserUncheckedCreateWithoutApiCredentialInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApiCredentialInput
+  upsert?: Prisma.UserUpsertWithoutApiCredentialInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApiCredentialInput, Prisma.UserUpdateWithoutApiCredentialInput>, Prisma.UserUncheckedUpdateWithoutApiCredentialInput>
+}
+
 export type UserCreateWithoutReferredUsersInput = {
   id?: string
   name: string
@@ -1130,6 +1151,7 @@ export type UserCreateWithoutReferredUsersInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferredUsersInput = {
@@ -1163,6 +1185,7 @@ export type UserUncheckedCreateWithoutReferredUsersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferredUsersInput = {
@@ -1201,6 +1224,7 @@ export type UserCreateWithoutReferredByInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferredByInput = {
@@ -1234,6 +1258,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferredByInput = {
@@ -1277,6 +1302,7 @@ export type UserCreateWithoutChildrenInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChildrenInput = {
@@ -1310,6 +1336,7 @@ export type UserUncheckedCreateWithoutChildrenInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChildrenInput = {
@@ -1348,6 +1375,7 @@ export type UserCreateWithoutParentInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutParentInput = {
@@ -1381,6 +1409,7 @@ export type UserUncheckedCreateWithoutParentInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutParentInput = {
@@ -1435,6 +1464,7 @@ export type UserUpdateWithoutReferredUsersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferredUsersInput = {
@@ -1468,6 +1498,7 @@ export type UserUncheckedUpdateWithoutReferredUsersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutReferredByInput = {
@@ -1551,6 +1582,7 @@ export type UserUpdateWithoutChildrenInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChildrenInput = {
@@ -1584,6 +1616,7 @@ export type UserUncheckedUpdateWithoutChildrenInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutParentInput = {
@@ -1633,6 +1666,7 @@ export type UserCreateWithoutWalletInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWalletInput = {
@@ -1666,6 +1700,7 @@ export type UserUncheckedCreateWithoutWalletInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWalletInput = {
@@ -1715,6 +1750,7 @@ export type UserUpdateWithoutWalletInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWalletInput = {
@@ -1748,6 +1784,7 @@ export type UserUncheckedUpdateWithoutWalletInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCommissionPackInput = {
@@ -1781,6 +1818,7 @@ export type UserCreateWithoutCommissionPackInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommissionPackInput = {
@@ -1814,6 +1852,7 @@ export type UserUncheckedCreateWithoutCommissionPackInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommissionPackInput = {
@@ -1873,6 +1912,7 @@ export type UserCreateWithoutCommissionPayoutsInput = {
   balanceRequests?: Prisma.BalanceRequestCreateNestedManyWithoutUserInput
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommissionPayoutsInput = {
@@ -1906,6 +1946,7 @@ export type UserUncheckedCreateWithoutCommissionPayoutsInput = {
   balanceRequests?: Prisma.BalanceRequestUncheckedCreateNestedManyWithoutUserInput
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommissionPayoutsInput = {
@@ -1955,6 +1996,7 @@ export type UserUpdateWithoutCommissionPayoutsInput = {
   balanceRequests?: Prisma.BalanceRequestUpdateManyWithoutUserNestedInput
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommissionPayoutsInput = {
@@ -1988,6 +2030,7 @@ export type UserUncheckedUpdateWithoutCommissionPayoutsInput = {
   balanceRequests?: Prisma.BalanceRequestUncheckedUpdateManyWithoutUserNestedInput
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTransactionsInput = {
@@ -2021,6 +2064,7 @@ export type UserCreateWithoutTransactionsInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -2054,6 +2098,7 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -2103,6 +2148,7 @@ export type UserUpdateWithoutTransactionsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -2136,6 +2182,7 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentTransfersInput = {
@@ -2169,6 +2216,7 @@ export type UserCreateWithoutSentTransfersInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentTransfersInput = {
@@ -2202,6 +2250,7 @@ export type UserUncheckedCreateWithoutSentTransfersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentTransfersInput = {
@@ -2240,6 +2289,7 @@ export type UserCreateWithoutReceivedTransfersInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReceivedTransfersInput = {
@@ -2273,6 +2323,7 @@ export type UserUncheckedCreateWithoutReceivedTransfersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReceivedTransfersInput = {
@@ -2322,6 +2373,7 @@ export type UserUpdateWithoutSentTransfersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentTransfersInput = {
@@ -2355,6 +2407,7 @@ export type UserUncheckedUpdateWithoutSentTransfersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReceivedTransfersInput = {
@@ -2399,6 +2452,7 @@ export type UserUpdateWithoutReceivedTransfersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedTransfersInput = {
@@ -2432,6 +2486,7 @@ export type UserUncheckedUpdateWithoutReceivedTransfersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRemittersInput = {
@@ -2465,6 +2520,7 @@ export type UserCreateWithoutRemittersInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRemittersInput = {
@@ -2498,6 +2554,7 @@ export type UserUncheckedCreateWithoutRemittersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRemittersInput = {
@@ -2547,6 +2604,7 @@ export type UserUpdateWithoutRemittersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRemittersInput = {
@@ -2580,6 +2638,7 @@ export type UserUncheckedUpdateWithoutRemittersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutKycRequestsInput = {
@@ -2613,6 +2672,7 @@ export type UserCreateWithoutKycRequestsInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutKycRequestsInput = {
@@ -2646,6 +2706,7 @@ export type UserUncheckedCreateWithoutKycRequestsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutKycRequestsInput = {
@@ -2695,6 +2756,7 @@ export type UserUpdateWithoutKycRequestsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutKycRequestsInput = {
@@ -2728,6 +2790,7 @@ export type UserUncheckedUpdateWithoutKycRequestsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutComplaintsInput = {
@@ -2761,6 +2824,7 @@ export type UserCreateWithoutComplaintsInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutComplaintsInput = {
@@ -2794,6 +2858,7 @@ export type UserUncheckedCreateWithoutComplaintsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutComplaintsInput = {
@@ -2843,6 +2908,7 @@ export type UserUpdateWithoutComplaintsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutComplaintsInput = {
@@ -2876,6 +2942,7 @@ export type UserUncheckedUpdateWithoutComplaintsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBalanceRequestsInput = {
@@ -2909,6 +2976,7 @@ export type UserCreateWithoutBalanceRequestsInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBalanceRequestsInput = {
@@ -2942,6 +3010,7 @@ export type UserUncheckedCreateWithoutBalanceRequestsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBalanceRequestsInput = {
@@ -2991,6 +3060,7 @@ export type UserUpdateWithoutBalanceRequestsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBalanceRequestsInput = {
@@ -3024,6 +3094,7 @@ export type UserUncheckedUpdateWithoutBalanceRequestsInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutQueuedRechargesInput = {
@@ -3057,6 +3128,7 @@ export type UserCreateWithoutQueuedRechargesInput = {
   balanceRequests?: Prisma.BalanceRequestCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutQueuedRechargesInput = {
@@ -3090,6 +3162,7 @@ export type UserUncheckedCreateWithoutQueuedRechargesInput = {
   balanceRequests?: Prisma.BalanceRequestUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutQueuedRechargesInput = {
@@ -3139,6 +3212,7 @@ export type UserUpdateWithoutQueuedRechargesInput = {
   balanceRequests?: Prisma.BalanceRequestUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutQueuedRechargesInput = {
@@ -3172,6 +3246,7 @@ export type UserUncheckedUpdateWithoutQueuedRechargesInput = {
   balanceRequests?: Prisma.BalanceRequestUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -3205,6 +3280,7 @@ export type UserCreateWithoutNotificationsInput = {
   balanceRequests?: Prisma.BalanceRequestCreateNestedManyWithoutUserInput
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -3238,6 +3314,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   balanceRequests?: Prisma.BalanceRequestUncheckedCreateNestedManyWithoutUserInput
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -3287,6 +3364,7 @@ export type UserUpdateWithoutNotificationsInput = {
   balanceRequests?: Prisma.BalanceRequestUpdateManyWithoutUserNestedInput
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -3320,6 +3398,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   balanceRequests?: Prisma.BalanceRequestUncheckedUpdateManyWithoutUserNestedInput
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPaymentOrdersInput = {
@@ -3353,6 +3432,7 @@ export type UserCreateWithoutPaymentOrdersInput = {
   queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPaymentOrdersInput = {
@@ -3386,6 +3466,7 @@ export type UserUncheckedCreateWithoutPaymentOrdersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+  apiCredential?: Prisma.ApiCredentialUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPaymentOrdersInput = {
@@ -3435,6 +3516,7 @@ export type UserUpdateWithoutPaymentOrdersInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentOrdersInput = {
@@ -3458,6 +3540,159 @@ export type UserUncheckedUpdateWithoutPaymentOrdersInput = {
   referredUsers?: Prisma.UserUncheckedUpdateManyWithoutReferredByNestedInput
   children?: Prisma.UserUncheckedUpdateManyWithoutParentNestedInput
   wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  sentTransfers?: Prisma.FundTransferUncheckedUpdateManyWithoutFromUserNestedInput
+  receivedTransfers?: Prisma.FundTransferUncheckedUpdateManyWithoutToUserNestedInput
+  remitters?: Prisma.RemitterUncheckedUpdateManyWithoutUserNestedInput
+  kycRequests?: Prisma.KycRequestUncheckedUpdateManyWithoutUserNestedInput
+  complaints?: Prisma.ComplaintUncheckedUpdateManyWithoutUserNestedInput
+  balanceRequests?: Prisma.BalanceRequestUncheckedUpdateManyWithoutUserNestedInput
+  queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutApiCredentialInput = {
+  id?: string
+  name: string
+  email?: string | null
+  phone: string
+  passwordHash: string
+  role: $Enums.Role
+  status?: $Enums.UserStatus
+  kycStatus?: $Enums.KycStatus
+  transactionPinHash?: string | null
+  pinEnabled?: boolean
+  tokenVersion?: number
+  referralCode?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  referredBy?: Prisma.UserCreateNestedOneWithoutReferredUsersInput
+  referredUsers?: Prisma.UserCreateNestedManyWithoutReferredByInput
+  parent?: Prisma.UserCreateNestedOneWithoutChildrenInput
+  children?: Prisma.UserCreateNestedManyWithoutParentInput
+  wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
+  paymentOrders?: Prisma.PaymentOrderCreateNestedManyWithoutUserInput
+  commissionPack?: Prisma.CommissionPackCreateNestedOneWithoutUsersInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  sentTransfers?: Prisma.FundTransferCreateNestedManyWithoutFromUserInput
+  receivedTransfers?: Prisma.FundTransferCreateNestedManyWithoutToUserInput
+  remitters?: Prisma.RemitterCreateNestedManyWithoutUserInput
+  kycRequests?: Prisma.KycRequestCreateNestedManyWithoutUserInput
+  complaints?: Prisma.ComplaintCreateNestedManyWithoutUserInput
+  balanceRequests?: Prisma.BalanceRequestCreateNestedManyWithoutUserInput
+  queuedRecharges?: Prisma.QueuedRechargeCreateNestedManyWithoutUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  commissionPayouts?: Prisma.CommissionPayoutCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutApiCredentialInput = {
+  id?: string
+  name: string
+  email?: string | null
+  phone: string
+  passwordHash: string
+  role: $Enums.Role
+  status?: $Enums.UserStatus
+  kycStatus?: $Enums.KycStatus
+  transactionPinHash?: string | null
+  pinEnabled?: boolean
+  tokenVersion?: number
+  referralCode?: string | null
+  referredById?: string | null
+  parentId?: string | null
+  commissionPackId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  referredUsers?: Prisma.UserUncheckedCreateNestedManyWithoutReferredByInput
+  children?: Prisma.UserUncheckedCreateNestedManyWithoutParentInput
+  wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
+  paymentOrders?: Prisma.PaymentOrderUncheckedCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  sentTransfers?: Prisma.FundTransferUncheckedCreateNestedManyWithoutFromUserInput
+  receivedTransfers?: Prisma.FundTransferUncheckedCreateNestedManyWithoutToUserInput
+  remitters?: Prisma.RemitterUncheckedCreateNestedManyWithoutUserInput
+  kycRequests?: Prisma.KycRequestUncheckedCreateNestedManyWithoutUserInput
+  complaints?: Prisma.ComplaintUncheckedCreateNestedManyWithoutUserInput
+  balanceRequests?: Prisma.BalanceRequestUncheckedCreateNestedManyWithoutUserInput
+  queuedRecharges?: Prisma.QueuedRechargeUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  commissionPayouts?: Prisma.CommissionPayoutUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutApiCredentialInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutApiCredentialInput, Prisma.UserUncheckedCreateWithoutApiCredentialInput>
+}
+
+export type UserUpsertWithoutApiCredentialInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutApiCredentialInput, Prisma.UserUncheckedUpdateWithoutApiCredentialInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutApiCredentialInput, Prisma.UserUncheckedCreateWithoutApiCredentialInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutApiCredentialInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutApiCredentialInput, Prisma.UserUncheckedUpdateWithoutApiCredentialInput>
+}
+
+export type UserUpdateWithoutApiCredentialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
+  transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  referredBy?: Prisma.UserUpdateOneWithoutReferredUsersNestedInput
+  referredUsers?: Prisma.UserUpdateManyWithoutReferredByNestedInput
+  parent?: Prisma.UserUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.UserUpdateManyWithoutParentNestedInput
+  wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
+  paymentOrders?: Prisma.PaymentOrderUpdateManyWithoutUserNestedInput
+  commissionPack?: Prisma.CommissionPackUpdateOneWithoutUsersNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  sentTransfers?: Prisma.FundTransferUpdateManyWithoutFromUserNestedInput
+  receivedTransfers?: Prisma.FundTransferUpdateManyWithoutToUserNestedInput
+  remitters?: Prisma.RemitterUpdateManyWithoutUserNestedInput
+  kycRequests?: Prisma.KycRequestUpdateManyWithoutUserNestedInput
+  complaints?: Prisma.ComplaintUpdateManyWithoutUserNestedInput
+  balanceRequests?: Prisma.BalanceRequestUpdateManyWithoutUserNestedInput
+  queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutApiCredentialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
+  transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  commissionPackId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  referredUsers?: Prisma.UserUncheckedUpdateManyWithoutReferredByNestedInput
+  children?: Prisma.UserUncheckedUpdateManyWithoutParentNestedInput
+  wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
+  paymentOrders?: Prisma.PaymentOrderUncheckedUpdateManyWithoutUserNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   sentTransfers?: Prisma.FundTransferUncheckedUpdateManyWithoutFromUserNestedInput
   receivedTransfers?: Prisma.FundTransferUncheckedUpdateManyWithoutToUserNestedInput
@@ -3539,6 +3774,7 @@ export type UserUpdateWithoutReferredByInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferredByInput = {
@@ -3572,6 +3808,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutReferredByInput = {
@@ -3624,6 +3861,7 @@ export type UserUpdateWithoutParentInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutParentInput = {
@@ -3657,6 +3895,7 @@ export type UserUncheckedUpdateWithoutParentInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutParentInput = {
@@ -3728,6 +3967,7 @@ export type UserUpdateWithoutCommissionPackInput = {
   queuedRecharges?: Prisma.QueuedRechargeUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommissionPackInput = {
@@ -3761,6 +4001,7 @@ export type UserUncheckedUpdateWithoutCommissionPackInput = {
   queuedRecharges?: Prisma.QueuedRechargeUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   commissionPayouts?: Prisma.CommissionPayoutUncheckedUpdateManyWithoutUserNestedInput
+  apiCredential?: Prisma.ApiCredentialUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCommissionPackInput = {
@@ -3956,6 +4197,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   queuedRecharges?: boolean | Prisma.User$queuedRechargesArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   commissionPayouts?: boolean | Prisma.User$commissionPayoutsArgs<ExtArgs>
+  apiCredential?: boolean | Prisma.User$apiCredentialArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -4044,6 +4286,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   queuedRecharges?: boolean | Prisma.User$queuedRechargesArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   commissionPayouts?: boolean | Prisma.User$commissionPayoutsArgs<ExtArgs>
+  apiCredential?: boolean | Prisma.User$apiCredentialArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4077,6 +4320,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     queuedRecharges: Prisma.$QueuedRechargePayload<ExtArgs>[]
     notifications: Prisma.$UserNotificationPayload<ExtArgs>[]
     commissionPayouts: Prisma.$CommissionPayoutPayload<ExtArgs>[]
+    apiCredential: Prisma.$ApiCredentialPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -4507,6 +4751,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   queuedRecharges<T extends Prisma.User$queuedRechargesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$queuedRechargesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$QueuedRechargePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commissionPayouts<T extends Prisma.User$commissionPayoutsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$commissionPayoutsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommissionPayoutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  apiCredential<T extends Prisma.User$apiCredentialArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$apiCredentialArgs<ExtArgs>>): Prisma.Prisma__ApiCredentialClient<runtime.Types.Result.GetResult<Prisma.$ApiCredentialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5339,6 +5584,25 @@ export type User$commissionPayoutsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.CommissionPayoutScalarFieldEnum | Prisma.CommissionPayoutScalarFieldEnum[]
+}
+
+/**
+ * User.apiCredential
+ */
+export type User$apiCredentialArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApiCredential
+   */
+  select?: Prisma.ApiCredentialSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApiCredential
+   */
+  omit?: Prisma.ApiCredentialOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApiCredentialInclude<ExtArgs> | null
+  where?: Prisma.ApiCredentialWhereInput
 }
 
 /**

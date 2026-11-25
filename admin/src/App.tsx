@@ -36,6 +36,9 @@ import { CashbackOffersPage } from "./pages/CashbackOffersPage";
 import { ApiParsingSettingPage } from "./pages/ApiParsingSettingPage";
 import { MyCommissionPage } from "./pages/MyCommissionPage";
 import { AddMoneyPage } from "./pages/AddMoneyPage";
+import { ApiUsersPage } from "./pages/ApiUsersPage";
+import { ApiSettingsPage } from "./pages/ApiSettingsPage";
+import { ApiDocumentPage } from "./pages/ApiDocumentPage";
 import { PaymentSummaryPage } from "./pages/PaymentSummaryPage";
 import { CommissionReportPage } from "./pages/CommissionReportPage";
 
@@ -66,6 +69,9 @@ function App() {
               <Route path="/commission-report" element={<CommissionReportPage />} />
               <Route path="/balance-requests" element={<BalanceRequestsPage />} />
               <Route path="/add-money" element={<AddMoneyPage />} />
+              <Route path="/api-users" element={<ApiUsersPage />} />
+              <Route path="/api-settings" element={<ApiSettingsPage />} />
+              <Route path="/api-document" element={<ApiDocumentPage />} />
               <Route path="/payment-summary" element={<PaymentSummaryPage />} />
               <Route path="/bank-details" element={<BankDetailsPage />} />
               <Route path="/pending" element={<PendingPage />} />

@@ -36,7 +36,8 @@ export async function payBill(
   operatorCode: string,
   consumerNumber: string,
   amount: number,
-  source: TransactionSource = "APP"
+  source: TransactionSource = "APP",
+  clientRef?: string
 ) {
   return processProviderTransaction({
     userId,
@@ -45,6 +46,7 @@ export async function payBill(
     amount,
     transactionType: "BBPS",
     source,
+    clientRef,
     descriptionLabel: "Bill payment",
   });
 }

@@ -59,6 +59,7 @@ dashboardRouter.get("/extended-summary", authorize("ADMIN", "MASTER_DISTRIBUTOR"
     usersByRole,
     yesterdayAgg,
     surchargeAgg,
+    apiOutletAgg,
   ] = await Promise.all([
     prisma.user.count({ where: { id: { in: descendantIds } } }),
     prisma.ledgerEntry.aggregate({
@@ -91,6 +92,11 @@ dashboardRouter.get("/extended-summary", authorize("ADMIN", "MASTER_DISTRIBUTOR"
       where: { userId: { in: userIds }, status: "SUCCESS" },
       _sum: { surcharge: true },
     }),
+    // "API Outlet Main": wallet balance held by API users in the downline.
+    prisma.wallet.aggregate({
+      where: { userId: { in: descendantIds }, user: { apiCredential: { isActive: true } } },
+      _sum: { balance: true },
+    }),
   ]);
 
   const outletTotals = { MASTER_DISTRIBUTOR: 0, DISTRIBUTOR: 0, RETAILER: 0 };
@@ -106,6 +112,7 @@ dashboardRouter.get("/extended-summary", authorize("ADMIN", "MASTER_DISTRIBUTOR"
     totalUsers,
     generatedCommission: Number(commissionAgg._sum.amount ?? 0),
     generatedSurcharge: Number(surchargeAgg._sum.surcharge ?? 0),
+    apiOutlet: Number(apiOutletAgg._sum.balance ?? 0),
     transferredBalance: Number(transferAgg._sum.amount ?? 0),
     reversedBalance: Number(refundAgg._sum.amount ?? 0),
     adminMainBalance: Number(callerWallet?.balance ?? 0),

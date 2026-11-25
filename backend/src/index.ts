@@ -31,12 +31,22 @@ import { cashbackRouter } from "./routes/cashback";
 import { paymentGatewayRouter } from "./routes/paymentGateway";
 import { adminTransactionsRouter } from "./routes/adminTransactions";
 import { adminPaymentsRouter } from "./routes/adminPayments";
+import { partnerApiRouter } from "./routes/partnerApi";
+import { apiAccessRouter } from "./routes/apiAccess";
+import { startPartnerCallbackWorker } from "./services/partnerCallbacks";
 import { providerCallbackRouter } from "./routes/providerCallback";
 import { startStatusPoller } from "./services/statusPoller";
 import { errorHandler } from "./middleware/errorHandler";
 import { apiLimiter } from "./middleware/rateLimiters";
 
 const app = express();
+
+// Behind a load balancer / reverse proxy, set TRUST_PROXY (e.g. "1") so req.ip is the real
+// client IP — the partner API's IP whitelist and the rate limits depend on it.
+if (process.env.TRUST_PROXY) {
+  const v = process.env.TRUST_PROXY;
+  app.set("trust proxy", /^\d+$/.test(v) ? Number(v) : v);
+}
 
 app.use(helmet());
 app.use(
@@ -56,6 +66,8 @@ app.use(
 // Vendor callbacks arrive in bursts from a few vendor IPs; they authenticate with a
 // per-provider token, so they sit outside the per-IP API rate limit.
 app.use("/callback", providerCallbackRouter);
+// Partner (API user) API: token + IP whitelist auth and its own per-token rate limit.
+app.use("/api/v1", express.urlencoded({ extended: false }), partnerApiRouter);
 app.use(apiLimiter);
 
 app.use("/health", healthRouter);
@@ -92,6 +104,7 @@ app.use("/plans", plansRouter);
 app.use("/cashback-offers", cashbackRouter);
 app.use("/admin/transactions", adminTransactionsRouter);
 app.use("/admin/payments", adminPaymentsRouter);
+app.use("/api-access", apiAccessRouter);
 
 app.use(errorHandler);
 
@@ -99,4 +112,5 @@ const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
   startStatusPoller();
+  startPartnerCallbackWorker();
 });

@@ -219,3 +219,13 @@ export type PaymentOrder = Prisma.PaymentOrderModel
  * 
  */
 export type UserPaymentQr = Prisma.UserPaymentQrModel
+/**
+ * Model ApiCredential
+ * 
+ */
+export type ApiCredential = Prisma.ApiCredentialModel
+/**
+ * Model PartnerCallback
+ * 
+ */
+export type PartnerCallback = Prisma.PartnerCallbackModel

@@ -61,6 +61,7 @@ export type TransactionMinAggregateOutputType = {
   source: string | null
   vendorRefId: string | null
   statusMessage: string | null
+  clientRef: string | null
   statusCheckCount: number | null
   lastStatusCheckAt: Date | null
   createdAt: Date | null
@@ -84,6 +85,7 @@ export type TransactionMaxAggregateOutputType = {
   source: string | null
   vendorRefId: string | null
   statusMessage: string | null
+  clientRef: string | null
   statusCheckCount: number | null
   lastStatusCheckAt: Date | null
   createdAt: Date | null
@@ -108,6 +110,7 @@ export type TransactionCountAggregateOutputType = {
   source: number
   vendorRefId: number
   statusMessage: number
+  clientRef: number
   statusCheckCount: number
   lastStatusCheckAt: number
   createdAt: number
@@ -151,6 +154,7 @@ export type TransactionMinAggregateInputType = {
   source?: true
   vendorRefId?: true
   statusMessage?: true
+  clientRef?: true
   statusCheckCount?: true
   lastStatusCheckAt?: true
   createdAt?: true
@@ -174,6 +178,7 @@ export type TransactionMaxAggregateInputType = {
   source?: true
   vendorRefId?: true
   statusMessage?: true
+  clientRef?: true
   statusCheckCount?: true
   lastStatusCheckAt?: true
   createdAt?: true
@@ -198,6 +203,7 @@ export type TransactionCountAggregateInputType = {
   source?: true
   vendorRefId?: true
   statusMessage?: true
+  clientRef?: true
   statusCheckCount?: true
   lastStatusCheckAt?: true
   createdAt?: true
@@ -309,6 +315,7 @@ export type TransactionGroupByOutputType = {
   source: string
   vendorRefId: string | null
   statusMessage: string | null
+  clientRef: string | null
   statusCheckCount: number
   lastStatusCheckAt: Date | null
   createdAt: Date
@@ -356,6 +363,7 @@ export type TransactionWhereInput = {
   source?: Prisma.StringFilter<"Transaction"> | string
   vendorRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   statusMessage?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  clientRef?: Prisma.StringNullableFilter<"Transaction"> | string | null
   statusCheckCount?: Prisma.IntFilter<"Transaction"> | number
   lastStatusCheckAt?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -383,6 +391,7 @@ export type TransactionOrderByWithRelationInput = {
   source?: Prisma.SortOrder
   vendorRefId?: Prisma.SortOrderInput | Prisma.SortOrder
   statusMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientRef?: Prisma.SortOrderInput | Prisma.SortOrder
   statusCheckCount?: Prisma.SortOrder
   lastStatusCheckAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -394,6 +403,7 @@ export type TransactionOrderByWithRelationInput = {
 
 export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  userId_clientRef?: Prisma.TransactionUserIdClientRefCompoundUniqueInput
   AND?: Prisma.TransactionWhereInput | Prisma.TransactionWhereInput[]
   OR?: Prisma.TransactionWhereInput[]
   NOT?: Prisma.TransactionWhereInput | Prisma.TransactionWhereInput[]
@@ -413,6 +423,7 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.StringFilter<"Transaction"> | string
   vendorRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   statusMessage?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  clientRef?: Prisma.StringNullableFilter<"Transaction"> | string | null
   statusCheckCount?: Prisma.IntFilter<"Transaction"> | number
   lastStatusCheckAt?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -420,7 +431,7 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   operator?: Prisma.XOR<Prisma.OperatorScalarRelationFilter, Prisma.OperatorWhereInput>
   apiProvider?: Prisma.XOR<Prisma.ApiProviderScalarRelationFilter, Prisma.ApiProviderWhereInput>
-}, "id">
+}, "id" | "userId_clientRef">
 
 export type TransactionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -440,6 +451,7 @@ export type TransactionOrderByWithAggregationInput = {
   source?: Prisma.SortOrder
   vendorRefId?: Prisma.SortOrderInput | Prisma.SortOrder
   statusMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientRef?: Prisma.SortOrderInput | Prisma.SortOrder
   statusCheckCount?: Prisma.SortOrder
   lastStatusCheckAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -472,6 +484,7 @@ export type TransactionScalarWhereWithAggregatesInput = {
   source?: Prisma.StringWithAggregatesFilter<"Transaction"> | string
   vendorRefId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   statusMessage?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
+  clientRef?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   statusCheckCount?: Prisma.IntWithAggregatesFilter<"Transaction"> | number
   lastStatusCheckAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Transaction"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
@@ -493,6 +506,7 @@ export type TransactionCreateInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -520,6 +534,7 @@ export type TransactionUncheckedCreateInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -541,6 +556,7 @@ export type TransactionUpdateInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -568,6 +584,7 @@ export type TransactionUncheckedUpdateInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -592,6 +609,7 @@ export type TransactionCreateManyInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -613,6 +631,7 @@ export type TransactionUpdateManyMutationInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -637,6 +656,7 @@ export type TransactionUncheckedUpdateManyInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -651,6 +671,11 @@ export type TransactionListRelationFilter = {
 
 export type TransactionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type TransactionUserIdClientRefCompoundUniqueInput = {
+  userId: string
+  clientRef: string
 }
 
 export type TransactionCountOrderByAggregateInput = {
@@ -671,6 +696,7 @@ export type TransactionCountOrderByAggregateInput = {
   source?: Prisma.SortOrder
   vendorRefId?: Prisma.SortOrder
   statusMessage?: Prisma.SortOrder
+  clientRef?: Prisma.SortOrder
   statusCheckCount?: Prisma.SortOrder
   lastStatusCheckAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -703,6 +729,7 @@ export type TransactionMaxOrderByAggregateInput = {
   source?: Prisma.SortOrder
   vendorRefId?: Prisma.SortOrder
   statusMessage?: Prisma.SortOrder
+  clientRef?: Prisma.SortOrder
   statusCheckCount?: Prisma.SortOrder
   lastStatusCheckAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -726,6 +753,7 @@ export type TransactionMinOrderByAggregateInput = {
   source?: Prisma.SortOrder
   vendorRefId?: Prisma.SortOrder
   statusMessage?: Prisma.SortOrder
+  clientRef?: Prisma.SortOrder
   statusCheckCount?: Prisma.SortOrder
   lastStatusCheckAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -894,6 +922,7 @@ export type TransactionCreateWithoutUserInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -919,6 +948,7 @@ export type TransactionUncheckedCreateWithoutUserInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -972,6 +1002,7 @@ export type TransactionScalarWhereInput = {
   source?: Prisma.StringFilter<"Transaction"> | string
   vendorRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   statusMessage?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  clientRef?: Prisma.StringNullableFilter<"Transaction"> | string | null
   statusCheckCount?: Prisma.IntFilter<"Transaction"> | number
   lastStatusCheckAt?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -993,6 +1024,7 @@ export type TransactionCreateWithoutApiProviderInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -1018,6 +1050,7 @@ export type TransactionUncheckedCreateWithoutApiProviderInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -1065,6 +1098,7 @@ export type TransactionCreateWithoutOperatorInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -1090,6 +1124,7 @@ export type TransactionUncheckedCreateWithoutOperatorInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -1139,6 +1174,7 @@ export type TransactionCreateManyUserInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -1160,6 +1196,7 @@ export type TransactionUpdateWithoutUserInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1185,6 +1222,7 @@ export type TransactionUncheckedUpdateWithoutUserInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1208,6 +1246,7 @@ export type TransactionUncheckedUpdateManyWithoutUserInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1231,6 +1270,7 @@ export type TransactionCreateManyApiProviderInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -1252,6 +1292,7 @@ export type TransactionUpdateWithoutApiProviderInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1277,6 +1318,7 @@ export type TransactionUncheckedUpdateWithoutApiProviderInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1300,6 +1342,7 @@ export type TransactionUncheckedUpdateManyWithoutApiProviderInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1323,6 +1366,7 @@ export type TransactionCreateManyOperatorInput = {
   source?: string
   vendorRefId?: string | null
   statusMessage?: string | null
+  clientRef?: string | null
   statusCheckCount?: number
   lastStatusCheckAt?: Date | string | null
   createdAt?: Date | string
@@ -1344,6 +1388,7 @@ export type TransactionUpdateWithoutOperatorInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1369,6 +1414,7 @@ export type TransactionUncheckedUpdateWithoutOperatorInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1392,6 +1438,7 @@ export type TransactionUncheckedUpdateManyWithoutOperatorInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   vendorRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusCheckCount?: Prisma.IntFieldUpdateOperationsInput | number
   lastStatusCheckAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1418,6 +1465,7 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   source?: boolean
   vendorRefId?: boolean
   statusMessage?: boolean
+  clientRef?: boolean
   statusCheckCount?: boolean
   lastStatusCheckAt?: boolean
   createdAt?: boolean
@@ -1445,6 +1493,7 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   source?: boolean
   vendorRefId?: boolean
   statusMessage?: boolean
+  clientRef?: boolean
   statusCheckCount?: boolean
   lastStatusCheckAt?: boolean
   createdAt?: boolean
@@ -1472,6 +1521,7 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   source?: boolean
   vendorRefId?: boolean
   statusMessage?: boolean
+  clientRef?: boolean
   statusCheckCount?: boolean
   lastStatusCheckAt?: boolean
   createdAt?: boolean
@@ -1499,13 +1549,14 @@ export type TransactionSelectScalar = {
   source?: boolean
   vendorRefId?: boolean
   statusMessage?: boolean
+  clientRef?: boolean
   statusCheckCount?: boolean
   lastStatusCheckAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "operatorId" | "apiProviderId" | "type" | "identifier" | "amount" | "commission" | "surcharge" | "vendorCommission" | "deduction" | "status" | "providerRefId" | "apiResponse" | "source" | "vendorRefId" | "statusMessage" | "statusCheckCount" | "lastStatusCheckAt" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "operatorId" | "apiProviderId" | "type" | "identifier" | "amount" | "commission" | "surcharge" | "vendorCommission" | "deduction" | "status" | "providerRefId" | "apiResponse" | "source" | "vendorRefId" | "statusMessage" | "clientRef" | "statusCheckCount" | "lastStatusCheckAt" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   operator?: boolean | Prisma.OperatorDefaultArgs<ExtArgs>
@@ -1547,6 +1598,7 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     source: string
     vendorRefId: string | null
     statusMessage: string | null
+    clientRef: string | null
     statusCheckCount: number
     lastStatusCheckAt: Date | null
     createdAt: Date
@@ -1994,6 +2046,7 @@ export interface TransactionFieldRefs {
   readonly source: Prisma.FieldRef<"Transaction", 'String'>
   readonly vendorRefId: Prisma.FieldRef<"Transaction", 'String'>
   readonly statusMessage: Prisma.FieldRef<"Transaction", 'String'>
+  readonly clientRef: Prisma.FieldRef<"Transaction", 'String'>
   readonly statusCheckCount: Prisma.FieldRef<"Transaction", 'Int'>
   readonly lastStatusCheckAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>

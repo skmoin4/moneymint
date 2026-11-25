@@ -3,6 +3,7 @@ import { HttpError } from "../utils/httpError";
 import { sendRecharge, checkStatus, ProviderDownError, type ProviderResult, type ProviderTarget } from "./providerClient";
 import { sendSms } from "./smsService";
 import { distributeCommission, userRate, vendorMargin } from "./commission";
+import { enqueuePartnerCallback } from "./partnerCallbacks";
 import type { Prisma } from "../generated/prisma/client";
 
 interface RewardParams {
@@ -157,6 +158,7 @@ interface ProcessTransactionInput {
   transactionType: EngineTransactionType;
   descriptionLabel: string; // e.g. "Recharge", "Bill payment"
   source?: TransactionSource;
+  clientRef?: string; // API users' own request id (unique per user)
 }
 
 export type TransactionSource = "APP" | "WEB" | "API" | "MANUAL" | "QUEUE";
@@ -169,6 +171,7 @@ export async function processProviderTransaction({
   transactionType,
   descriptionLabel,
   source = "APP",
+  clientRef,
 }: ProcessTransactionInput) {
   const stopSetting = await prisma.systemSetting.findUnique({ where: { key: "stopAllApiUsers" } });
   if (stopSetting?.value === "true") {
@@ -215,6 +218,7 @@ export async function processProviderTransaction({
         deduction: amount + surcharge,
         status: "PENDING",
         source,
+        clientRef,
       },
     });
 
@@ -441,6 +445,7 @@ export async function settleTransaction(
         });
       }
 
+      await enqueuePartnerCallback(tx, transactionId);
       return updated;
     }
 
@@ -459,9 +464,9 @@ export async function settleTransaction(
       depleteProviderWallet: txn.type !== "AEPS",
     });
 
-    return commission > 0
-      ? tx.transaction.update({ where: { id: transactionId }, data: { commission } })
-      : updated;
+    const final = commission > 0 ? await tx.transaction.update({ where: { id: transactionId }, data: { commission } }) : updated;
+    await enqueuePartnerCallback(tx, transactionId);
+    return final;
   });
 }
 
@@ -630,9 +635,11 @@ export async function refundSuccessfulTransaction(transactionId: string, remark?
 
     await tx.commissionPayout.updateMany({ where: { transactionId }, data: { reversed: true } });
 
-    return tx.transaction.update({
+    const refunded = await tx.transaction.update({
       where: { id: transactionId },
       data: { status: "REFUNDED", commission: 0, vendorCommission: 0 },
     });
+    await enqueuePartnerCallback(tx, transactionId);
+    return refunded;
   });
 }

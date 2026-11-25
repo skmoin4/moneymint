@@ -434,6 +434,35 @@ three states — the app must handle all three:
   arrives, or by asking the vendor (status check) — automatically every 2 minutes in the
   background, and on demand when this endpoint is polled after 30s.
 
+## Partner API (API users / B2B) — `/api/v1`
+
+For other businesses' servers. The admin enables API access per user (`/api-access/users`);
+the user generates a token, whitelists server IPs and sets a callback URL
+(`/api-access/me…`). The full reference with examples is the panel's **API Document**
+page (`admin/src/pages/ApiDocumentPage.tsx`).
+
+- Auth: header `X-Api-Token` (or `token` param) **and** the request IP must be whitelisted.
+  Behind a proxy/load balancer set `TRUST_PROXY` so the real IP is seen. 300 req/min per token.
+- Endpoints (GET or POST): `/balance`, `/operators`, `/recharge {number, amount, operator, client_ref}`,
+  `/bill/fetch {operator, consumer_no}`, `/bill/pay {operator, consumer_no, amount, client_ref}`,
+  `/status {client_ref | txn_id}`.
+- `client_ref` is unique per user (DB constraint): a repeat returns the original transaction
+  with `duplicate: true` — never a second recharge, even under concurrent retries.
+- `status`: SUCCESS / PENDING / FAILED / REFUNDED, or ERROR (rejected, nothing created).
+- Callbacks: on SUCCESS/FAILED/REFUNDED a callback is queued in the same DB transaction as the
+  settlement and sent to the user's URL (POST JSON + `X-MoneyMint-Signature` = HMAC-SHA256 of
+  the body with the user's callback secret, or GET with `&signature=` over the query string).
+  Retried after 1, 5, 15, 60, 180 min; visible and re-sendable in the panel. Callback URLs
+  that resolve to private/local addresses are refused (set `ALLOW_PRIVATE_CALLBACKS=true`
+  only for local testing).
+- Tokens are stored only as SHA-256 hashes and shown once.
+
+Panel endpoints: `GET/POST /api-access/users`, `PATCH /api-access/users/:userId {isActive}`,
+`GET /api-access/candidates?search=` (ADMIN); `GET/PUT /api-access/me`,
+`POST /api-access/me/token`, `POST /api-access/me/callback-secret`,
+`GET /api-access/me/callbacks`, `POST /api-access/me/callbacks/:id/resend`,
+`POST /api-access/me/test-callback`. Login responses include `user.apiEnabled`.
+
 ## Commission chain, surcharge & vendor margin
 
 Every user has a commission pack (`PATCH /users/:id/commission` by their parent). A pack

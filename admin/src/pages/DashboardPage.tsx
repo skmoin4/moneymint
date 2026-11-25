@@ -43,6 +43,7 @@ interface PendingSummary {
 interface ExtendedSummary {
   generatedCommission: number;
   generatedSurcharge: number;
+  apiOutlet: number;
   transferredBalance: number;
   reversedBalance: number;
   adminMainBalance: number;
@@ -130,6 +131,7 @@ function ExtendedBlock() {
         ["Transferred Balance Main", inr(data.transferredBalance)],
         ["Reversed Balance Main", inr(data.reversedBalance)],
         ["Admin Main Balance", inr(data.adminMainBalance)],
+        ["API Outlet Main", inr(data.apiOutlet)],
         ["Master Distributor Outlet Main", inr(data.masterDistributorOutlet)],
         ["Distributor Outlet Main", inr(data.distributorOutlet)],
         ["Retailer Outlet Main", inr(data.retailerOutlet)],
@@ -142,6 +144,7 @@ function ExtendedBlock() {
         ["Transferred Balance Main", ""],
         ["Reversed Balance Main", ""],
         ["Admin Main Balance", ""],
+        ["API Outlet Main", ""],
         ["Master Distributor Outlet Main", ""],
         ["Distributor Outlet Main", ""],
         ["Retailer Outlet Main", ""],

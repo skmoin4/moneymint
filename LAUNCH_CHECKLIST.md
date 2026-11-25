@@ -178,3 +178,7 @@ is already logged, just not actually sent anywhere real yet.
   is now debited (it wasn't — balance was being created from nothing), managers' own bank
   accounts. Tested against a local stand-in of Razorpay's API; needs a real Razorpay
   account to go live.
+- **2026-11-25** — Partner API (API users / B2B) built: token + IP-whitelist auth, recharge /
+  bill pay / status / balance with idempotent client_ref, signed outcome callbacks with
+  retries, API Users / API Token & Callback / API Document pages. Production needs
+  `TRUST_PROXY` set correctly behind the load balancer, or the IP whitelist sees the proxy's IP.

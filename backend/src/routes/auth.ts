@@ -14,6 +14,12 @@ import { authLimiter } from "../middleware/rateLimiters";
 
 export const authRouter = Router();
 
+/** The user object returned at login — apiEnabled lets the panel show the API menus. */
+async function sessionUser(user: { id: string; name: string; phone: string; role: string }) {
+  const cred = await prisma.apiCredential.findUnique({ where: { userId: user.id }, select: { isActive: true } });
+  return { id: user.id, name: user.name, phone: user.phone, role: user.role, apiEnabled: Boolean(cred?.isActive) };
+}
+
 const registerSchema = z.object({
   name: z.string().min(2),
   phone: z.string().min(10).max(15),
@@ -59,7 +65,7 @@ authRouter.post("/register", authLimiter, async (req, res) => {
   const token = signToken({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion });
   res.status(201).json({
     token,
-    user: { id: user.id, name: user.name, phone: user.phone, role: user.role },
+    user: await sessionUser(user),
   });
 });
 
@@ -106,7 +112,7 @@ authRouter.post("/login", authLimiter, async (req, res) => {
   const token = signToken({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion });
   res.json({
     token,
-    user: { id: user.id, name: user.name, phone: user.phone, role: user.role },
+    user: await sessionUser(user),
   });
 });
 
@@ -206,7 +212,7 @@ authRouter.post("/otp/verify", authLimiter, async (req, res) => {
   const token = signToken({ userId: user.id, role: user.role, tokenVersion: user.tokenVersion });
   res.json({
     token,
-    user: { id: user.id, name: user.name, phone: user.phone, role: user.role },
+    user: await sessionUser(user),
   });
 });
 
@@ -366,10 +372,7 @@ authRouter.get("/me", authenticate, async (req, res) => {
     return res.status(404).json({ error: "User not found" });
   }
   res.json({
-    id: user.id,
-    name: user.name,
-    phone: user.phone,
-    role: user.role,
+    ...(await sessionUser(user)),
     walletBalance: user.wallet?.balance,
   });
 });

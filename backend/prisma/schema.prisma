@@ -149,6 +149,7 @@ model User {
   queuedRecharges   QueuedRecharge[]
   notifications     UserNotification[]
   commissionPayouts CommissionPayout[]
+  apiCredential     ApiCredential?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -367,6 +368,9 @@ model Transaction {
   // used to match callbacks and run status checks.
   vendorRefId       String?
   statusMessage     String?
+  // API users' own reference for this request; unique per user so a retried request
+  // can never recharge twice.
+  clientRef         String?
   statusCheckCount  Int       @default(0)
   lastStatusCheckAt DateTime?
 
@@ -378,6 +382,7 @@ model Transaction {
   @@index([identifier])
   @@index([createdAt])
   @@index([vendorRefId])
+  @@unique([userId, clientRef])
 }
 
 // Every request we send to a vendor and every callback a vendor sends us, with secrets
@@ -767,4 +772,44 @@ model UserPaymentQr {
   imageUrl   String?
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
+}
+
+// API access for a B2B partner ("API user"): their server calls /api/v1 with this token.
+// Only a SHA-256 hash of the token is stored; the token itself is shown once when generated.
+model ApiCredential {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id])
+  isActive       Boolean   @default(true) // admin switch
+  tokenHash      String?   @unique
+  tokenPrefix    String? // first characters, to recognise which token is in use
+  allowedIps     String    @default("") // comma separated; requests from other IPs are refused
+  callbackUrl    String?
+  callbackMethod String    @default("POST") // POST (JSON) or GET (query string)
+  callbackSecret String // signs callbacks (HMAC-SHA256) so the partner can verify them
+  lastUsedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// Outcome notifications to API users' callback URLs, retried with backoff until the
+// partner answers 2xx.
+model PartnerCallback {
+  id            String    @id @default(uuid())
+  userId        String
+  transactionId String
+  url           String
+  method        String
+  payload       String
+  status        String    @default("PENDING") // PENDING, SENT, FAILED
+  attempts      Int       @default(0)
+  lastHttpStatus Int?
+  lastError     String?
+  nextAttemptAt DateTime  @default(now())
+  sentAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([status, nextAttemptAt])
+  @@index([userId, createdAt])
+  @@index([transactionId])
 }

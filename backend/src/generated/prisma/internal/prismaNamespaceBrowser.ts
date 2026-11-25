@@ -86,7 +86,9 @@ export const ModelName = {
   RechargePlan: 'RechargePlan',
   CashbackOffer: 'CashbackOffer',
   PaymentOrder: 'PaymentOrder',
-  UserPaymentQr: 'UserPaymentQr'
+  UserPaymentQr: 'UserPaymentQr',
+  ApiCredential: 'ApiCredential',
+  PartnerCallback: 'PartnerCallback'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -284,6 +286,7 @@ export const TransactionScalarFieldEnum = {
   source: 'source',
   vendorRefId: 'vendorRefId',
   statusMessage: 'statusMessage',
+  clientRef: 'clientRef',
   statusCheckCount: 'statusCheckCount',
   lastStatusCheckAt: 'lastStatusCheckAt',
   createdAt: 'createdAt',
@@ -642,6 +645,43 @@ export const UserPaymentQrScalarFieldEnum = {
 } as const
 
 export type UserPaymentQrScalarFieldEnum = (typeof UserPaymentQrScalarFieldEnum)[keyof typeof UserPaymentQrScalarFieldEnum]
+
+
+export const ApiCredentialScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  isActive: 'isActive',
+  tokenHash: 'tokenHash',
+  tokenPrefix: 'tokenPrefix',
+  allowedIps: 'allowedIps',
+  callbackUrl: 'callbackUrl',
+  callbackMethod: 'callbackMethod',
+  callbackSecret: 'callbackSecret',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApiCredentialScalarFieldEnum = (typeof ApiCredentialScalarFieldEnum)[keyof typeof ApiCredentialScalarFieldEnum]
+
+
+export const PartnerCallbackScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  transactionId: 'transactionId',
+  url: 'url',
+  method: 'method',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  lastHttpStatus: 'lastHttpStatus',
+  lastError: 'lastError',
+  nextAttemptAt: 'nextAttemptAt',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PartnerCallbackScalarFieldEnum = (typeof PartnerCallbackScalarFieldEnum)[keyof typeof PartnerCallbackScalarFieldEnum]
 
 
 export const SortOrder = {

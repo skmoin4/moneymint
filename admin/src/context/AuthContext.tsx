@@ -6,6 +6,7 @@ interface User {
   name: string;
   phone: string;
   role: string;
+  apiEnabled?: boolean; // API user (B2B partner) — shows the API token / document menus
 }
 
 interface AuthContextValue {
