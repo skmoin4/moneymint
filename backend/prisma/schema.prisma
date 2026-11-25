@@ -1,0 +1,652 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MASTER_DISTRIBUTOR
+  DISTRIBUTOR
+  RETAILER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum LedgerEntryType {
+  CREDIT
+  DEBIT
+}
+
+enum LedgerReferenceType {
+  RECHARGE
+  BBPS
+  DMT
+  AEPS
+  FUND_TRANSFER
+  COMMISSION
+  REFUND
+  ADJUSTMENT
+  RENT
+  CASHBACK
+  REFERRAL_REWARD
+  WALLET_TOPUP
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum ProviderType {
+  RECHARGE
+  AEPS
+  DMT
+  BBPS
+}
+
+enum TransactionType {
+  RECHARGE
+  BBPS
+  DMT
+  AEPS
+}
+
+enum CommissionType {
+  PERCENT
+  FLAT
+}
+
+enum FundTransferStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum KycStatus {
+  NOT_SUBMITTED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum BalanceRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String?    @unique
+  phone        String     @unique
+  passwordHash String
+  role         Role
+  status       UserStatus @default(ACTIVE)
+  kycStatus    KycStatus  @default(NOT_SUBMITTED)
+
+  // Consumer-app transaction PIN — a second factor confirming money-movement actions,
+  // distinct from the login credential. Opt-in: enforced only when pinEnabled is true.
+  transactionPinHash String?
+  pinEnabled         Boolean @default(false)
+  tokenVersion       Int     @default(0) // bumped on "Logout All Devices" to invalidate every previously issued JWT
+
+  // Referral program: whoever referred this user earns a reward whenever this user
+  // transacts successfully (see settleTransaction). referralCode is this user's own
+  // code to hand out to others.
+  referralCode  String? @unique
+  referredById  String?
+  referredBy    User?   @relation("Referrals", fields: [referredById], references: [id])
+  referredUsers User[]  @relation("Referrals")
+
+  parentId String?
+  parent   User?   @relation("UserHierarchy", fields: [parentId], references: [id])
+  children User[]  @relation("UserHierarchy")
+
+  wallet        Wallet?
+  paymentOrders PaymentOrder[]
+
+  commissionPackId String?
+  commissionPack    CommissionPack? @relation(fields: [commissionPackId], references: [id])
+
+  transactions      Transaction[]
+  sentTransfers     FundTransfer[]  @relation("TransferFrom")
+  receivedTransfers FundTransfer[]  @relation("TransferTo")
+  remitters         Remitter[]
+  kycRequests       KycRequest[]
+  complaints        Complaint[]
+  balanceRequests   BalanceRequest[]
+  queuedRecharges   QueuedRecharge[]
+  notifications     UserNotification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentId])
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  balance   Decimal  @default(0) @db.Decimal(14, 2)
+  updatedAt DateTime @updatedAt
+
+  ledgerEntries LedgerEntry[]
+}
+
+model LedgerEntry {
+  id            String              @id @default(uuid())
+  walletId      String
+  wallet        Wallet              @relation(fields: [walletId], references: [id])
+  type          LedgerEntryType
+  amount        Decimal             @db.Decimal(14, 2)
+  balanceAfter  Decimal             @db.Decimal(14, 2)
+  referenceType LedgerReferenceType
+  referenceId   String?
+  description   String?
+  createdAt     DateTime            @default(now())
+
+  @@index([walletId])
+  @@index([referenceType, referenceId])
+}
+
+model ApiProvider {
+  id           String       @id @default(uuid())
+  name         String
+  code         String       @unique
+  providerType ProviderType
+  baseUrl      String
+  apiKey       String
+  apiSecret    String
+  isActive     Boolean      @default(true)
+  rentAmount   Decimal      @default(0) @db.Decimal(14, 2)
+
+  // Deeper per-provider integration config (mirrors AP Money's "Add API" form, trimmed to
+  // fields that actually change engine behavior rather than being decorative).
+  smsAlertOnSuccess Boolean @default(true)
+  smsAlertOnFailure Boolean @default(true)
+  retryCount        Int     @default(1) // attempts on this provider before failing over to the next priority slot
+  gstPercent        Decimal @default(0) @db.Decimal(5, 2) // added on top when debiting rent
+
+  // Real float the platform holds with this upstream vendor. Wallet 1 is the operational
+  // balance: it auto-depletes on every successful transaction routed through this provider,
+  // and a provider with insufficient Wallet 1 balance is skipped in the failover chain —
+  // exactly like running out of prepaid balance with a real vendor. Wallet 2 is a secondary,
+  // manually-managed reserve (e.g. a GST float) that admin tops up/debits by hand; nothing
+  // automatically drains it.
+  walletBalance          Decimal @default(0) @db.Decimal(14, 2)
+  secondaryWalletBalance Decimal @default(0) @db.Decimal(14, 2)
+  secondaryWalletLabel   String  @default("Wallet 2")
+
+  operatorMappings OperatorApiMapping[]
+  transactions     Transaction[]
+  walletEntries    ProviderWalletEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProviderWalletEntry {
+  id            String          @id @default(uuid())
+  apiProviderId String
+  apiProvider   ApiProvider     @relation(fields: [apiProviderId], references: [id])
+  walletSlot    Int // 1 = operational (auto-depletes), 2 = manually-managed reserve
+  type          LedgerEntryType
+  amount        Decimal         @db.Decimal(14, 2)
+  balanceAfter  Decimal         @db.Decimal(14, 2)
+  description   String?
+  referenceId   String? // transaction id, when depleted by a successful transaction
+
+  createdAt DateTime @default(now())
+
+  @@index([apiProviderId])
+}
+
+model Operator {
+  id       String  @id @default(uuid())
+  name     String
+  code     String  @unique
+  type     String // PREPAID, POSTPAID, DTH, ELECTRICITY, etc.
+  isActive Boolean @default(true)
+
+  apiMappings      OperatorApiMapping[]
+  commissionSlabs  CommissionSlab[]
+  transactions     Transaction[]
+  prefixes         OperatorPrefix[]
+  plans            RechargePlan[]
+  cashbackOffers   CashbackOffer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OperatorApiMapping {
+  id            String      @id @default(uuid())
+  operatorId    String
+  operator      Operator    @relation(fields: [operatorId], references: [id])
+  apiProviderId String
+  apiProvider   ApiProvider @relation(fields: [apiProviderId], references: [id])
+  priority      Int // 1 = primary, 2 = fallback, etc.
+  isActive      Boolean     @default(true)
+
+  @@unique([operatorId, priority])
+  @@index([apiProviderId])
+}
+
+model CommissionPack {
+  id   String @id @default(uuid())
+  name String @unique
+
+  // Fallback rate applied when a transaction's operator has no specific slab in this pack.
+  globalCommissionType CommissionType?
+  globalValue          Decimal?        @db.Decimal(6, 2)
+
+  slabs CommissionSlab[]
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommissionSlab {
+  id             String         @id @default(uuid())
+  packId         String
+  pack           CommissionPack @relation(fields: [packId], references: [id])
+  operatorId     String
+  operator       Operator       @relation(fields: [operatorId], references: [id])
+  commissionType CommissionType
+  value          Decimal        @db.Decimal(6, 2)
+  minAmount      Decimal?       @db.Decimal(14, 2)
+  maxAmount      Decimal?       @db.Decimal(14, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([packId, operatorId])
+  @@index([operatorId])
+  @@index([packId])
+}
+
+model Transaction {
+  id            String            @id @default(uuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  operatorId    String
+  operator      Operator          @relation(fields: [operatorId], references: [id])
+  apiProviderId String
+  apiProvider   ApiProvider       @relation(fields: [apiProviderId], references: [id])
+
+  type           TransactionType @default(RECHARGE)
+  identifier     String // mobile number for RECHARGE, consumer/account number for BBPS
+  amount         Decimal @db.Decimal(14, 2)
+  commission     Decimal @default(0) @db.Decimal(14, 2)
+  deduction      Decimal @db.Decimal(14, 2)
+
+  status        TransactionStatus @default(PENDING)
+  providerRefId String?
+  apiResponse   Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([identifier])
+}
+
+model FundTransfer {
+  id          String              @id @default(uuid())
+  fromUserId  String
+  fromUser    User                @relation("TransferFrom", fields: [fromUserId], references: [id])
+  toUserId    String
+  toUser      User                @relation("TransferTo", fields: [toUserId], references: [id])
+  amount      Decimal             @db.Decimal(14, 2)
+  paymentMode String
+  utrNumber   String?
+  status      FundTransferStatus  @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([fromUserId])
+  @@index([toUserId])
+}
+
+model Remitter {
+  id          String   @id @default(uuid())
+  userId      String // retailer who registered this remitter
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  mobileNumber String  @unique
+  isVerified  Boolean  @default(false)
+
+  beneficiaries Beneficiary[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Beneficiary {
+  id            String   @id @default(uuid())
+  remitterId    String
+  remitter      Remitter @relation(fields: [remitterId], references: [id])
+  name          String
+  accountNumber String
+  ifsc          String
+  bankName      String
+
+  createdAt DateTime @default(now())
+
+  @@index([remitterId])
+}
+
+model KycRequest {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  aadhaarNumber String
+  panNumber     String
+  status        KycStatus @default(PENDING)
+  remarks       String?
+  reviewedById  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Complaint {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
+  subject     String
+  description String
+  status      ComplaintStatus @default(OPEN)
+  adminRemarks String?
+  transactionRef String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model BankAccount {
+  id            String   @id @default(uuid())
+  accountName   String
+  accountNumber String
+  ifsc          String
+  bankName      String
+  upiId         String?
+  isActive      Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notice {
+  id       String  @id @default(uuid())
+  message  String
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BalanceRequest {
+  id         String               @id @default(uuid())
+  userId     String
+  user       User                 @relation(fields: [userId], references: [id])
+  amount     Decimal              @db.Decimal(14, 2)
+  utrNumber  String
+  status     BalanceRequestStatus @default(PENDING)
+  remarks    String?
+  qrSettled  Boolean              @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  ipAddress String?
+  userAgent String?
+  details   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model IpWhitelistEntry {
+  id          String   @id @default(uuid())
+  ipAddress   String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model SmsLog {
+  id       String  @id @default(uuid())
+  toPhone  String
+  message  String
+  purpose  String // OTP, TRANSACTION_ALERT, ANNOUNCEMENT, etc.
+  status   String // SENT, FAILED
+  provider String
+
+  createdAt DateTime @default(now())
+
+  @@index([toPhone])
+  @@index([createdAt])
+}
+
+model Circle {
+  id       String  @id @default(uuid())
+  name     String
+  code     String  @unique
+  state    String
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model PaymentMode {
+  id       String  @id @default(uuid())
+  name     String  @unique
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model WhatsappLog {
+  id       String @id @default(uuid())
+  toPhone  String
+  message  String
+  status   String // SENT, FAILED
+  provider String
+
+  createdAt DateTime @default(now())
+
+  @@index([toPhone])
+}
+
+model EmailLog {
+  id       String @id @default(uuid())
+  toEmail  String
+  subject  String
+  message  String
+  status   String // SENT, FAILED
+  provider String
+
+  createdAt DateTime @default(now())
+
+  @@index([toEmail])
+}
+
+model OtpRequest {
+  id        String   @id @default(uuid())
+  phone     String
+  otpHash   String
+  purpose   String   @default("LOGIN")
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  attempts  Int      @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
+enum QueuedRechargeStatus {
+  QUEUED
+  PROCESSED
+  FAILED
+  CANCELLED
+}
+
+model QueuedRecharge {
+  id            String               @id @default(uuid())
+  userId        String
+  user          User                 @relation(fields: [userId], references: [id])
+  operatorCode  String
+  identifier    String
+  amount        Decimal              @db.Decimal(14, 2)
+  scheduledFor  DateTime
+  status        QueuedRechargeStatus @default(QUEUED)
+  resultMessage String?
+  transactionId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model UserNotification {
+  id      String  @id @default(uuid())
+  userId  String
+  user    User    @relation(fields: [userId], references: [id])
+  message String
+  isRead  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+}
+
+// Best-guess mobile-number-series -> operator mapping for "auto-detect operator as you
+// type" in the app. Heuristic only (numbers can port between operators via MNP) — the
+// app should still let the user override it, same as AP Money's own disclaimer.
+model OperatorPrefix {
+  id         String   @id @default(uuid())
+  prefix     String   @unique // digits only, e.g. "981", "70"
+  operatorId String
+  operator   Operator @relation(fields: [operatorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([operatorId])
+}
+
+model RechargePlan {
+  id          String   @id @default(uuid())
+  operatorId  String
+  operator    Operator @relation(fields: [operatorId], references: [id])
+  amount      Decimal  @db.Decimal(10, 2)
+  validity    String? // e.g. "28 days"
+  data        String? // e.g. "1.5GB/day"
+  talktime    String?
+  sms         String?
+  description String?
+  category    String   @default("Popular") // Popular, Data, Unlimited, Topup, ...
+  isActive    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([operatorId])
+}
+
+// Promotional cashback campaigns — distinct from the standing per-user Commission pack.
+// Admin can run a time-boxed "5% back on Jio recharges" offer; the best matching active
+// offer is applied automatically on every successful transaction.
+model CashbackOffer {
+  id          String    @id @default(uuid())
+  name        String
+  operatorId  String? // null = applies to every operator
+  operator    Operator? @relation(fields: [operatorId], references: [id])
+  minAmount   Decimal   @default(0) @db.Decimal(14, 2)
+  percent     Decimal   @db.Decimal(5, 2)
+  maxCashback Decimal? @db.Decimal(14, 2)
+  validFrom   DateTime?
+  validTo     DateTime?
+  isActive    Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([operatorId])
+}
+
+// A wallet top-up initiated through a real payment gateway (Razorpay/Cashfree/PayU in
+// production; MockPaymentGatewayService today). Created PENDING when the app requests
+// checkout params, then flipped to PAID/FAILED only by the signed webhook callback —
+// never by the client claiming success, since that would let anyone credit their own
+// wallet for free.
+model PaymentOrder {
+  id               String @id @default(uuid())
+  userId           String
+  user             User   @relation(fields: [userId], references: [id])
+  amount           Decimal @db.Decimal(14, 2)
+  gatewayOrderId   String  @unique
+  gatewayPaymentId String?
+  provider         String  @default("MOCK_GATEWAY")
+  status           String  @default("PENDING") // PENDING, PAID, FAILED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
