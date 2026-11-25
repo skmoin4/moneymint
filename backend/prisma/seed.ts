@@ -170,6 +170,43 @@ async function main() {
     await prisma.paymentMode.upsert({ where: { name }, update: {}, create: { name } });
   }
 
+  // Sample plans and number series so the app's "Browse plans" and operator auto-detect
+  // have something to show in development. Real plans should come from your recharge
+  // vendor's plan API; real series change with number portability.
+  const SAMPLE_PLANS: Record<string, { amount: number; validity: string; data?: string; talktime?: string; category: string }[]> = {
+    JIO: [
+      { amount: 199, validity: "18 days", data: "1.5GB/day", category: "Popular" },
+      { amount: 299, validity: "28 days", data: "1.5GB/day", category: "Popular" },
+      { amount: 349, validity: "28 days", data: "2GB/day", category: "Unlimited" },
+      { amount: 719, validity: "70 days", data: "2GB/day", category: "Unlimited" },
+      { amount: 19, validity: "1 day", data: "1GB", category: "Data" },
+    ],
+    AIRTEL: [
+      { amount: 199, validity: "28 days", data: "2GB total", category: "Popular" },
+      { amount: 299, validity: "28 days", data: "1GB/day", category: "Popular" },
+      { amount: 409, validity: "28 days", data: "2.5GB/day", category: "Unlimited" },
+      { amount: 10, validity: "NA", talktime: "₹7.47", category: "Topup" },
+    ],
+    VI: [
+      { amount: 299, validity: "28 days", data: "1GB/day", category: "Popular" },
+      { amount: 349, validity: "28 days", data: "1.5GB/day", category: "Unlimited" },
+    ],
+    BSNL: [{ amount: 107, validity: "35 days", data: "3GB", category: "Popular" }],
+  };
+  for (const [code, plans] of Object.entries(SAMPLE_PLANS)) {
+    const op = await prisma.operator.findUnique({ where: { code } });
+    if (!op || (await prisma.rechargePlan.count({ where: { operatorId: op.id } })) > 0) continue;
+    await prisma.rechargePlan.createMany({ data: plans.map((p) => ({ ...p, operatorId: op.id, description: "Sample plan" })) });
+  }
+  const SAMPLE_SERIES: Record<string, string[]> = { JIO: ["70", "62", "89"], AIRTEL: ["98", "99", "81"], VI: ["96", "97"], BSNL: ["94"] };
+  for (const [code, prefixes] of Object.entries(SAMPLE_SERIES)) {
+    const op = await prisma.operator.findUnique({ where: { code } });
+    if (!op) continue;
+    for (const prefix of prefixes) {
+      await prisma.operatorPrefix.upsert({ where: { prefix }, update: {}, create: { prefix, operatorId: op.id } });
+    }
+  }
+
   console.log("Seed complete: operators, providers, mappings, one Standard commission pack covering every operator, circles, rent amounts, payment modes.");
 }
 
