@@ -42,6 +42,10 @@ export function BalanceRequestsPage() {
 
   const [amount, setAmount] = useState("");
   const [utrNumber, setUtrNumber] = useState("");
+  const [bankAccountId, setBankAccountId] = useState("");
+  const [paymentMode, setPaymentMode] = useState("");
+  const [depositedAt, setDepositedAt] = useState("");
+  const [modes, setModes] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [qrFor, setQrFor] = useState<string | null>(null);
@@ -63,10 +67,12 @@ export function BalanceRequestsPage() {
     Promise.all([
       api.get("/bank-accounts"),
       api.get("/balance-requests"),
+      api.get("/payment-modes").catch(() => ({ data: { modes: [] } })),
       canReview ? api.get("/balance-requests/team") : Promise.resolve({ data: { requests: [] } }),
       canReview ? api.get("/balance-requests/qr-settlement") : Promise.resolve({ data: { requests: [] } }),
-    ]).then(([accRes, ownRes, teamRes, qrRes]) => {
+    ]).then(([accRes, ownRes, modesRes, teamRes, qrRes]) => {
       setAccounts(accRes.data.accounts);
+      setModes((modesRes.data.modes as { name: string; isActive: boolean }[]).filter((m) => m.isActive).map((m) => m.name));
       setOwn(ownRes.data.requests);
       setTeam(teamRes.data.requests);
       setQrSettlement(qrRes.data.requests);
@@ -81,9 +87,16 @@ export function BalanceRequestsPage() {
     setError("");
     setSubmitting(true);
     try {
-      await api.post("/balance-requests", { amount: Number(amount), utrNumber });
+      await api.post("/balance-requests", {
+        amount: Number(amount),
+        utrNumber: utrNumber.trim(),
+        bankAccountId: bankAccountId || undefined,
+        paymentMode: paymentMode || undefined,
+        depositedAt: depositedAt || undefined,
+      });
       setAmount("");
       setUtrNumber("");
+      setDepositedAt("");
       loadAll();
     } catch (err: any) {
       setError(err.response?.data?.error || "Could not submit request.");
@@ -93,7 +106,12 @@ export function BalanceRequestsPage() {
   }
 
   async function review(id: string, action: "approve" | "reject") {
-    await api.post(`/balance-requests/${id}/${action}`, {});
+    if (action === "approve" && !window.confirm(isRootAdmin ? "Approve and credit this request?" : "Approve? The amount will be transferred from your wallet.")) return;
+    try {
+      await api.post(`/balance-requests/${id}/${action}`, {});
+    } catch (err: any) {
+      window.alert(err.response?.data?.error || "Could not update the request.");
+    }
     loadAll();
   }
 
@@ -173,6 +191,31 @@ export function BalanceRequestsPage() {
                     required
                   />
                 </FormField>
+                {accounts.length > 0 && (
+                  <FormField label="Deposited into">
+                    <select value={bankAccountId} onChange={(e) => setBankAccountId(e.target.value)} className={inputClasses} required>
+                      <option value="">Select account</option>
+                      {accounts.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.bankName} ••{a.accountNumber.slice(-4)} ({a.accountName})
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField label="Payment mode">
+                    <select value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)} className={inputClasses}>
+                      <option value="">Select</option>
+                      {modes.map((m) => (
+                        <option key={m}>{m}</option>
+                      ))}
+                    </select>
+                  </FormField>
+                  <FormField label="Deposit date">
+                    <input type="date" value={depositedAt} onChange={(e) => setDepositedAt(e.target.value)} className={inputClasses} />
+                  </FormField>
+                </div>
                 {error && (
                   <div className="rounded-lg bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700">{error}</div>
                 )}

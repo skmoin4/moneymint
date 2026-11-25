@@ -161,7 +161,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
           )}
         </div>
 
-        <Link to={user?.role === "ADMIN" ? "/bank-details" : "/balance-requests"} className={link}>
+        <Link to={isManager ? "/bank-details" : "/balance-requests"} className={link}>
           <Landmark size={13} /> <span className="hidden sm:inline">Bank Details</span>
         </Link>
 

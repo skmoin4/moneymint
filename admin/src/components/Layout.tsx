@@ -88,10 +88,12 @@ const MENU: MenuItem[] = [
     icon: IndianRupee,
     roles: ALL,
     children: [
+      { to: "/add-money", label: "Add Money", roles: ALL },
       { to: "/transfer", label: "Transfer Balance", roles: MANAGERS },
       { to: "/balance-requests", label: "Balance Requests", roles: ALL },
+      { to: "/payment-summary", label: "Main Payment Summary", roles: ADMIN },
       { to: "/ledger", label: "Account Ledger", roles: ALL },
-      { to: "/bank-details", label: "Bank Details", roles: ADMIN },
+      { to: "/bank-details", label: "Bank Details", roles: MANAGERS },
       { to: "/payment-modes", label: "Payment Modes", roles: ADMIN },
     ],
   },

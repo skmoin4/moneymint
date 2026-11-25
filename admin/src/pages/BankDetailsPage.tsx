@@ -33,7 +33,7 @@ export function BankDetailsPage() {
 
   function load() {
     setLoading(true);
-    api.get("/bank-accounts").then((res) => {
+    api.get("/bank-accounts", { params: { mine: 1 } }).then((res) => {
       setAccounts(res.data.accounts);
       setLoading(false);
     });

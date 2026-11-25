@@ -28,10 +28,14 @@ export type AggregatePaymentOrder = {
 
 export type PaymentOrderAvgAggregateOutputType = {
   amount: runtime.Decimal | null
+  charges: runtime.Decimal | null
+  netAmount: runtime.Decimal | null
 }
 
 export type PaymentOrderSumAggregateOutputType = {
   amount: runtime.Decimal | null
+  charges: runtime.Decimal | null
+  netAmount: runtime.Decimal | null
 }
 
 export type PaymentOrderMinAggregateOutputType = {
@@ -42,6 +46,12 @@ export type PaymentOrderMinAggregateOutputType = {
   gatewayPaymentId: string | null
   provider: string | null
   status: string | null
+  channel: string | null
+  method: string | null
+  charges: runtime.Decimal | null
+  netAmount: runtime.Decimal | null
+  failureReason: string | null
+  paidAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +64,12 @@ export type PaymentOrderMaxAggregateOutputType = {
   gatewayPaymentId: string | null
   provider: string | null
   status: string | null
+  channel: string | null
+  method: string | null
+  charges: runtime.Decimal | null
+  netAmount: runtime.Decimal | null
+  failureReason: string | null
+  paidAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +82,12 @@ export type PaymentOrderCountAggregateOutputType = {
   gatewayPaymentId: number
   provider: number
   status: number
+  channel: number
+  method: number
+  charges: number
+  netAmount: number
+  failureReason: number
+  paidAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,10 +96,14 @@ export type PaymentOrderCountAggregateOutputType = {
 
 export type PaymentOrderAvgAggregateInputType = {
   amount?: true
+  charges?: true
+  netAmount?: true
 }
 
 export type PaymentOrderSumAggregateInputType = {
   amount?: true
+  charges?: true
+  netAmount?: true
 }
 
 export type PaymentOrderMinAggregateInputType = {
@@ -88,6 +114,12 @@ export type PaymentOrderMinAggregateInputType = {
   gatewayPaymentId?: true
   provider?: true
   status?: true
+  channel?: true
+  method?: true
+  charges?: true
+  netAmount?: true
+  failureReason?: true
+  paidAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +132,12 @@ export type PaymentOrderMaxAggregateInputType = {
   gatewayPaymentId?: true
   provider?: true
   status?: true
+  channel?: true
+  method?: true
+  charges?: true
+  netAmount?: true
+  failureReason?: true
+  paidAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +150,12 @@ export type PaymentOrderCountAggregateInputType = {
   gatewayPaymentId?: true
   provider?: true
   status?: true
+  channel?: true
+  method?: true
+  charges?: true
+  netAmount?: true
+  failureReason?: true
+  paidAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -211,6 +255,12 @@ export type PaymentOrderGroupByOutputType = {
   gatewayPaymentId: string | null
   provider: string
   status: string
+  channel: string
+  method: string | null
+  charges: runtime.Decimal
+  netAmount: runtime.Decimal | null
+  failureReason: string | null
+  paidAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: PaymentOrderCountAggregateOutputType | null
@@ -246,6 +296,12 @@ export type PaymentOrderWhereInput = {
   gatewayPaymentId?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
   provider?: Prisma.StringFilter<"PaymentOrder"> | string
   status?: Prisma.StringFilter<"PaymentOrder"> | string
+  channel?: Prisma.StringFilter<"PaymentOrder"> | string
+  method?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
+  charges?: Prisma.DecimalFilter<"PaymentOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.DecimalNullableFilter<"PaymentOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
+  paidAt?: Prisma.DateTimeNullableFilter<"PaymentOrder"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentOrder"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -259,6 +315,12 @@ export type PaymentOrderOrderByWithRelationInput = {
   gatewayPaymentId?: Prisma.SortOrderInput | Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  channel?: Prisma.SortOrder
+  method?: Prisma.SortOrderInput | Prisma.SortOrder
+  charges?: Prisma.SortOrder
+  netAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -275,6 +337,12 @@ export type PaymentOrderWhereUniqueInput = Prisma.AtLeast<{
   gatewayPaymentId?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
   provider?: Prisma.StringFilter<"PaymentOrder"> | string
   status?: Prisma.StringFilter<"PaymentOrder"> | string
+  channel?: Prisma.StringFilter<"PaymentOrder"> | string
+  method?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
+  charges?: Prisma.DecimalFilter<"PaymentOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.DecimalNullableFilter<"PaymentOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
+  paidAt?: Prisma.DateTimeNullableFilter<"PaymentOrder"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentOrder"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -288,6 +356,12 @@ export type PaymentOrderOrderByWithAggregationInput = {
   gatewayPaymentId?: Prisma.SortOrderInput | Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  channel?: Prisma.SortOrder
+  method?: Prisma.SortOrderInput | Prisma.SortOrder
+  charges?: Prisma.SortOrder
+  netAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  paidAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PaymentOrderCountOrderByAggregateInput
@@ -308,6 +382,12 @@ export type PaymentOrderScalarWhereWithAggregatesInput = {
   gatewayPaymentId?: Prisma.StringNullableWithAggregatesFilter<"PaymentOrder"> | string | null
   provider?: Prisma.StringWithAggregatesFilter<"PaymentOrder"> | string
   status?: Prisma.StringWithAggregatesFilter<"PaymentOrder"> | string
+  channel?: Prisma.StringWithAggregatesFilter<"PaymentOrder"> | string
+  method?: Prisma.StringNullableWithAggregatesFilter<"PaymentOrder"> | string | null
+  charges?: Prisma.DecimalWithAggregatesFilter<"PaymentOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.DecimalNullableWithAggregatesFilter<"PaymentOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.StringNullableWithAggregatesFilter<"PaymentOrder"> | string | null
+  paidAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PaymentOrder"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentOrder"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentOrder"> | Date | string
 }
@@ -319,6 +399,12 @@ export type PaymentOrderCreateInput = {
   gatewayPaymentId?: string | null
   provider?: string
   status?: string
+  channel?: string
+  method?: string | null
+  charges?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: string | null
+  paidAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPaymentOrdersInput
@@ -332,6 +418,12 @@ export type PaymentOrderUncheckedCreateInput = {
   gatewayPaymentId?: string | null
   provider?: string
   status?: string
+  channel?: string
+  method?: string | null
+  charges?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: string | null
+  paidAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -343,6 +435,12 @@ export type PaymentOrderUpdateInput = {
   gatewayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  charges?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPaymentOrdersNestedInput
@@ -356,6 +454,12 @@ export type PaymentOrderUncheckedUpdateInput = {
   gatewayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  charges?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -368,6 +472,12 @@ export type PaymentOrderCreateManyInput = {
   gatewayPaymentId?: string | null
   provider?: string
   status?: string
+  channel?: string
+  method?: string | null
+  charges?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: string | null
+  paidAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -379,6 +489,12 @@ export type PaymentOrderUpdateManyMutationInput = {
   gatewayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  charges?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -391,6 +507,12 @@ export type PaymentOrderUncheckedUpdateManyInput = {
   gatewayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  charges?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -413,12 +535,20 @@ export type PaymentOrderCountOrderByAggregateInput = {
   gatewayPaymentId?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  channel?: Prisma.SortOrder
+  method?: Prisma.SortOrder
+  charges?: Prisma.SortOrder
+  netAmount?: Prisma.SortOrder
+  failureReason?: Prisma.SortOrder
+  paidAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentOrderAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  charges?: Prisma.SortOrder
+  netAmount?: Prisma.SortOrder
 }
 
 export type PaymentOrderMaxOrderByAggregateInput = {
@@ -429,6 +559,12 @@ export type PaymentOrderMaxOrderByAggregateInput = {
   gatewayPaymentId?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  channel?: Prisma.SortOrder
+  method?: Prisma.SortOrder
+  charges?: Prisma.SortOrder
+  netAmount?: Prisma.SortOrder
+  failureReason?: Prisma.SortOrder
+  paidAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -441,12 +577,20 @@ export type PaymentOrderMinOrderByAggregateInput = {
   gatewayPaymentId?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  channel?: Prisma.SortOrder
+  method?: Prisma.SortOrder
+  charges?: Prisma.SortOrder
+  netAmount?: Prisma.SortOrder
+  failureReason?: Prisma.SortOrder
+  paidAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentOrderSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  charges?: Prisma.SortOrder
+  netAmount?: Prisma.SortOrder
 }
 
 export type PaymentOrderCreateNestedManyWithoutUserInput = {
@@ -498,6 +642,12 @@ export type PaymentOrderCreateWithoutUserInput = {
   gatewayPaymentId?: string | null
   provider?: string
   status?: string
+  channel?: string
+  method?: string | null
+  charges?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: string | null
+  paidAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -509,6 +659,12 @@ export type PaymentOrderUncheckedCreateWithoutUserInput = {
   gatewayPaymentId?: string | null
   provider?: string
   status?: string
+  channel?: string
+  method?: string | null
+  charges?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: string | null
+  paidAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -550,6 +706,12 @@ export type PaymentOrderScalarWhereInput = {
   gatewayPaymentId?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
   provider?: Prisma.StringFilter<"PaymentOrder"> | string
   status?: Prisma.StringFilter<"PaymentOrder"> | string
+  channel?: Prisma.StringFilter<"PaymentOrder"> | string
+  method?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
+  charges?: Prisma.DecimalFilter<"PaymentOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.DecimalNullableFilter<"PaymentOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.StringNullableFilter<"PaymentOrder"> | string | null
+  paidAt?: Prisma.DateTimeNullableFilter<"PaymentOrder"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentOrder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentOrder"> | Date | string
 }
@@ -561,6 +723,12 @@ export type PaymentOrderCreateManyUserInput = {
   gatewayPaymentId?: string | null
   provider?: string
   status?: string
+  channel?: string
+  method?: string | null
+  charges?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: string | null
+  paidAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -572,6 +740,12 @@ export type PaymentOrderUpdateWithoutUserInput = {
   gatewayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  charges?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -583,6 +757,12 @@ export type PaymentOrderUncheckedUpdateWithoutUserInput = {
   gatewayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  charges?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -594,6 +774,12 @@ export type PaymentOrderUncheckedUpdateManyWithoutUserInput = {
   gatewayPaymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  charges?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paidAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -608,6 +794,12 @@ export type PaymentOrderSelect<ExtArgs extends runtime.Types.Extensions.Internal
   gatewayPaymentId?: boolean
   provider?: boolean
   status?: boolean
+  channel?: boolean
+  method?: boolean
+  charges?: boolean
+  netAmount?: boolean
+  failureReason?: boolean
+  paidAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -621,6 +813,12 @@ export type PaymentOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   gatewayPaymentId?: boolean
   provider?: boolean
   status?: boolean
+  channel?: boolean
+  method?: boolean
+  charges?: boolean
+  netAmount?: boolean
+  failureReason?: boolean
+  paidAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -634,6 +832,12 @@ export type PaymentOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   gatewayPaymentId?: boolean
   provider?: boolean
   status?: boolean
+  channel?: boolean
+  method?: boolean
+  charges?: boolean
+  netAmount?: boolean
+  failureReason?: boolean
+  paidAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -647,11 +851,17 @@ export type PaymentOrderSelectScalar = {
   gatewayPaymentId?: boolean
   provider?: boolean
   status?: boolean
+  channel?: boolean
+  method?: boolean
+  charges?: boolean
+  netAmount?: boolean
+  failureReason?: boolean
+  paidAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PaymentOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "amount" | "gatewayOrderId" | "gatewayPaymentId" | "provider" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentOrder"]>
+export type PaymentOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "amount" | "gatewayOrderId" | "gatewayPaymentId" | "provider" | "status" | "channel" | "method" | "charges" | "netAmount" | "failureReason" | "paidAt" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentOrder"]>
 export type PaymentOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -675,6 +885,12 @@ export type $PaymentOrderPayload<ExtArgs extends runtime.Types.Extensions.Intern
     gatewayPaymentId: string | null
     provider: string
     status: string
+    channel: string
+    method: string | null
+    charges: runtime.Decimal
+    netAmount: runtime.Decimal | null
+    failureReason: string | null
+    paidAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["paymentOrder"]>
@@ -1108,6 +1324,12 @@ export interface PaymentOrderFieldRefs {
   readonly gatewayPaymentId: Prisma.FieldRef<"PaymentOrder", 'String'>
   readonly provider: Prisma.FieldRef<"PaymentOrder", 'String'>
   readonly status: Prisma.FieldRef<"PaymentOrder", 'String'>
+  readonly channel: Prisma.FieldRef<"PaymentOrder", 'String'>
+  readonly method: Prisma.FieldRef<"PaymentOrder", 'String'>
+  readonly charges: Prisma.FieldRef<"PaymentOrder", 'Decimal'>
+  readonly netAmount: Prisma.FieldRef<"PaymentOrder", 'Decimal'>
+  readonly failureReason: Prisma.FieldRef<"PaymentOrder", 'String'>
+  readonly paidAt: Prisma.FieldRef<"PaymentOrder", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"PaymentOrder", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PaymentOrder", 'DateTime'>
 }

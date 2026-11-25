@@ -49,7 +49,9 @@ export const LedgerReferenceType = {
   CASHBACK: 'CASHBACK',
   REFERRAL_REWARD: 'REFERRAL_REWARD',
   WALLET_TOPUP: 'WALLET_TOPUP',
-  SURCHARGE: 'SURCHARGE'
+  SURCHARGE: 'SURCHARGE',
+  GATEWAY_CHARGE: 'GATEWAY_CHARGE',
+  BALANCE_REQUEST: 'BALANCE_REQUEST'
 } as const
 
 export type LedgerReferenceType = (typeof LedgerReferenceType)[keyof typeof LedgerReferenceType]

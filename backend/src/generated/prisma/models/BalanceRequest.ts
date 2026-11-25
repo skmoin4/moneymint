@@ -42,6 +42,11 @@ export type BalanceRequestMinAggregateOutputType = {
   status: $Enums.BalanceRequestStatus | null
   remarks: string | null
   qrSettled: boolean | null
+  bankAccountId: string | null
+  paymentMode: string | null
+  depositedAt: Date | null
+  reviewedById: string | null
+  reviewedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +59,11 @@ export type BalanceRequestMaxAggregateOutputType = {
   status: $Enums.BalanceRequestStatus | null
   remarks: string | null
   qrSettled: boolean | null
+  bankAccountId: string | null
+  paymentMode: string | null
+  depositedAt: Date | null
+  reviewedById: string | null
+  reviewedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +76,11 @@ export type BalanceRequestCountAggregateOutputType = {
   status: number
   remarks: number
   qrSettled: number
+  bankAccountId: number
+  paymentMode: number
+  depositedAt: number
+  reviewedById: number
+  reviewedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -88,6 +103,11 @@ export type BalanceRequestMinAggregateInputType = {
   status?: true
   remarks?: true
   qrSettled?: true
+  bankAccountId?: true
+  paymentMode?: true
+  depositedAt?: true
+  reviewedById?: true
+  reviewedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +120,11 @@ export type BalanceRequestMaxAggregateInputType = {
   status?: true
   remarks?: true
   qrSettled?: true
+  bankAccountId?: true
+  paymentMode?: true
+  depositedAt?: true
+  reviewedById?: true
+  reviewedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +137,11 @@ export type BalanceRequestCountAggregateInputType = {
   status?: true
   remarks?: true
   qrSettled?: true
+  bankAccountId?: true
+  paymentMode?: true
+  depositedAt?: true
+  reviewedById?: true
+  reviewedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -211,6 +241,11 @@ export type BalanceRequestGroupByOutputType = {
   status: $Enums.BalanceRequestStatus
   remarks: string | null
   qrSettled: boolean
+  bankAccountId: string | null
+  paymentMode: string | null
+  depositedAt: Date | null
+  reviewedById: string | null
+  reviewedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: BalanceRequestCountAggregateOutputType | null
@@ -246,6 +281,11 @@ export type BalanceRequestWhereInput = {
   status?: Prisma.EnumBalanceRequestStatusFilter<"BalanceRequest"> | $Enums.BalanceRequestStatus
   remarks?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
   qrSettled?: Prisma.BoolFilter<"BalanceRequest"> | boolean
+  bankAccountId?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  paymentMode?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  depositedAt?: Prisma.DateTimeNullableFilter<"BalanceRequest"> | Date | string | null
+  reviewedById?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"BalanceRequest"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BalanceRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BalanceRequest"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -259,6 +299,11 @@ export type BalanceRequestOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   remarks?: Prisma.SortOrderInput | Prisma.SortOrder
   qrSettled?: Prisma.SortOrder
+  bankAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  depositedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -275,6 +320,11 @@ export type BalanceRequestWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumBalanceRequestStatusFilter<"BalanceRequest"> | $Enums.BalanceRequestStatus
   remarks?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
   qrSettled?: Prisma.BoolFilter<"BalanceRequest"> | boolean
+  bankAccountId?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  paymentMode?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  depositedAt?: Prisma.DateTimeNullableFilter<"BalanceRequest"> | Date | string | null
+  reviewedById?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"BalanceRequest"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BalanceRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BalanceRequest"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -288,6 +338,11 @@ export type BalanceRequestOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   remarks?: Prisma.SortOrderInput | Prisma.SortOrder
   qrSettled?: Prisma.SortOrder
+  bankAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  depositedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BalanceRequestCountOrderByAggregateInput
@@ -308,6 +363,11 @@ export type BalanceRequestScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumBalanceRequestStatusWithAggregatesFilter<"BalanceRequest"> | $Enums.BalanceRequestStatus
   remarks?: Prisma.StringNullableWithAggregatesFilter<"BalanceRequest"> | string | null
   qrSettled?: Prisma.BoolWithAggregatesFilter<"BalanceRequest"> | boolean
+  bankAccountId?: Prisma.StringNullableWithAggregatesFilter<"BalanceRequest"> | string | null
+  paymentMode?: Prisma.StringNullableWithAggregatesFilter<"BalanceRequest"> | string | null
+  depositedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BalanceRequest"> | Date | string | null
+  reviewedById?: Prisma.StringNullableWithAggregatesFilter<"BalanceRequest"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BalanceRequest"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BalanceRequest"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BalanceRequest"> | Date | string
 }
@@ -319,6 +379,11 @@ export type BalanceRequestCreateInput = {
   status?: $Enums.BalanceRequestStatus
   remarks?: string | null
   qrSettled?: boolean
+  bankAccountId?: string | null
+  paymentMode?: string | null
+  depositedAt?: Date | string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutBalanceRequestsInput
@@ -332,6 +397,11 @@ export type BalanceRequestUncheckedCreateInput = {
   status?: $Enums.BalanceRequestStatus
   remarks?: string | null
   qrSettled?: boolean
+  bankAccountId?: string | null
+  paymentMode?: string | null
+  depositedAt?: Date | string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -343,6 +413,11 @@ export type BalanceRequestUpdateInput = {
   status?: Prisma.EnumBalanceRequestStatusFieldUpdateOperationsInput | $Enums.BalanceRequestStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qrSettled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depositedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutBalanceRequestsNestedInput
@@ -356,6 +431,11 @@ export type BalanceRequestUncheckedUpdateInput = {
   status?: Prisma.EnumBalanceRequestStatusFieldUpdateOperationsInput | $Enums.BalanceRequestStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qrSettled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depositedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -368,6 +448,11 @@ export type BalanceRequestCreateManyInput = {
   status?: $Enums.BalanceRequestStatus
   remarks?: string | null
   qrSettled?: boolean
+  bankAccountId?: string | null
+  paymentMode?: string | null
+  depositedAt?: Date | string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -379,6 +464,11 @@ export type BalanceRequestUpdateManyMutationInput = {
   status?: Prisma.EnumBalanceRequestStatusFieldUpdateOperationsInput | $Enums.BalanceRequestStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qrSettled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depositedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -391,6 +481,11 @@ export type BalanceRequestUncheckedUpdateManyInput = {
   status?: Prisma.EnumBalanceRequestStatusFieldUpdateOperationsInput | $Enums.BalanceRequestStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qrSettled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depositedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -413,6 +508,11 @@ export type BalanceRequestCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   remarks?: Prisma.SortOrder
   qrSettled?: Prisma.SortOrder
+  bankAccountId?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  depositedAt?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -429,6 +529,11 @@ export type BalanceRequestMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   remarks?: Prisma.SortOrder
   qrSettled?: Prisma.SortOrder
+  bankAccountId?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  depositedAt?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -441,6 +546,11 @@ export type BalanceRequestMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   remarks?: Prisma.SortOrder
   qrSettled?: Prisma.SortOrder
+  bankAccountId?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  depositedAt?: Prisma.SortOrder
+  reviewedById?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -502,6 +612,11 @@ export type BalanceRequestCreateWithoutUserInput = {
   status?: $Enums.BalanceRequestStatus
   remarks?: string | null
   qrSettled?: boolean
+  bankAccountId?: string | null
+  paymentMode?: string | null
+  depositedAt?: Date | string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -513,6 +628,11 @@ export type BalanceRequestUncheckedCreateWithoutUserInput = {
   status?: $Enums.BalanceRequestStatus
   remarks?: string | null
   qrSettled?: boolean
+  bankAccountId?: string | null
+  paymentMode?: string | null
+  depositedAt?: Date | string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -554,6 +674,11 @@ export type BalanceRequestScalarWhereInput = {
   status?: Prisma.EnumBalanceRequestStatusFilter<"BalanceRequest"> | $Enums.BalanceRequestStatus
   remarks?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
   qrSettled?: Prisma.BoolFilter<"BalanceRequest"> | boolean
+  bankAccountId?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  paymentMode?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  depositedAt?: Prisma.DateTimeNullableFilter<"BalanceRequest"> | Date | string | null
+  reviewedById?: Prisma.StringNullableFilter<"BalanceRequest"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"BalanceRequest"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"BalanceRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BalanceRequest"> | Date | string
 }
@@ -565,6 +690,11 @@ export type BalanceRequestCreateManyUserInput = {
   status?: $Enums.BalanceRequestStatus
   remarks?: string | null
   qrSettled?: boolean
+  bankAccountId?: string | null
+  paymentMode?: string | null
+  depositedAt?: Date | string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -576,6 +706,11 @@ export type BalanceRequestUpdateWithoutUserInput = {
   status?: Prisma.EnumBalanceRequestStatusFieldUpdateOperationsInput | $Enums.BalanceRequestStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qrSettled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depositedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -587,6 +722,11 @@ export type BalanceRequestUncheckedUpdateWithoutUserInput = {
   status?: Prisma.EnumBalanceRequestStatusFieldUpdateOperationsInput | $Enums.BalanceRequestStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qrSettled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depositedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -598,6 +738,11 @@ export type BalanceRequestUncheckedUpdateManyWithoutUserInput = {
   status?: Prisma.EnumBalanceRequestStatusFieldUpdateOperationsInput | $Enums.BalanceRequestStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   qrSettled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  depositedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -612,6 +757,11 @@ export type BalanceRequestSelect<ExtArgs extends runtime.Types.Extensions.Intern
   status?: boolean
   remarks?: boolean
   qrSettled?: boolean
+  bankAccountId?: boolean
+  paymentMode?: boolean
+  depositedAt?: boolean
+  reviewedById?: boolean
+  reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -625,6 +775,11 @@ export type BalanceRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   status?: boolean
   remarks?: boolean
   qrSettled?: boolean
+  bankAccountId?: boolean
+  paymentMode?: boolean
+  depositedAt?: boolean
+  reviewedById?: boolean
+  reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -638,6 +793,11 @@ export type BalanceRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   status?: boolean
   remarks?: boolean
   qrSettled?: boolean
+  bankAccountId?: boolean
+  paymentMode?: boolean
+  depositedAt?: boolean
+  reviewedById?: boolean
+  reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -651,11 +811,16 @@ export type BalanceRequestSelectScalar = {
   status?: boolean
   remarks?: boolean
   qrSettled?: boolean
+  bankAccountId?: boolean
+  paymentMode?: boolean
+  depositedAt?: boolean
+  reviewedById?: boolean
+  reviewedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BalanceRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "amount" | "utrNumber" | "status" | "remarks" | "qrSettled" | "createdAt" | "updatedAt", ExtArgs["result"]["balanceRequest"]>
+export type BalanceRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "amount" | "utrNumber" | "status" | "remarks" | "qrSettled" | "bankAccountId" | "paymentMode" | "depositedAt" | "reviewedById" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["balanceRequest"]>
 export type BalanceRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -679,6 +844,11 @@ export type $BalanceRequestPayload<ExtArgs extends runtime.Types.Extensions.Inte
     status: $Enums.BalanceRequestStatus
     remarks: string | null
     qrSettled: boolean
+    bankAccountId: string | null
+    paymentMode: string | null
+    depositedAt: Date | null
+    reviewedById: string | null
+    reviewedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["balanceRequest"]>
@@ -1112,6 +1282,11 @@ export interface BalanceRequestFieldRefs {
   readonly status: Prisma.FieldRef<"BalanceRequest", 'BalanceRequestStatus'>
   readonly remarks: Prisma.FieldRef<"BalanceRequest", 'String'>
   readonly qrSettled: Prisma.FieldRef<"BalanceRequest", 'Boolean'>
+  readonly bankAccountId: Prisma.FieldRef<"BalanceRequest", 'String'>
+  readonly paymentMode: Prisma.FieldRef<"BalanceRequest", 'String'>
+  readonly depositedAt: Prisma.FieldRef<"BalanceRequest", 'DateTime'>
+  readonly reviewedById: Prisma.FieldRef<"BalanceRequest", 'String'>
+  readonly reviewedAt: Prisma.FieldRef<"BalanceRequest", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"BalanceRequest", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"BalanceRequest", 'DateTime'>
 }

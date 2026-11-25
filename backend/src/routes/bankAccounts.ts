@@ -9,13 +9,38 @@ export const bankAccountsRouter = Router();
 
 bankAccountsRouter.use(authenticate);
 
-bankAccountsRouter.get("/", async (_req, res) => {
+// Without ?mine=1: the active accounts this user may deposit into for a balance request
+// (their parent's own accounts; the company's if the parent is the root admin).
+// With ?mine=1 (managers): the accounts this user manages, active or not.
+bankAccountsRouter.get("/", async (req, res) => {
+  const me = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.userId }, select: { id: true, parentId: true, role: true } });
+  if (req.query.mine === "1") {
+    const isRootAdmin = me.role === "ADMIN" && me.parentId === null;
+    const accounts = await prisma.bankAccount.findMany({
+      where: isRootAdmin ? { OR: [{ ownerId: null }, { ownerId: me.id }] } : { ownerId: me.id },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json({ accounts });
+    return;
+  }
+  if (!me.parentId) {
+    res.json({ accounts: [] });
+    return;
+  }
+  const parent = await prisma.user.findUniqueOrThrow({ where: { id: me.parentId }, select: { id: true, parentId: true } });
   const accounts = await prisma.bankAccount.findMany({
-    where: { isActive: true },
+    where: { isActive: true, OR: [{ ownerId: parent.id }, ...(parent.parentId === null ? [{ ownerId: null }] : [])] },
     orderBy: { createdAt: "desc" },
   });
   res.json({ accounts });
 });
+
+/** Root admin manages company accounts (ownerId null); everyone else only their own. */
+async function canManage(userId: string, account: { ownerId: string | null }) {
+  if (account.ownerId === userId) return true;
+  const me = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { role: true, parentId: true } });
+  return account.ownerId === null && me.role === "ADMIN" && me.parentId === null;
+}
 
 const createSchema = z.object({
   accountName: z.string().min(2),
@@ -25,12 +50,15 @@ const createSchema = z.object({
   upiId: z.string().optional(),
 });
 
-bankAccountsRouter.post("/", authorize("ADMIN"), async (req, res) => {
+bankAccountsRouter.post("/", authorize("ADMIN", "MASTER_DISTRIBUTOR", "DISTRIBUTOR"), async (req, res) => {
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
   }
-  const account = await prisma.bankAccount.create({ data: parsed.data });
+  const me = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.userId }, select: { role: true, parentId: true } });
+  // The root admin's accounts are the company's; managers' accounts are their own.
+  const ownerId = me.role === "ADMIN" && me.parentId === null ? null : req.user!.userId;
+  const account = await prisma.bankAccount.create({ data: { ...parsed.data, ownerId } });
   res.status(201).json({ account });
 });
 
@@ -39,17 +67,16 @@ const updateSchema = z.object({
   upiId: z.string().optional(),
 });
 
-bankAccountsRouter.patch("/:id", authorize("ADMIN"), async (req, res) => {
+bankAccountsRouter.patch("/:id", authorize("ADMIN", "MASTER_DISTRIBUTOR", "DISTRIBUTOR"), async (req, res) => {
   const parsed = updateSchema.safeParse(req.body);
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
   }
-  const account = await prisma.bankAccount
-    .update({ where: { id: String(req.params.id) }, data: parsed.data })
-    .catch(() => null);
-  if (!account) {
+  const existing = await prisma.bankAccount.findUnique({ where: { id: String(req.params.id) } });
+  if (!existing || !(await canManage(req.user!.userId, existing))) {
     throw new HttpError(404, "Bank account not found");
   }
+  const account = await prisma.bankAccount.update({ where: { id: existing.id }, data: parsed.data });
   res.json({ account });
 });
 

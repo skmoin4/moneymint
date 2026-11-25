@@ -431,7 +431,8 @@ export const ModelName = {
   OperatorPrefix: 'OperatorPrefix',
   RechargePlan: 'RechargePlan',
   CashbackOffer: 'CashbackOffer',
-  PaymentOrder: 'PaymentOrder'
+  PaymentOrder: 'PaymentOrder',
+  UserPaymentQr: 'UserPaymentQr'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -447,7 +448,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "commissionPayout" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder"
+    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "commissionPayout" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder" | "userPaymentQr"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3041,6 +3042,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UserPaymentQr: {
+      payload: Prisma.$UserPaymentQrPayload<ExtArgs>
+      fields: Prisma.UserPaymentQrFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserPaymentQrFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserPaymentQrFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>
+        }
+        findFirst: {
+          args: Prisma.UserPaymentQrFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserPaymentQrFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>
+        }
+        findMany: {
+          args: Prisma.UserPaymentQrFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>[]
+        }
+        create: {
+          args: Prisma.UserPaymentQrCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>
+        }
+        createMany: {
+          args: Prisma.UserPaymentQrCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserPaymentQrCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>[]
+        }
+        delete: {
+          args: Prisma.UserPaymentQrDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>
+        }
+        update: {
+          args: Prisma.UserPaymentQrUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserPaymentQrDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserPaymentQrUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserPaymentQrUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserPaymentQrUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPaymentQrPayload>
+        }
+        aggregate: {
+          args: Prisma.UserPaymentQrAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserPaymentQr>
+        }
+        groupBy: {
+          args: Prisma.UserPaymentQrGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserPaymentQrGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserPaymentQrCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserPaymentQrCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3365,6 +3440,7 @@ export const BankAccountScalarFieldEnum = {
   bankName: 'bankName',
   upiId: 'upiId',
   isActive: 'isActive',
+  ownerId: 'ownerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3391,6 +3467,11 @@ export const BalanceRequestScalarFieldEnum = {
   status: 'status',
   remarks: 'remarks',
   qrSettled: 'qrSettled',
+  bankAccountId: 'bankAccountId',
+  paymentMode: 'paymentMode',
+  depositedAt: 'depositedAt',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3586,11 +3667,31 @@ export const PaymentOrderScalarFieldEnum = {
   gatewayPaymentId: 'gatewayPaymentId',
   provider: 'provider',
   status: 'status',
+  channel: 'channel',
+  method: 'method',
+  charges: 'charges',
+  netAmount: 'netAmount',
+  failureReason: 'failureReason',
+  paidAt: 'paidAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type PaymentOrderScalarFieldEnum = (typeof PaymentOrderScalarFieldEnum)[keyof typeof PaymentOrderScalarFieldEnum]
+
+
+export const UserPaymentQrScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  provider: 'provider',
+  externalId: 'externalId',
+  upiId: 'upiId',
+  imageUrl: 'imageUrl',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+} as const
+
+export type UserPaymentQrScalarFieldEnum = (typeof UserPaymentQrScalarFieldEnum)[keyof typeof UserPaymentQrScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -4112,6 +4213,7 @@ export type GlobalOmitConfig = {
   rechargePlan?: Prisma.RechargePlanOmit
   cashbackOffer?: Prisma.CashbackOfferOmit
   paymentOrder?: Prisma.PaymentOrderOmit
+  userPaymentQr?: Prisma.UserPaymentQrOmit
 }
 
 /* Types for Logging */

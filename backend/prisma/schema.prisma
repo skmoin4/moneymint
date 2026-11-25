@@ -42,6 +42,8 @@ enum LedgerReferenceType {
   REFERRAL_REWARD
   WALLET_TOPUP
   SURCHARGE
+  GATEWAY_CHARGE
+  BALANCE_REQUEST
 }
 
 enum TransactionStatus {
@@ -488,9 +490,15 @@ model BankAccount {
   bankName      String
   upiId         String?
   isActive      Boolean  @default(true)
+  // Whose account this is. null = the company's own account (shown to users whose
+  // parent is the admin); otherwise a Master Distributor's / Distributor's account,
+  // shown to their direct downline for balance requests.
+  ownerId       String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
 }
 
 model Notice {
@@ -511,6 +519,11 @@ model BalanceRequest {
   status     BalanceRequestStatus @default(PENDING)
   remarks    String?
   qrSettled  Boolean              @default(false)
+  bankAccountId String? // the account the money was deposited into
+  paymentMode   String? // NEFT / IMPS / UPI / CASH …
+  depositedAt   DateTime?
+  reviewedById  String?
+  reviewedAt    DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -727,9 +740,31 @@ model PaymentOrder {
   gatewayPaymentId String?
   provider         String  @default("MOCK_GATEWAY")
   status           String  @default("PENDING") // PENDING, PAID, FAILED
+  // GATEWAY = user paid through checkout; QR = money arrived on the user's static UPI QR
+  // (for QR rows gatewayOrderId holds the gateway's payment id, which keeps them unique).
+  channel          String  @default("GATEWAY")
+  method           String? // upi, card, netbanking, wallet…
+  charges          Decimal @default(0) @db.Decimal(14, 2)
+  netAmount        Decimal? @db.Decimal(14, 2)
+  failureReason    String?
+  paidAt           DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([channel, status, createdAt])
+}
+
+// A user's own static UPI QR from the payment gateway: anyone paying it tops up that
+// user's wallet automatically (gateway webhook → credit), no request or approval needed.
+model UserPaymentQr {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  provider   String
+  externalId String   @unique // gateway's QR id
+  upiId      String?
+  imageUrl   String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }

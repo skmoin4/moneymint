@@ -88,7 +88,13 @@ actually verified yet.
 
 ## Payments & money movement
 
-- 🟡 **Payment gateway for wallet top-up** — *Needed to scale* — Razorpay, Cashfree Payments, PayU
+- 🟡 **Payment gateway for wallet top-up + UPI QR** — *Needed to scale* — Razorpay (built), Cashfree Payments, PayU
+  **Built (2026-11-25):** full Razorpay integration — orders, checkout verify, signed
+  webhooks, per-user multi-use UPI QR with auto-credit, method-wise charges. Needs only
+  the account: set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, add the
+  webhook URL `https://<api>/wallet/add-money/webhook` (events payment.captured,
+  payment.failed, qr_code.credited) and enable QR Codes on the account. Notes below are
+  from before this was built.
   Backend integration point is built and tested (order creation, signature-verified
   webhook, idempotent crediting) against a mock gateway — see `paymentGateway.ts` /
   `mockPaymentGatewayService.ts`. What's left is entirely on the vendor side: open a
@@ -166,3 +172,9 @@ is already logged, just not actually sent anywhere real yet.
   Distributor / Master Distributor, amount-range slabs, surcharge (DMT/BBPS), vendor margin
   per operator↔API, TDS withholding, Commission Distribution report with platform margin.
   Confirm the TDS rate and the GST treatment of surcharge with your CA before launch.
+- **2026-11-25** — Wallet load built: Razorpay checkout + webhooks, per-user static UPI QR
+  auto-credit, top-up charges/limits, Main Payment Summary (Gateway / Static QR / Bank &
+  Direct). Balance requests fixed: one UTR per request, the approving distributor's wallet
+  is now debited (it wasn't — balance was being created from nothing), managers' own bank
+  accounts. Tested against a local stand-in of Razorpay's API; needs a real Razorpay
+  account to go live.

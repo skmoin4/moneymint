@@ -85,7 +85,8 @@ export const ModelName = {
   OperatorPrefix: 'OperatorPrefix',
   RechargePlan: 'RechargePlan',
   CashbackOffer: 'CashbackOffer',
-  PaymentOrder: 'PaymentOrder'
+  PaymentOrder: 'PaymentOrder',
+  UserPaymentQr: 'UserPaymentQr'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -389,6 +390,7 @@ export const BankAccountScalarFieldEnum = {
   bankName: 'bankName',
   upiId: 'upiId',
   isActive: 'isActive',
+  ownerId: 'ownerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -415,6 +417,11 @@ export const BalanceRequestScalarFieldEnum = {
   status: 'status',
   remarks: 'remarks',
   qrSettled: 'qrSettled',
+  bankAccountId: 'bankAccountId',
+  paymentMode: 'paymentMode',
+  depositedAt: 'depositedAt',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -610,11 +617,31 @@ export const PaymentOrderScalarFieldEnum = {
   gatewayPaymentId: 'gatewayPaymentId',
   provider: 'provider',
   status: 'status',
+  channel: 'channel',
+  method: 'method',
+  charges: 'charges',
+  netAmount: 'netAmount',
+  failureReason: 'failureReason',
+  paidAt: 'paidAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type PaymentOrderScalarFieldEnum = (typeof PaymentOrderScalarFieldEnum)[keyof typeof PaymentOrderScalarFieldEnum]
+
+
+export const UserPaymentQrScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  provider: 'provider',
+  externalId: 'externalId',
+  upiId: 'upiId',
+  imageUrl: 'imageUrl',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+} as const
+
+export type UserPaymentQrScalarFieldEnum = (typeof UserPaymentQrScalarFieldEnum)[keyof typeof UserPaymentQrScalarFieldEnum]
 
 
 export const SortOrder = {

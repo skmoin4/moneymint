@@ -30,6 +30,7 @@ import { plansRouter } from "./routes/plans";
 import { cashbackRouter } from "./routes/cashback";
 import { paymentGatewayRouter } from "./routes/paymentGateway";
 import { adminTransactionsRouter } from "./routes/adminTransactions";
+import { adminPaymentsRouter } from "./routes/adminPayments";
 import { providerCallbackRouter } from "./routes/providerCallback";
 import { startStatusPoller } from "./services/statusPoller";
 import { errorHandler } from "./middleware/errorHandler";
@@ -43,7 +44,15 @@ app.use(
     origin: process.env.CORS_ORIGIN?.split(",") ?? "http://localhost:5174",
   })
 );
-app.use(express.json());
+// Keep the exact request bytes: payment webhooks are signed over the raw body, and
+// re-serialising the parsed JSON would not reproduce the signature.
+app.use(
+  express.json({
+    verify: (req, _res, buf) => {
+      (req as express.Request & { rawBody?: Buffer }).rawBody = buf;
+    },
+  })
+);
 // Vendor callbacks arrive in bursts from a few vendor IPs; they authenticate with a
 // per-provider token, so they sit outside the per-IP API rate limit.
 app.use("/callback", providerCallbackRouter);
@@ -82,6 +91,7 @@ app.use("/dashboard", dashboardRouter);
 app.use("/plans", plansRouter);
 app.use("/cashback-offers", cashbackRouter);
 app.use("/admin/transactions", adminTransactionsRouter);
+app.use("/admin/payments", adminPaymentsRouter);
 
 app.use(errorHandler);
 

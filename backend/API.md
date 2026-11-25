@@ -185,35 +185,48 @@ Send funds to a direct downline member.
 { "toUserId": "uuid", "amount": 500, "paymentMode": "CASH", "utrNumber": "optional", "autoCommission": false }
 ```
 
-### Add Money (self-service wallet top-up via payment gateway)
+### Add Money (wallet top-up)
 
-Currently backed by a **mock gateway** — the real flow (Razorpay/Cashfree/PayU
-account, real webhook secret) is a config swap once that vendor account exists, not
-a rebuild. The wallet is only ever credited by the signature-verified webhook, never
-by the client claiming success — this matters, since anything else would let a user
-credit their own wallet for free.
+Three ways money enters a wallet: online checkout (gateway), the user's own static UPI QR
+(auto-credit), and a bank-deposit balance request approved by the parent. Gateway:
+Razorpay when `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET` are set, the built-in mock when
+`ENABLE_MOCK_PAYMENTS=true`, otherwise online top-up is off (`/config` says `enabled:false`).
+A wallet is credited only after the gateway confirms the payment — never because the app
+says so.
 
-**`POST /wallet/add-money/order`** — `{ "amount": 500 }` → `201`:
-```json
-{ "order": { "id": "uuid", "gatewayOrderId": "mock_order_...", "amount": "500", "status": "PENDING" }, "checkoutUrl": "https://..." }
-```
-The app opens `checkoutUrl` in the gateway's SDK/checkout UI. With a real gateway,
-this is where its actual order-creation response and checkout params go.
+- **`GET /wallet/add-money/config`** → `{ enabled, gateway, keyId?, limits: {min,max}, chargePercents }`.
+- **`POST /wallet/add-money/order`** `{ amount }` → `201 { order, checkout }`. `checkout` has
+  everything Razorpay's checkout SDK needs: `keyId, orderId, amount (paise), currency, name,
+  description, prefill`.
+- **`POST /wallet/add-money/verify`** `{ orderId, paymentId, signature }` — call from the
+  checkout success handler (`razorpay_order_id`, `razorpay_payment_id`, `razorpay_signature`).
+  The server checks the signature and that the payment is captured, then credits;
+  `{ order, pending }` — `pending: true` means the webhook will credit it shortly.
+- **`POST /wallet/add-money/webhook`** — for the gateway. Razorpay: set the URL in the
+  dashboard with secret = `RAZORPAY_WEBHOOK_SECRET`, events `payment.captured`,
+  `payment.failed`, `qr_code.credited`. Verified with `X-Razorpay-Signature` over the raw body.
+  Idempotent; an amount that differs from the order is flagged, never credited.
+- **`GET /wallet/add-money/qr`** → the user's own multi-use UPI QR (created on first call):
+  `{ qr: { imageUrl, upiId, qrDataUrl } }`. Payments to it credit the wallet automatically.
+- **`GET /wallet/add-money/history`** — the user's top-ups (`channel` GATEWAY/QR, `method`,
+  `charges`, `netAmount`, `status`, `failureReason`).
+- Dev only (`ENABLE_MOCK_PAYMENTS=true` and mock gateway): `POST /mock-pay { gatewayOrderId, method }`,
+  `POST /mock-qr-pay { amount }`.
 
-**`POST /wallet/add-money/webhook`** — called by the gateway's own servers, not the
-app. No JWT — authenticated by an `X-Signature` header (HMAC-SHA256 over the raw
-body) instead. Idempotent: a retried webhook for an already-settled order is a
-no-op, not a double-credit.
+Charges (ADMIN settings): `gatewayCharges` = JSON percent per method
+(`{"upi":0,"card":1.8,"netbanking":1.5,"default":1.5}`), `qrChargePercent`, `topupMin`,
+`topupMax`. The charge is debited as a separate GATEWAY_CHARGE ledger line.
 
-**`POST /wallet/add-money/mock-pay`** — `{ "gatewayOrderId" }` — **mock-gateway-only,
-delete this once a real gateway is wired in.** Stands in for the Flutter app's real
-gateway checkout SDK completing (which would talk to the gateway's servers directly,
-never to us, until the webhook fires). Internally round-trips through the exact same
-signature-verified webhook path — useful for testing the whole flow without a real
-gateway account.
+### Balance requests (bank deposit)
 
-**`GET /wallet/add-money/history`** — the logged-in user's own top-up attempts,
-`{ "orders": [...] }`.
+`GET /bank-accounts` lists the accounts the user may deposit into (their parent's own
+accounts, or the company's if the parent is the root admin); `?mine=1` lists the accounts a
+manager owns. Managers add their own accounts with `POST /bank-accounts`.
+`POST /balance-requests { amount, utrNumber, bankAccountId?, paymentMode?, depositedAt? }` —
+a UTR can back only one pending/approved request. When a Distributor / Master Distributor
+approves, the amount moves from **their** wallet to the requester (insufficient balance →
+400); the root admin's approval brings new money into the system.
+ADMIN report: `GET /admin/payments?channel=GATEWAY|QR|BANK&from=&to=&user=&status=`.
 
 ---
 

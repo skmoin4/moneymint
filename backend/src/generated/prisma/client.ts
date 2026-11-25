@@ -214,3 +214,8 @@ export type CashbackOffer = Prisma.CashbackOfferModel
  * 
  */
 export type PaymentOrder = Prisma.PaymentOrderModel
+/**
+ * Model UserPaymentQr
+ * 
+ */
+export type UserPaymentQr = Prisma.UserPaymentQrModel

@@ -32,6 +32,7 @@ export type BankAccountMinAggregateOutputType = {
   bankName: string | null
   upiId: string | null
   isActive: boolean | null
+  ownerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,6 +45,7 @@ export type BankAccountMaxAggregateOutputType = {
   bankName: string | null
   upiId: string | null
   isActive: boolean | null
+  ownerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +58,7 @@ export type BankAccountCountAggregateOutputType = {
   bankName: number
   upiId: number
   isActive: number
+  ownerId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -70,6 +73,7 @@ export type BankAccountMinAggregateInputType = {
   bankName?: true
   upiId?: true
   isActive?: true
+  ownerId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +86,7 @@ export type BankAccountMaxAggregateInputType = {
   bankName?: true
   upiId?: true
   isActive?: true
+  ownerId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +99,7 @@ export type BankAccountCountAggregateInputType = {
   bankName?: true
   upiId?: true
   isActive?: true
+  ownerId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -179,6 +185,7 @@ export type BankAccountGroupByOutputType = {
   bankName: string
   upiId: string | null
   isActive: boolean
+  ownerId: string | null
   createdAt: Date
   updatedAt: Date
   _count: BankAccountCountAggregateOutputType | null
@@ -212,6 +219,7 @@ export type BankAccountWhereInput = {
   bankName?: Prisma.StringFilter<"BankAccount"> | string
   upiId?: Prisma.StringNullableFilter<"BankAccount"> | string | null
   isActive?: Prisma.BoolFilter<"BankAccount"> | boolean
+  ownerId?: Prisma.StringNullableFilter<"BankAccount"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BankAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BankAccount"> | Date | string
 }
@@ -224,6 +232,7 @@ export type BankAccountOrderByWithRelationInput = {
   bankName?: Prisma.SortOrder
   upiId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -239,6 +248,7 @@ export type BankAccountWhereUniqueInput = Prisma.AtLeast<{
   bankName?: Prisma.StringFilter<"BankAccount"> | string
   upiId?: Prisma.StringNullableFilter<"BankAccount"> | string | null
   isActive?: Prisma.BoolFilter<"BankAccount"> | boolean
+  ownerId?: Prisma.StringNullableFilter<"BankAccount"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BankAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BankAccount"> | Date | string
 }, "id">
@@ -251,6 +261,7 @@ export type BankAccountOrderByWithAggregationInput = {
   bankName?: Prisma.SortOrder
   upiId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BankAccountCountOrderByAggregateInput
@@ -269,6 +280,7 @@ export type BankAccountScalarWhereWithAggregatesInput = {
   bankName?: Prisma.StringWithAggregatesFilter<"BankAccount"> | string
   upiId?: Prisma.StringNullableWithAggregatesFilter<"BankAccount"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"BankAccount"> | boolean
+  ownerId?: Prisma.StringNullableWithAggregatesFilter<"BankAccount"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BankAccount"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BankAccount"> | Date | string
 }
@@ -281,6 +293,7 @@ export type BankAccountCreateInput = {
   bankName: string
   upiId?: string | null
   isActive?: boolean
+  ownerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -293,6 +306,7 @@ export type BankAccountUncheckedCreateInput = {
   bankName: string
   upiId?: string | null
   isActive?: boolean
+  ownerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -305,6 +319,7 @@ export type BankAccountUpdateInput = {
   bankName?: Prisma.StringFieldUpdateOperationsInput | string
   upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -317,6 +332,7 @@ export type BankAccountUncheckedUpdateInput = {
   bankName?: Prisma.StringFieldUpdateOperationsInput | string
   upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -329,6 +345,7 @@ export type BankAccountCreateManyInput = {
   bankName: string
   upiId?: string | null
   isActive?: boolean
+  ownerId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -341,6 +358,7 @@ export type BankAccountUpdateManyMutationInput = {
   bankName?: Prisma.StringFieldUpdateOperationsInput | string
   upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -353,6 +371,7 @@ export type BankAccountUncheckedUpdateManyInput = {
   bankName?: Prisma.StringFieldUpdateOperationsInput | string
   upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ownerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -365,6 +384,7 @@ export type BankAccountCountOrderByAggregateInput = {
   bankName?: Prisma.SortOrder
   upiId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -377,6 +397,7 @@ export type BankAccountMaxOrderByAggregateInput = {
   bankName?: Prisma.SortOrder
   upiId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -389,6 +410,7 @@ export type BankAccountMinOrderByAggregateInput = {
   bankName?: Prisma.SortOrder
   upiId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  ownerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -403,6 +425,7 @@ export type BankAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   bankName?: boolean
   upiId?: boolean
   isActive?: boolean
+  ownerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["bankAccount"]>
@@ -415,6 +438,7 @@ export type BankAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   bankName?: boolean
   upiId?: boolean
   isActive?: boolean
+  ownerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["bankAccount"]>
@@ -427,6 +451,7 @@ export type BankAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   bankName?: boolean
   upiId?: boolean
   isActive?: boolean
+  ownerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["bankAccount"]>
@@ -439,11 +464,12 @@ export type BankAccountSelectScalar = {
   bankName?: boolean
   upiId?: boolean
   isActive?: boolean
+  ownerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BankAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountName" | "accountNumber" | "ifsc" | "bankName" | "upiId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["bankAccount"]>
+export type BankAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountName" | "accountNumber" | "ifsc" | "bankName" | "upiId" | "isActive" | "ownerId" | "createdAt" | "updatedAt", ExtArgs["result"]["bankAccount"]>
 
 export type $BankAccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BankAccount"
@@ -456,6 +482,7 @@ export type $BankAccountPayload<ExtArgs extends runtime.Types.Extensions.Interna
     bankName: string
     upiId: string | null
     isActive: boolean
+    ownerId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["bankAccount"]>
@@ -888,6 +915,7 @@ export interface BankAccountFieldRefs {
   readonly bankName: Prisma.FieldRef<"BankAccount", 'String'>
   readonly upiId: Prisma.FieldRef<"BankAccount", 'String'>
   readonly isActive: Prisma.FieldRef<"BankAccount", 'Boolean'>
+  readonly ownerId: Prisma.FieldRef<"BankAccount", 'String'>
   readonly createdAt: Prisma.FieldRef<"BankAccount", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"BankAccount", 'DateTime'>
 }
