@@ -52,9 +52,11 @@ const MENU: MenuItem[] = [
   {
     label: "Commission",
     icon: SlidersHorizontal,
-    roles: ADMIN,
+    roles: ALL,
     children: [
+      { to: "/my-commission", label: "My Commission", roles: ALL },
       { to: "/commission", label: "Commission Packs", roles: ADMIN },
+      { to: "/commission-report", label: "Commission Distribution", roles: MANAGERS },
       { to: "/cashback-offers", label: "Cashback Offers", roles: ADMIN },
     ],
   },

@@ -374,11 +374,28 @@ export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
 }
 
+export type EnumChargeTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ChargeType | Prisma.EnumChargeTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ChargeType[] | Prisma.ListEnumChargeTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ChargeType[] | Prisma.ListEnumChargeTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumChargeTypeFilter<$PrismaModel> | $Enums.ChargeType
+}
+
 export type EnumCommissionTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.CommissionType | Prisma.EnumCommissionTypeFieldRefInput<$PrismaModel>
   in?: $Enums.CommissionType[] | Prisma.ListEnumCommissionTypeFieldRefInput<$PrismaModel>
   notIn?: $Enums.CommissionType[] | Prisma.ListEnumCommissionTypeFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumCommissionTypeFilter<$PrismaModel> | $Enums.CommissionType
+}
+
+export type EnumChargeTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ChargeType | Prisma.EnumChargeTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ChargeType[] | Prisma.ListEnumChargeTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ChargeType[] | Prisma.ListEnumChargeTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumChargeTypeWithAggregatesFilter<$PrismaModel> | $Enums.ChargeType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumChargeTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumChargeTypeFilter<$PrismaModel>
 }
 
 export type EnumCommissionTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -891,11 +908,28 @@ export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
 }
 
+export type NestedEnumChargeTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ChargeType | Prisma.EnumChargeTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ChargeType[] | Prisma.ListEnumChargeTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ChargeType[] | Prisma.ListEnumChargeTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumChargeTypeFilter<$PrismaModel> | $Enums.ChargeType
+}
+
 export type NestedEnumCommissionTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.CommissionType | Prisma.EnumCommissionTypeFieldRefInput<$PrismaModel>
   in?: $Enums.CommissionType[] | Prisma.ListEnumCommissionTypeFieldRefInput<$PrismaModel>
   notIn?: $Enums.CommissionType[] | Prisma.ListEnumCommissionTypeFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumCommissionTypeFilter<$PrismaModel> | $Enums.CommissionType
+}
+
+export type NestedEnumChargeTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ChargeType | Prisma.EnumChargeTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ChargeType[] | Prisma.ListEnumChargeTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ChargeType[] | Prisma.ListEnumChargeTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumChargeTypeWithAggregatesFilter<$PrismaModel> | $Enums.ChargeType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumChargeTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumChargeTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumCommissionTypeWithAggregatesFilter<$PrismaModel = never> = {

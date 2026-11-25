@@ -42,6 +42,7 @@ interface PendingSummary {
 
 interface ExtendedSummary {
   generatedCommission: number;
+  generatedSurcharge: number;
   transferredBalance: number;
   reversedBalance: number;
   adminMainBalance: number;
@@ -125,6 +126,7 @@ function ExtendedBlock() {
   const rows: [string, string][] = data
     ? [
         ["Generated Commission Main", inr(data.generatedCommission)],
+        ["Generated Surcharge Main", inr(data.generatedSurcharge)],
         ["Transferred Balance Main", inr(data.transferredBalance)],
         ["Reversed Balance Main", inr(data.reversedBalance)],
         ["Admin Main Balance", inr(data.adminMainBalance)],
@@ -136,6 +138,7 @@ function ExtendedBlock() {
       ]
     : [
         ["Generated Commission Main", ""],
+        ["Generated Surcharge Main", ""],
         ["Transferred Balance Main", ""],
         ["Reversed Balance Main", ""],
         ["Admin Main Balance", ""],

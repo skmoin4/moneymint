@@ -58,6 +58,7 @@ dashboardRouter.get("/extended-summary", authorize("ADMIN", "MASTER_DISTRIBUTOR"
     callerWallet,
     usersByRole,
     yesterdayAgg,
+    surchargeAgg,
   ] = await Promise.all([
     prisma.user.count({ where: { id: { in: descendantIds } } }),
     prisma.ledgerEntry.aggregate({
@@ -86,6 +87,10 @@ dashboardRouter.get("/extended-summary", authorize("ADMIN", "MASTER_DISTRIBUTOR"
       _count: { _all: true },
       _sum: { amount: true },
     }),
+    prisma.transaction.aggregate({
+      where: { userId: { in: userIds }, status: "SUCCESS" },
+      _sum: { surcharge: true },
+    }),
   ]);
 
   const outletTotals = { MASTER_DISTRIBUTOR: 0, DISTRIBUTOR: 0, RETAILER: 0 };
@@ -100,6 +105,7 @@ dashboardRouter.get("/extended-summary", authorize("ADMIN", "MASTER_DISTRIBUTOR"
   res.json({
     totalUsers,
     generatedCommission: Number(commissionAgg._sum.amount ?? 0),
+    generatedSurcharge: Number(surchargeAgg._sum.surcharge ?? 0),
     transferredBalance: Number(transferAgg._sum.amount ?? 0),
     reversedBalance: Number(refundAgg._sum.amount ?? 0),
     adminMainBalance: Number(callerWallet?.balance ?? 0),

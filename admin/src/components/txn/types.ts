@@ -5,6 +5,8 @@ export interface AdminTxn {
   amount: string;
   deduction: string;
   commission: string;
+  surcharge: string;
+  vendorCommission: string;
   status: "PENDING" | "SUCCESS" | "FAILED" | "REFUNDED";
   providerRefId: string | null;
   apiResponse: Record<string, unknown> | null;

@@ -162,3 +162,7 @@ is already logged, just not actually sent anywhere real yet.
   transaction; mock payments and webhook secret locked down; suspended users blocked.
   Tested end to end against a local fake vendor. Recharge aggregator item still ⬜ — it
   needs a real vendor account, not code.
+- **2026-11-25** — Commission chain built: differential commission for Retailer /
+  Distributor / Master Distributor, amount-range slabs, surcharge (DMT/BBPS), vendor margin
+  per operator↔API, TDS withholding, Commission Distribution report with platform margin.
+  Confirm the TDS rate and the GST treatment of surcharge with your CA before launch.

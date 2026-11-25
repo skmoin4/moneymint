@@ -42,6 +42,7 @@ export type CommissionSlabMinAggregateOutputType = {
   id: string | null
   packId: string | null
   operatorId: string | null
+  chargeType: $Enums.ChargeType | null
   commissionType: $Enums.CommissionType | null
   value: runtime.Decimal | null
   minAmount: runtime.Decimal | null
@@ -54,6 +55,7 @@ export type CommissionSlabMaxAggregateOutputType = {
   id: string | null
   packId: string | null
   operatorId: string | null
+  chargeType: $Enums.ChargeType | null
   commissionType: $Enums.CommissionType | null
   value: runtime.Decimal | null
   minAmount: runtime.Decimal | null
@@ -66,6 +68,7 @@ export type CommissionSlabCountAggregateOutputType = {
   id: number
   packId: number
   operatorId: number
+  chargeType: number
   commissionType: number
   value: number
   minAmount: number
@@ -92,6 +95,7 @@ export type CommissionSlabMinAggregateInputType = {
   id?: true
   packId?: true
   operatorId?: true
+  chargeType?: true
   commissionType?: true
   value?: true
   minAmount?: true
@@ -104,6 +108,7 @@ export type CommissionSlabMaxAggregateInputType = {
   id?: true
   packId?: true
   operatorId?: true
+  chargeType?: true
   commissionType?: true
   value?: true
   minAmount?: true
@@ -116,6 +121,7 @@ export type CommissionSlabCountAggregateInputType = {
   id?: true
   packId?: true
   operatorId?: true
+  chargeType?: true
   commissionType?: true
   value?: true
   minAmount?: true
@@ -215,6 +221,7 @@ export type CommissionSlabGroupByOutputType = {
   id: string
   packId: string
   operatorId: string
+  chargeType: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal
   minAmount: runtime.Decimal | null
@@ -250,6 +257,7 @@ export type CommissionSlabWhereInput = {
   id?: Prisma.StringFilter<"CommissionSlab"> | string
   packId?: Prisma.StringFilter<"CommissionSlab"> | string
   operatorId?: Prisma.StringFilter<"CommissionSlab"> | string
+  chargeType?: Prisma.EnumChargeTypeFilter<"CommissionSlab"> | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFilter<"CommissionSlab"> | $Enums.CommissionType
   value?: Prisma.DecimalFilter<"CommissionSlab"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.DecimalNullableFilter<"CommissionSlab"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -264,6 +272,7 @@ export type CommissionSlabOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   operatorId?: Prisma.SortOrder
+  chargeType?: Prisma.SortOrder
   commissionType?: Prisma.SortOrder
   value?: Prisma.SortOrder
   minAmount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -276,12 +285,12 @@ export type CommissionSlabOrderByWithRelationInput = {
 
 export type CommissionSlabWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  packId_operatorId?: Prisma.CommissionSlabPackIdOperatorIdCompoundUniqueInput
   AND?: Prisma.CommissionSlabWhereInput | Prisma.CommissionSlabWhereInput[]
   OR?: Prisma.CommissionSlabWhereInput[]
   NOT?: Prisma.CommissionSlabWhereInput | Prisma.CommissionSlabWhereInput[]
   packId?: Prisma.StringFilter<"CommissionSlab"> | string
   operatorId?: Prisma.StringFilter<"CommissionSlab"> | string
+  chargeType?: Prisma.EnumChargeTypeFilter<"CommissionSlab"> | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFilter<"CommissionSlab"> | $Enums.CommissionType
   value?: Prisma.DecimalFilter<"CommissionSlab"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.DecimalNullableFilter<"CommissionSlab"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -290,12 +299,13 @@ export type CommissionSlabWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"CommissionSlab"> | Date | string
   pack?: Prisma.XOR<Prisma.CommissionPackScalarRelationFilter, Prisma.CommissionPackWhereInput>
   operator?: Prisma.XOR<Prisma.OperatorScalarRelationFilter, Prisma.OperatorWhereInput>
-}, "id" | "packId_operatorId">
+}, "id">
 
 export type CommissionSlabOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   operatorId?: Prisma.SortOrder
+  chargeType?: Prisma.SortOrder
   commissionType?: Prisma.SortOrder
   value?: Prisma.SortOrder
   minAmount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -316,6 +326,7 @@ export type CommissionSlabScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CommissionSlab"> | string
   packId?: Prisma.StringWithAggregatesFilter<"CommissionSlab"> | string
   operatorId?: Prisma.StringWithAggregatesFilter<"CommissionSlab"> | string
+  chargeType?: Prisma.EnumChargeTypeWithAggregatesFilter<"CommissionSlab"> | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeWithAggregatesFilter<"CommissionSlab"> | $Enums.CommissionType
   value?: Prisma.DecimalWithAggregatesFilter<"CommissionSlab"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.DecimalNullableWithAggregatesFilter<"CommissionSlab"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -326,6 +337,7 @@ export type CommissionSlabScalarWhereWithAggregatesInput = {
 
 export type CommissionSlabCreateInput = {
   id?: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -340,6 +352,7 @@ export type CommissionSlabUncheckedCreateInput = {
   id?: string
   packId: string
   operatorId: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -350,6 +363,7 @@ export type CommissionSlabUncheckedCreateInput = {
 
 export type CommissionSlabUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -364,6 +378,7 @@ export type CommissionSlabUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packId?: Prisma.StringFieldUpdateOperationsInput | string
   operatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -376,6 +391,7 @@ export type CommissionSlabCreateManyInput = {
   id?: string
   packId: string
   operatorId: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -386,6 +402,7 @@ export type CommissionSlabCreateManyInput = {
 
 export type CommissionSlabUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -398,6 +415,7 @@ export type CommissionSlabUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packId?: Prisma.StringFieldUpdateOperationsInput | string
   operatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -416,15 +434,11 @@ export type CommissionSlabOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CommissionSlabPackIdOperatorIdCompoundUniqueInput = {
-  packId: string
-  operatorId: string
-}
-
 export type CommissionSlabCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   operatorId?: Prisma.SortOrder
+  chargeType?: Prisma.SortOrder
   commissionType?: Prisma.SortOrder
   value?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
@@ -443,6 +457,7 @@ export type CommissionSlabMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   operatorId?: Prisma.SortOrder
+  chargeType?: Prisma.SortOrder
   commissionType?: Prisma.SortOrder
   value?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
@@ -455,6 +470,7 @@ export type CommissionSlabMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   operatorId?: Prisma.SortOrder
+  chargeType?: Prisma.SortOrder
   commissionType?: Prisma.SortOrder
   value?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
@@ -553,12 +569,17 @@ export type CommissionSlabUncheckedUpdateManyWithoutPackNestedInput = {
   deleteMany?: Prisma.CommissionSlabScalarWhereInput | Prisma.CommissionSlabScalarWhereInput[]
 }
 
+export type EnumChargeTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ChargeType
+}
+
 export type EnumCommissionTypeFieldUpdateOperationsInput = {
   set?: $Enums.CommissionType
 }
 
 export type CommissionSlabCreateWithoutOperatorInput = {
   id?: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -571,6 +592,7 @@ export type CommissionSlabCreateWithoutOperatorInput = {
 export type CommissionSlabUncheckedCreateWithoutOperatorInput = {
   id?: string
   packId: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -612,6 +634,7 @@ export type CommissionSlabScalarWhereInput = {
   id?: Prisma.StringFilter<"CommissionSlab"> | string
   packId?: Prisma.StringFilter<"CommissionSlab"> | string
   operatorId?: Prisma.StringFilter<"CommissionSlab"> | string
+  chargeType?: Prisma.EnumChargeTypeFilter<"CommissionSlab"> | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFilter<"CommissionSlab"> | $Enums.CommissionType
   value?: Prisma.DecimalFilter<"CommissionSlab"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.DecimalNullableFilter<"CommissionSlab"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -622,6 +645,7 @@ export type CommissionSlabScalarWhereInput = {
 
 export type CommissionSlabCreateWithoutPackInput = {
   id?: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -634,6 +658,7 @@ export type CommissionSlabCreateWithoutPackInput = {
 export type CommissionSlabUncheckedCreateWithoutPackInput = {
   id?: string
   operatorId: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -671,6 +696,7 @@ export type CommissionSlabUpdateManyWithWhereWithoutPackInput = {
 export type CommissionSlabCreateManyOperatorInput = {
   id?: string
   packId: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -681,6 +707,7 @@ export type CommissionSlabCreateManyOperatorInput = {
 
 export type CommissionSlabUpdateWithoutOperatorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -693,6 +720,7 @@ export type CommissionSlabUpdateWithoutOperatorInput = {
 export type CommissionSlabUncheckedUpdateWithoutOperatorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packId?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -704,6 +732,7 @@ export type CommissionSlabUncheckedUpdateWithoutOperatorInput = {
 export type CommissionSlabUncheckedUpdateManyWithoutOperatorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packId?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -715,6 +744,7 @@ export type CommissionSlabUncheckedUpdateManyWithoutOperatorInput = {
 export type CommissionSlabCreateManyPackInput = {
   id?: string
   operatorId: string
+  chargeType?: $Enums.ChargeType
   commissionType: $Enums.CommissionType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -725,6 +755,7 @@ export type CommissionSlabCreateManyPackInput = {
 
 export type CommissionSlabUpdateWithoutPackInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -737,6 +768,7 @@ export type CommissionSlabUpdateWithoutPackInput = {
 export type CommissionSlabUncheckedUpdateWithoutPackInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   operatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -748,6 +780,7 @@ export type CommissionSlabUncheckedUpdateWithoutPackInput = {
 export type CommissionSlabUncheckedUpdateManyWithoutPackInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   operatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  chargeType?: Prisma.EnumChargeTypeFieldUpdateOperationsInput | $Enums.ChargeType
   commissionType?: Prisma.EnumCommissionTypeFieldUpdateOperationsInput | $Enums.CommissionType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   minAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -762,6 +795,7 @@ export type CommissionSlabSelect<ExtArgs extends runtime.Types.Extensions.Intern
   id?: boolean
   packId?: boolean
   operatorId?: boolean
+  chargeType?: boolean
   commissionType?: boolean
   value?: boolean
   minAmount?: boolean
@@ -776,6 +810,7 @@ export type CommissionSlabSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   packId?: boolean
   operatorId?: boolean
+  chargeType?: boolean
   commissionType?: boolean
   value?: boolean
   minAmount?: boolean
@@ -790,6 +825,7 @@ export type CommissionSlabSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   packId?: boolean
   operatorId?: boolean
+  chargeType?: boolean
   commissionType?: boolean
   value?: boolean
   minAmount?: boolean
@@ -804,6 +840,7 @@ export type CommissionSlabSelectScalar = {
   id?: boolean
   packId?: boolean
   operatorId?: boolean
+  chargeType?: boolean
   commissionType?: boolean
   value?: boolean
   minAmount?: boolean
@@ -812,7 +849,7 @@ export type CommissionSlabSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CommissionSlabOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packId" | "operatorId" | "commissionType" | "value" | "minAmount" | "maxAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["commissionSlab"]>
+export type CommissionSlabOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packId" | "operatorId" | "chargeType" | "commissionType" | "value" | "minAmount" | "maxAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["commissionSlab"]>
 export type CommissionSlabInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pack?: boolean | Prisma.CommissionPackDefaultArgs<ExtArgs>
   operator?: boolean | Prisma.OperatorDefaultArgs<ExtArgs>
@@ -836,6 +873,7 @@ export type $CommissionSlabPayload<ExtArgs extends runtime.Types.Extensions.Inte
     id: string
     packId: string
     operatorId: string
+    chargeType: $Enums.ChargeType
     commissionType: $Enums.CommissionType
     value: runtime.Decimal
     minAmount: runtime.Decimal | null
@@ -1270,6 +1308,7 @@ export interface CommissionSlabFieldRefs {
   readonly id: Prisma.FieldRef<"CommissionSlab", 'String'>
   readonly packId: Prisma.FieldRef<"CommissionSlab", 'String'>
   readonly operatorId: Prisma.FieldRef<"CommissionSlab", 'String'>
+  readonly chargeType: Prisma.FieldRef<"CommissionSlab", 'ChargeType'>
   readonly commissionType: Prisma.FieldRef<"CommissionSlab", 'CommissionType'>
   readonly value: Prisma.FieldRef<"CommissionSlab", 'Decimal'>
   readonly minAmount: Prisma.FieldRef<"CommissionSlab", 'Decimal'>

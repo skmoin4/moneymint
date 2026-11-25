@@ -49,7 +49,58 @@ interface Mapping {
   priority: number;
   isActive: boolean;
   providerOperatorCode: string | null;
+  vendorCommissionType: "PERCENT" | "FLAT" | null;
+  vendorCommissionValue: string | null;
   operator: { id: string; name: string; code: string; type: string };
+}
+
+// What this vendor pays the platform for one operator (its margin). Saved on change.
+function VendorMarginCell({ mapping, onError }: { mapping: Mapping; onError: (text: string) => void }) {
+  const [type, setType] = useState(mapping.vendorCommissionType ?? "");
+  const [value, setValue] = useState(mapping.vendorCommissionValue === null ? "" : String(Number(mapping.vendorCommissionValue)));
+  const [saved, setSaved] = useState(false);
+
+  async function save(nextType: string, nextValue: string) {
+    try {
+      await api.patch(`/operators/mappings/${mapping.id}`, {
+        vendorCommissionType: nextType || null,
+        vendorCommissionValue: nextType ? Number(nextValue || 0) : null,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1200);
+    } catch (err) {
+      onError(errorText(err));
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <select
+        value={type}
+        onChange={(e) => {
+          setType(e.target.value);
+          save(e.target.value, value);
+        }}
+        className={compactInputClasses}
+        aria-label={`Vendor margin type for ${mapping.operator.name}`}
+      >
+        <option value="">None</option>
+        <option value="PERCENT">%</option>
+        <option value="FLAT">₹</option>
+      </select>
+      {type && (
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={() => save(type, value)}
+          inputMode="decimal"
+          className={`${compactInputClasses} w-20`}
+          aria-label={`Vendor margin for ${mapping.operator.name}`}
+        />
+      )}
+      {saved && <span className="text-[11px] text-brand-600">saved</span>}
+    </div>
+  );
 }
 
 interface Integration {
@@ -405,7 +456,7 @@ export function ApiParsingSettingPage() {
             </Panel>
           </div>
 
-          <Panel title="Operator codes for this API" bodyClassName="p-0">
+          <Panel title="Operator codes & vendor margin for this API" bodyClassName="p-0">
             {data.mappings.length === 0 ? (
               <div className="p-4 text-ink-500">This API isn't assigned to any operator yet — assign it on Provider API Setting.</div>
             ) : (
@@ -415,6 +466,7 @@ export function ApiParsingSettingPage() {
                   <Th>Our code</Th>
                   <Th>Slot</Th>
                   <Th>Vendor's operator code (sent as {"{opcode}"})</Th>
+                  <Th>Vendor margin to us</Th>
                 </THead>
                 <tbody>
                   {data.mappings.map((m) => (
@@ -435,6 +487,9 @@ export function ApiParsingSettingPage() {
                           className={`${compactInputClasses} w-40 font-mono`}
                           aria-label={`Vendor code for ${m.operator.name}`}
                         />
+                      </Td>
+                      <Td>
+                        <VendorMarginCell mapping={m} onError={(text) => setMessage({ ok: false, text })} />
                       </Td>
                     </Tr>
                   ))}

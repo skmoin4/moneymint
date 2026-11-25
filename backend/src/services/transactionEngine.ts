@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma";
 import { HttpError } from "../utils/httpError";
 import { sendRecharge, checkStatus, ProviderDownError, type ProviderResult, type ProviderTarget } from "./providerClient";
 import { sendSms } from "./smsService";
+import { distributeCommission, userRate, vendorMargin } from "./commission";
 import type { Prisma } from "../generated/prisma/client";
 
 interface RewardParams {
@@ -22,7 +23,7 @@ interface RewardParams {
 /**
  * Runs everything that happens on a SUCCESSFUL transaction, regardless of which flow
  * settled it (shared recharge/BBPS/DMT engine, or AEPS's own settlement path): deplete
- * the vendor's operational float, pay commission (with pack-level global fallback), apply
+ * the vendor's operational float (net of vendor margin), pay commission up the chain, apply
  * the best matching promotional cashback offer, and pay the referrer's reward if this
  * user was referred. Returns the commission amount so the caller can persist it.
  */
@@ -39,64 +40,41 @@ export async function applySuccessRewards(
     depleteProviderWallet = true,
   }: RewardParams
 ): Promise<number> {
+  // Vendor margin: the vendor deducts amount − margin from our float, so Wallet 1 drops
+  // by the net cost and the margin is recorded as platform income on the transaction.
+  const margin = await vendorMargin(tx, operatorId, apiProviderId, amount);
   if (depleteProviderWallet) {
+    const cost = Math.round((amount - margin) * 100) / 100;
     const providerWallet = await tx.apiProvider.update({
       where: { id: apiProviderId },
-      data: { walletBalance: { decrement: amount } },
+      data: { walletBalance: { decrement: cost } },
     });
     await tx.providerWalletEntry.create({
       data: {
         apiProviderId,
         walletSlot: 1,
         type: "DEBIT",
-        amount,
+        amount: cost,
         balanceAfter: providerWallet.walletBalance,
         referenceId: transactionId,
-        description: `${descriptionLabel} settled (${identifier})`,
+        description: margin > 0 ? `${descriptionLabel} settled (${identifier}) — ₹${amount} less ₹${margin} margin` : `${descriptionLabel} settled (${identifier})`,
       },
     });
   }
+  if (margin > 0) {
+    await tx.transaction.update({ where: { id: transactionId }, data: { vendorCommission: margin } });
+  }
 
-  const user = await tx.user.findUnique({
-    where: { id: userId },
-    include: {
-      commissionPack: {
-        include: { slabs: { where: { operatorId } } },
-      },
-    },
+  const commission = await distributeCommission(tx, {
+    transactionId,
+    userId,
+    operatorId,
+    amount,
+    label: descriptionLabel,
+    identifier,
   });
 
-  const slab = user?.commissionPack?.slabs[0];
-  // Fall back to the pack's global rate when no operator-specific slab is configured.
-  const rate = slab
-    ? { commissionType: slab.commissionType, value: slab.value }
-    : user?.commissionPack?.globalCommissionType && user.commissionPack.globalValue != null
-      ? { commissionType: user.commissionPack.globalCommissionType, value: user.commissionPack.globalValue }
-      : null;
-
-  let commission = 0;
-  if (rate) {
-    const raw = rate.commissionType === "PERCENT" ? amount * (Number(rate.value) / 100) : Number(rate.value);
-    commission = Math.round(raw * 100) / 100;
-
-    if (commission > 0) {
-      const wallet = await tx.wallet.update({
-        where: { userId },
-        data: { balance: { increment: commission } },
-      });
-      await tx.ledgerEntry.create({
-        data: {
-          walletId: wallet.id,
-          type: "CREDIT",
-          amount: commission,
-          balanceAfter: wallet.balance,
-          referenceType: "COMMISSION",
-          referenceId: transactionId,
-          description: `Commission for ${descriptionLabel.toLowerCase()} (${identifier})`,
-        },
-      });
-    }
-  }
+  const user = await tx.user.findUnique({ where: { id: userId }, select: { name: true, referredById: true } });
 
   // Promotional cashback — a percentage on top of the normal commission, from any
   // currently-active offer matching this operator (or a platform-wide offer).
@@ -214,14 +192,16 @@ export async function processProviderTransaction({
     throw new HttpError(503, "No active API provider configured for this operator");
   }
 
+  // A negative own-rate means this user's pack charges a surcharge (typical for DMT/BBPS):
+  // it is taken together with the amount and refunded with it if the transaction fails.
+  const ownRate = await userRate(prisma, userId, operator.id, amount);
+  const surcharge = ownRate !== null && ownRate < 0 ? -ownRate : 0;
+
   const transaction = await prisma.$transaction(async (tx) => {
     const wallet = await tx.wallet.update({
       where: { userId },
       data: { balance: { decrement: amount } },
     });
-    if (wallet.balance.lessThan(0)) {
-      throw new HttpError(400, "Insufficient balance");
-    }
 
     const txn = await tx.transaction.create({
       data: {
@@ -231,7 +211,8 @@ export async function processProviderTransaction({
         apiProviderId: mappings[0].apiProviderId,
         identifier,
         amount,
-        deduction: amount,
+        surcharge,
+        deduction: amount + surcharge,
         status: "PENDING",
         source,
       },
@@ -248,6 +229,26 @@ export async function processProviderTransaction({
         description: `${descriptionLabel} ${identifier} (${operator.name})`,
       },
     });
+
+    let finalBalance = wallet.balance;
+    if (surcharge > 0) {
+      const charged = await tx.wallet.update({ where: { userId }, data: { balance: { decrement: surcharge } } });
+      finalBalance = charged.balance;
+      await tx.ledgerEntry.create({
+        data: {
+          walletId: wallet.id,
+          type: "DEBIT",
+          amount: surcharge,
+          balanceAfter: charged.balance,
+          referenceType: "SURCHARGE",
+          referenceId: txn.id,
+          description: `Surcharge on ${descriptionLabel.toLowerCase()} of ₹${amount} (${identifier})`,
+        },
+      });
+    }
+    if (finalBalance.lessThan(0)) {
+      throw new HttpError(400, surcharge > 0 ? `Insufficient balance (₹${amount} + ₹${surcharge} surcharge)` : "Insufficient balance");
+    }
 
     return txn;
   });
@@ -627,9 +628,11 @@ export async function refundSuccessfulTransaction(transactionId: string, remark?
       });
     }
 
+    await tx.commissionPayout.updateMany({ where: { transactionId }, data: { reversed: true } });
+
     return tx.transaction.update({
       where: { id: transactionId },
-      data: { status: "REFUNDED", commission: 0 },
+      data: { status: "REFUNDED", commission: 0, vendorCommission: 0 },
     });
   });
 }

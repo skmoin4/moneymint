@@ -406,6 +406,7 @@ export const ModelName = {
   OperatorApiMapping: 'OperatorApiMapping',
   CommissionPack: 'CommissionPack',
   CommissionSlab: 'CommissionSlab',
+  CommissionPayout: 'CommissionPayout',
   Transaction: 'Transaction',
   ProviderCallLog: 'ProviderCallLog',
   FundTransfer: 'FundTransfer',
@@ -446,7 +447,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder"
+    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "commissionPayout" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1113,6 +1114,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CommissionSlabCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CommissionSlabCountAggregateOutputType> | number
+        }
+      }
+    }
+    CommissionPayout: {
+      payload: Prisma.$CommissionPayoutPayload<ExtArgs>
+      fields: Prisma.CommissionPayoutFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommissionPayoutFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommissionPayoutFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>
+        }
+        findFirst: {
+          args: Prisma.CommissionPayoutFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommissionPayoutFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>
+        }
+        findMany: {
+          args: Prisma.CommissionPayoutFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>[]
+        }
+        create: {
+          args: Prisma.CommissionPayoutCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>
+        }
+        createMany: {
+          args: Prisma.CommissionPayoutCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CommissionPayoutCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>[]
+        }
+        delete: {
+          args: Prisma.CommissionPayoutDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>
+        }
+        update: {
+          args: Prisma.CommissionPayoutUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>
+        }
+        deleteMany: {
+          args: Prisma.CommissionPayoutDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommissionPayoutUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CommissionPayoutUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>[]
+        }
+        upsert: {
+          args: Prisma.CommissionPayoutUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommissionPayoutPayload>
+        }
+        aggregate: {
+          args: Prisma.CommissionPayoutAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommissionPayout>
+        }
+        groupBy: {
+          args: Prisma.CommissionPayoutGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionPayoutGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommissionPayoutCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommissionPayoutCountAggregateOutputType> | number
         }
       }
     }
@@ -3114,6 +3189,8 @@ export const OperatorApiMappingScalarFieldEnum = {
   apiProviderId: 'apiProviderId',
   priority: 'priority',
   isActive: 'isActive',
+  vendorCommissionType: 'vendorCommissionType',
+  vendorCommissionValue: 'vendorCommissionValue',
   providerOperatorCode: 'providerOperatorCode'
 } as const
 
@@ -3136,6 +3213,7 @@ export const CommissionSlabScalarFieldEnum = {
   id: 'id',
   packId: 'packId',
   operatorId: 'operatorId',
+  chargeType: 'chargeType',
   commissionType: 'commissionType',
   value: 'value',
   minAmount: 'minAmount',
@@ -3147,6 +3225,22 @@ export const CommissionSlabScalarFieldEnum = {
 export type CommissionSlabScalarFieldEnum = (typeof CommissionSlabScalarFieldEnum)[keyof typeof CommissionSlabScalarFieldEnum]
 
 
+export const CommissionPayoutScalarFieldEnum = {
+  id: 'id',
+  transactionId: 'transactionId',
+  userId: 'userId',
+  level: 'level',
+  role: 'role',
+  gross: 'gross',
+  tds: 'tds',
+  net: 'net',
+  reversed: 'reversed',
+  createdAt: 'createdAt'
+} as const
+
+export type CommissionPayoutScalarFieldEnum = (typeof CommissionPayoutScalarFieldEnum)[keyof typeof CommissionPayoutScalarFieldEnum]
+
+
 export const TransactionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -3156,6 +3250,8 @@ export const TransactionScalarFieldEnum = {
   identifier: 'identifier',
   amount: 'amount',
   commission: 'commission',
+  surcharge: 'surcharge',
+  vendorCommission: 'vendorCommission',
   deduction: 'deduction',
   status: 'status',
   providerRefId: 'providerRefId',
@@ -3720,6 +3816,20 @@ export type ListEnumCommissionTypeFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
+ * Reference to a field of type 'ChargeType'
+ */
+export type EnumChargeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChargeType'>
+    
+
+
+/**
+ * Reference to a field of type 'ChargeType[]'
+ */
+export type ListEnumChargeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChargeType[]'>
+    
+
+
+/**
  * Reference to a field of type 'TransactionType'
  */
 export type EnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionType'>
@@ -3976,6 +4086,7 @@ export type GlobalOmitConfig = {
   operatorApiMapping?: Prisma.OperatorApiMappingOmit
   commissionPack?: Prisma.CommissionPackOmit
   commissionSlab?: Prisma.CommissionSlabOmit
+  commissionPayout?: Prisma.CommissionPayoutOmit
   transaction?: Prisma.TransactionOmit
   providerCallLog?: Prisma.ProviderCallLogOmit
   fundTransfer?: Prisma.FundTransferOmit

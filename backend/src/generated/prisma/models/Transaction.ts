@@ -29,6 +29,8 @@ export type AggregateTransaction = {
 export type TransactionAvgAggregateOutputType = {
   amount: runtime.Decimal | null
   commission: runtime.Decimal | null
+  surcharge: runtime.Decimal | null
+  vendorCommission: runtime.Decimal | null
   deduction: runtime.Decimal | null
   statusCheckCount: number | null
 }
@@ -36,6 +38,8 @@ export type TransactionAvgAggregateOutputType = {
 export type TransactionSumAggregateOutputType = {
   amount: runtime.Decimal | null
   commission: runtime.Decimal | null
+  surcharge: runtime.Decimal | null
+  vendorCommission: runtime.Decimal | null
   deduction: runtime.Decimal | null
   statusCheckCount: number | null
 }
@@ -49,6 +53,8 @@ export type TransactionMinAggregateOutputType = {
   identifier: string | null
   amount: runtime.Decimal | null
   commission: runtime.Decimal | null
+  surcharge: runtime.Decimal | null
+  vendorCommission: runtime.Decimal | null
   deduction: runtime.Decimal | null
   status: $Enums.TransactionStatus | null
   providerRefId: string | null
@@ -70,6 +76,8 @@ export type TransactionMaxAggregateOutputType = {
   identifier: string | null
   amount: runtime.Decimal | null
   commission: runtime.Decimal | null
+  surcharge: runtime.Decimal | null
+  vendorCommission: runtime.Decimal | null
   deduction: runtime.Decimal | null
   status: $Enums.TransactionStatus | null
   providerRefId: string | null
@@ -91,6 +99,8 @@ export type TransactionCountAggregateOutputType = {
   identifier: number
   amount: number
   commission: number
+  surcharge: number
+  vendorCommission: number
   deduction: number
   status: number
   providerRefId: number
@@ -109,6 +119,8 @@ export type TransactionCountAggregateOutputType = {
 export type TransactionAvgAggregateInputType = {
   amount?: true
   commission?: true
+  surcharge?: true
+  vendorCommission?: true
   deduction?: true
   statusCheckCount?: true
 }
@@ -116,6 +128,8 @@ export type TransactionAvgAggregateInputType = {
 export type TransactionSumAggregateInputType = {
   amount?: true
   commission?: true
+  surcharge?: true
+  vendorCommission?: true
   deduction?: true
   statusCheckCount?: true
 }
@@ -129,6 +143,8 @@ export type TransactionMinAggregateInputType = {
   identifier?: true
   amount?: true
   commission?: true
+  surcharge?: true
+  vendorCommission?: true
   deduction?: true
   status?: true
   providerRefId?: true
@@ -150,6 +166,8 @@ export type TransactionMaxAggregateInputType = {
   identifier?: true
   amount?: true
   commission?: true
+  surcharge?: true
+  vendorCommission?: true
   deduction?: true
   status?: true
   providerRefId?: true
@@ -171,6 +189,8 @@ export type TransactionCountAggregateInputType = {
   identifier?: true
   amount?: true
   commission?: true
+  surcharge?: true
+  vendorCommission?: true
   deduction?: true
   status?: true
   providerRefId?: true
@@ -280,6 +300,8 @@ export type TransactionGroupByOutputType = {
   identifier: string
   amount: runtime.Decimal
   commission: runtime.Decimal
+  surcharge: runtime.Decimal
+  vendorCommission: runtime.Decimal
   deduction: runtime.Decimal
   status: $Enums.TransactionStatus
   providerRefId: string | null
@@ -325,6 +347,8 @@ export type TransactionWhereInput = {
   identifier?: Prisma.StringFilter<"Transaction"> | string
   amount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   providerRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
@@ -350,6 +374,8 @@ export type TransactionOrderByWithRelationInput = {
   identifier?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+  vendorCommission?: Prisma.SortOrder
   deduction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -378,6 +404,8 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   identifier?: Prisma.StringFilter<"Transaction"> | string
   amount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   providerRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
@@ -403,6 +431,8 @@ export type TransactionOrderByWithAggregationInput = {
   identifier?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+  vendorCommission?: Prisma.SortOrder
   deduction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -433,6 +463,8 @@ export type TransactionScalarWhereWithAggregatesInput = {
   identifier?: Prisma.StringWithAggregatesFilter<"Transaction"> | string
   amount?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusWithAggregatesFilter<"Transaction"> | $Enums.TransactionStatus
   providerRefId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
@@ -452,6 +484,8 @@ export type TransactionCreateInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -477,6 +511,8 @@ export type TransactionUncheckedCreateInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -496,6 +532,8 @@ export type TransactionUpdateInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -521,6 +559,8 @@ export type TransactionUncheckedUpdateInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -543,6 +583,8 @@ export type TransactionCreateManyInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -562,6 +604,8 @@ export type TransactionUpdateManyMutationInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -584,6 +628,8 @@ export type TransactionUncheckedUpdateManyInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -616,6 +662,8 @@ export type TransactionCountOrderByAggregateInput = {
   identifier?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+  vendorCommission?: Prisma.SortOrder
   deduction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrder
@@ -632,6 +680,8 @@ export type TransactionCountOrderByAggregateInput = {
 export type TransactionAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+  vendorCommission?: Prisma.SortOrder
   deduction?: Prisma.SortOrder
   statusCheckCount?: Prisma.SortOrder
 }
@@ -645,6 +695,8 @@ export type TransactionMaxOrderByAggregateInput = {
   identifier?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+  vendorCommission?: Prisma.SortOrder
   deduction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrder
@@ -666,6 +718,8 @@ export type TransactionMinOrderByAggregateInput = {
   identifier?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+  vendorCommission?: Prisma.SortOrder
   deduction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   providerRefId?: Prisma.SortOrder
@@ -681,6 +735,8 @@ export type TransactionMinOrderByAggregateInput = {
 export type TransactionSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   commission?: Prisma.SortOrder
+  surcharge?: Prisma.SortOrder
+  vendorCommission?: Prisma.SortOrder
   deduction?: Prisma.SortOrder
   statusCheckCount?: Prisma.SortOrder
 }
@@ -829,6 +885,8 @@ export type TransactionCreateWithoutUserInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -852,6 +910,8 @@ export type TransactionUncheckedCreateWithoutUserInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -903,6 +963,8 @@ export type TransactionScalarWhereInput = {
   identifier?: Prisma.StringFilter<"Transaction"> | string
   amount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   providerRefId?: Prisma.StringNullableFilter<"Transaction"> | string | null
@@ -922,6 +984,8 @@ export type TransactionCreateWithoutApiProviderInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -945,6 +1009,8 @@ export type TransactionUncheckedCreateWithoutApiProviderInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -990,6 +1056,8 @@ export type TransactionCreateWithoutOperatorInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -1013,6 +1081,8 @@ export type TransactionUncheckedCreateWithoutOperatorInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -1060,6 +1130,8 @@ export type TransactionCreateManyUserInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -1079,6 +1151,8 @@ export type TransactionUpdateWithoutUserInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1102,6 +1176,8 @@ export type TransactionUncheckedUpdateWithoutUserInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1123,6 +1199,8 @@ export type TransactionUncheckedUpdateManyWithoutUserInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1144,6 +1222,8 @@ export type TransactionCreateManyApiProviderInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -1163,6 +1243,8 @@ export type TransactionUpdateWithoutApiProviderInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1186,6 +1268,8 @@ export type TransactionUncheckedUpdateWithoutApiProviderInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1207,6 +1291,8 @@ export type TransactionUncheckedUpdateManyWithoutApiProviderInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1228,6 +1314,8 @@ export type TransactionCreateManyOperatorInput = {
   identifier: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.TransactionStatus
   providerRefId?: string | null
@@ -1247,6 +1335,8 @@ export type TransactionUpdateWithoutOperatorInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1270,6 +1360,8 @@ export type TransactionUncheckedUpdateWithoutOperatorInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1291,6 +1383,8 @@ export type TransactionUncheckedUpdateManyWithoutOperatorInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  surcharge?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorCommission?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   providerRefId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1315,6 +1409,8 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   identifier?: boolean
   amount?: boolean
   commission?: boolean
+  surcharge?: boolean
+  vendorCommission?: boolean
   deduction?: boolean
   status?: boolean
   providerRefId?: boolean
@@ -1340,6 +1436,8 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   identifier?: boolean
   amount?: boolean
   commission?: boolean
+  surcharge?: boolean
+  vendorCommission?: boolean
   deduction?: boolean
   status?: boolean
   providerRefId?: boolean
@@ -1365,6 +1463,8 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   identifier?: boolean
   amount?: boolean
   commission?: boolean
+  surcharge?: boolean
+  vendorCommission?: boolean
   deduction?: boolean
   status?: boolean
   providerRefId?: boolean
@@ -1390,6 +1490,8 @@ export type TransactionSelectScalar = {
   identifier?: boolean
   amount?: boolean
   commission?: boolean
+  surcharge?: boolean
+  vendorCommission?: boolean
   deduction?: boolean
   status?: boolean
   providerRefId?: boolean
@@ -1403,7 +1505,7 @@ export type TransactionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "operatorId" | "apiProviderId" | "type" | "identifier" | "amount" | "commission" | "deduction" | "status" | "providerRefId" | "apiResponse" | "source" | "vendorRefId" | "statusMessage" | "statusCheckCount" | "lastStatusCheckAt" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "operatorId" | "apiProviderId" | "type" | "identifier" | "amount" | "commission" | "surcharge" | "vendorCommission" | "deduction" | "status" | "providerRefId" | "apiResponse" | "source" | "vendorRefId" | "statusMessage" | "statusCheckCount" | "lastStatusCheckAt" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   operator?: boolean | Prisma.OperatorDefaultArgs<ExtArgs>
@@ -1436,6 +1538,8 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     identifier: string
     amount: runtime.Decimal
     commission: runtime.Decimal
+    surcharge: runtime.Decimal
+    vendorCommission: runtime.Decimal
     deduction: runtime.Decimal
     status: $Enums.TransactionStatus
     providerRefId: string | null
@@ -1881,6 +1985,8 @@ export interface TransactionFieldRefs {
   readonly identifier: Prisma.FieldRef<"Transaction", 'String'>
   readonly amount: Prisma.FieldRef<"Transaction", 'Decimal'>
   readonly commission: Prisma.FieldRef<"Transaction", 'Decimal'>
+  readonly surcharge: Prisma.FieldRef<"Transaction", 'Decimal'>
+  readonly vendorCommission: Prisma.FieldRef<"Transaction", 'Decimal'>
   readonly deduction: Prisma.FieldRef<"Transaction", 'Decimal'>
   readonly status: Prisma.FieldRef<"Transaction", 'TransactionStatus'>
   readonly providerRefId: Prisma.FieldRef<"Transaction", 'String'>

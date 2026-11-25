@@ -34,6 +34,8 @@ import { OperatorPrefixesPage } from "./pages/OperatorPrefixesPage";
 import { RechargePlansPage } from "./pages/RechargePlansPage";
 import { CashbackOffersPage } from "./pages/CashbackOffersPage";
 import { ApiParsingSettingPage } from "./pages/ApiParsingSettingPage";
+import { MyCommissionPage } from "./pages/MyCommissionPage";
+import { CommissionReportPage } from "./pages/CommissionReportPage";
 
 function App() {
   return (
@@ -58,6 +60,8 @@ function App() {
               <Route path="/operators" element={<OperatorsPage />} />
               <Route path="/operators/:id" element={<OperatorDetailPage />} />
               <Route path="/commission" element={<CommissionPage />} />
+              <Route path="/my-commission" element={<MyCommissionPage />} />
+              <Route path="/commission-report" element={<CommissionReportPage />} />
               <Route path="/balance-requests" element={<BalanceRequestsPage />} />
               <Route path="/bank-details" element={<BankDetailsPage />} />
               <Route path="/pending" element={<PendingPage />} />

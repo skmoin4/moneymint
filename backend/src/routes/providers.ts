@@ -47,6 +47,8 @@ providersRouter.get("/:id/integration", async (req, res) => {
       priority: m.priority,
       isActive: m.isActive,
       providerOperatorCode: m.providerOperatorCode,
+      vendorCommissionType: m.vendorCommissionType,
+      vendorCommissionValue: m.vendorCommissionValue,
       operator: m.operator,
     })),
   });

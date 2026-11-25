@@ -48,7 +48,8 @@ export const LedgerReferenceType = {
   RENT: 'RENT',
   CASHBACK: 'CASHBACK',
   REFERRAL_REWARD: 'REFERRAL_REWARD',
-  WALLET_TOPUP: 'WALLET_TOPUP'
+  WALLET_TOPUP: 'WALLET_TOPUP',
+  SURCHARGE: 'SURCHARGE'
 } as const
 
 export type LedgerReferenceType = (typeof LedgerReferenceType)[keyof typeof LedgerReferenceType]
@@ -90,6 +91,14 @@ export const CommissionType = {
 } as const
 
 export type CommissionType = (typeof CommissionType)[keyof typeof CommissionType]
+
+
+export const ChargeType = {
+  COMMISSION: 'COMMISSION',
+  SURCHARGE: 'SURCHARGE'
+} as const
+
+export type ChargeType = (typeof ChargeType)[keyof typeof ChargeType]
 
 
 export const FundTransferStatus = {

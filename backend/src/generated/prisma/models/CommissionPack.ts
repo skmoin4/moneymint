@@ -411,18 +411,6 @@ export type CommissionPackUpdateOneWithoutUsersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CommissionPackUpdateToOneWithWhereWithoutUsersInput, Prisma.CommissionPackUpdateWithoutUsersInput>, Prisma.CommissionPackUncheckedUpdateWithoutUsersInput>
 }
 
-export type NullableEnumCommissionTypeFieldUpdateOperationsInput = {
-  set?: $Enums.CommissionType | null
-}
-
-export type NullableDecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
 export type CommissionPackCreateNestedOneWithoutSlabsInput = {
   create?: Prisma.XOR<Prisma.CommissionPackCreateWithoutSlabsInput, Prisma.CommissionPackUncheckedCreateWithoutSlabsInput>
   connectOrCreate?: Prisma.CommissionPackCreateOrConnectWithoutSlabsInput

@@ -421,6 +421,34 @@ three states — the app must handle all three:
   arrives, or by asking the vendor (status check) — automatically every 2 minutes in the
   background, and on demand when this endpoint is polled after 30s.
 
+## Commission chain, surcharge & vendor margin
+
+Every user has a commission pack (`PATCH /users/:id/commission` by their parent). A pack
+holds slabs per operator, each `COMMISSION` (paid to the user) or `SURCHARGE` (charged on
+top of the amount), `PERCENT` or `FLAT`, optionally limited to an amount range (narrowest
+matching range wins; a pack-level fallback commission covers operators with no slab).
+
+On a successful transaction:
+- the user earns their own rate (if it is a commission);
+- each upline below ADMIN earns its own rate minus the best rate below it (never negative;
+  uplines with no rate for the operator are skipped);
+- TDS (`commissionTdsPercent` setting) is withheld from each payout; payouts are recorded in
+  `CommissionPayout` and credited to wallets as COMMISSION ledger entries;
+- the vendor's margin (set per operator↔API mapping) is recorded on the transaction and
+  the vendor float is debited by amount − margin.
+A surcharge is debited with the amount (`deduction = amount + surcharge`, separate
+SURCHARGE ledger line) and refunded with it on failure. A refund reverses the whole chain.
+
+Endpoints (`/commission-slabs`, managers read, ADMIN writes):
+`GET /` packs with slabs · `POST /` create · `DELETE /:packId` (only if no users) ·
+`POST /:packId/clone {name}` · `PUT /:packId/global-rate` ·
+`POST /:packId/slabs` / `PATCH /:packId/slabs/:slabId` `{ operatorId, chargeType, commissionType, value, minAmount?, maxAmount? }`
+(overlapping ranges are rejected) · `DELETE /:packId/slabs/:slabId` ·
+`POST /:packId/bulk { operatorType, chargeType, commissionType, value }` ·
+`GET /distribution-report?from=&to=` (per-user gross/TDS/net; ADMIN also gets the platform
+margin) · `GET /payouts/:transactionId`.
+Any user: `GET /users/my-commission`. Vendor margin: `PATCH /operators/mappings/:id { vendorCommissionType, vendorCommissionValue }`.
+
 ## Vendor integration (API Parsing Setting) — ADMIN
 
 Each API provider is either `MOCK` (built-in simulator) or `HTTP` (a real vendor described

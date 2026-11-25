@@ -85,6 +85,11 @@ export type CommissionPack = Prisma.CommissionPackModel
  */
 export type CommissionSlab = Prisma.CommissionSlabModel
 /**
+ * Model CommissionPayout
+ * 
+ */
+export type CommissionPayout = Prisma.CommissionPayoutModel
+/**
  * Model Transaction
  * 
  */

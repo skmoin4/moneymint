@@ -60,6 +60,7 @@ export const ModelName = {
   OperatorApiMapping: 'OperatorApiMapping',
   CommissionPack: 'CommissionPack',
   CommissionSlab: 'CommissionSlab',
+  CommissionPayout: 'CommissionPayout',
   Transaction: 'Transaction',
   ProviderCallLog: 'ProviderCallLog',
   FundTransfer: 'FundTransfer',
@@ -212,6 +213,8 @@ export const OperatorApiMappingScalarFieldEnum = {
   apiProviderId: 'apiProviderId',
   priority: 'priority',
   isActive: 'isActive',
+  vendorCommissionType: 'vendorCommissionType',
+  vendorCommissionValue: 'vendorCommissionValue',
   providerOperatorCode: 'providerOperatorCode'
 } as const
 
@@ -234,6 +237,7 @@ export const CommissionSlabScalarFieldEnum = {
   id: 'id',
   packId: 'packId',
   operatorId: 'operatorId',
+  chargeType: 'chargeType',
   commissionType: 'commissionType',
   value: 'value',
   minAmount: 'minAmount',
@@ -245,6 +249,22 @@ export const CommissionSlabScalarFieldEnum = {
 export type CommissionSlabScalarFieldEnum = (typeof CommissionSlabScalarFieldEnum)[keyof typeof CommissionSlabScalarFieldEnum]
 
 
+export const CommissionPayoutScalarFieldEnum = {
+  id: 'id',
+  transactionId: 'transactionId',
+  userId: 'userId',
+  level: 'level',
+  role: 'role',
+  gross: 'gross',
+  tds: 'tds',
+  net: 'net',
+  reversed: 'reversed',
+  createdAt: 'createdAt'
+} as const
+
+export type CommissionPayoutScalarFieldEnum = (typeof CommissionPayoutScalarFieldEnum)[keyof typeof CommissionPayoutScalarFieldEnum]
+
+
 export const TransactionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -254,6 +274,8 @@ export const TransactionScalarFieldEnum = {
   identifier: 'identifier',
   amount: 'amount',
   commission: 'commission',
+  surcharge: 'surcharge',
+  vendorCommission: 'vendorCommission',
   deduction: 'deduction',
   status: 'status',
   providerRefId: 'providerRefId',

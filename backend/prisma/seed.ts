@@ -112,16 +112,12 @@ async function seedOperatorGroup(
       });
     }
 
-    await prisma.commissionSlab.upsert({
-      where: { packId_operatorId: { packId: standardPackId, operatorId: operator.id } },
-      update: {},
-      create: {
-        packId: standardPackId,
-        operatorId: operator.id,
-        commissionType,
-        value: commissionValue,
-      },
-    });
+    const hasSlab = await prisma.commissionSlab.findFirst({ where: { packId: standardPackId, operatorId: operator.id } });
+    if (!hasSlab) {
+      await prisma.commissionSlab.create({
+        data: { packId: standardPackId, operatorId: operator.id, commissionType, value: commissionValue },
+      });
+    }
   }
 }
 

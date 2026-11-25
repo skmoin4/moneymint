@@ -23,6 +23,13 @@ export function TxnActionModal({ txn, onClose, onDone }: { txn: AdminTxn; onClos
   const [error, setError] = useState("");
 
   const [checkNote, setCheckNote] = useState("");
+  const [payouts, setPayouts] = useState<{ id: string; level: number; role: string; gross: string; tds: string; net: string; reversed: boolean; user: { name: string; phone: string } }[]>([]);
+
+  useEffect(() => {
+    if (txn.status === "SUCCESS" || txn.status === "REFUNDED") {
+      api.get(`/commission-slabs/payouts/${txn.id}`).then((res) => setPayouts(res.data.payouts)).catch(() => {});
+    }
+  }, [txn.id, txn.status]);
 
   async function checkStatus() {
     setBusy("CHECK");
@@ -73,10 +80,33 @@ export function TxnActionModal({ txn, onClose, onDone }: { txn: AdminTxn; onClos
         <Row label="User" value={`${txn.user.name} (${txn.user.phone})`} />
         <Row label="Provider / API" value={`${txn.operator.name} / ${txn.apiProvider.name}`} />
         <Row label="Amount" value={inr(txn.amount)} />
+        {Number(txn.surcharge) > 0 && <Row label="Surcharge" value={inr(txn.surcharge)} />}
+        {Number(txn.vendorCommission) > 0 && <Row label="Vendor margin" value={inr(txn.vendorCommission)} />}
         <Row label="Status" value={txn.status} />
         <Row label="Time" value={formatStamp(txn.createdAt)} />
         <Row label="Txn ID" value={txn.id} />
       </div>
+
+      {payouts.length > 0 && (
+        <div className="mb-4">
+          <div className="mb-1 text-[12.5px] font-bold">Commission distribution</div>
+          <table className="w-full border border-ink-200 text-[12px]">
+            <tbody>
+              {payouts.map((p) => (
+                <tr key={p.id} className={`border-b border-ink-100 ${p.reversed ? "text-ink-400 line-through" : ""}`}>
+                  <td className="whitespace-nowrap px-2 py-1">{p.level === 0 ? "Self" : `Upline ${p.level}`}</td>
+                  <td className="px-2 py-1">
+                    {p.user.name} ({p.role.replace("_", " ").toLowerCase()})
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-1 text-right">{inr(p.gross)}</td>
+                  <td className="whitespace-nowrap px-2 py-1 text-right text-ink-500">TDS {inr(p.tds)}</td>
+                  <td className="whitespace-nowrap px-2 py-1 text-right font-semibold">{inr(p.net)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {txn.status === "PENDING" && (
         <label className="mb-3 block">

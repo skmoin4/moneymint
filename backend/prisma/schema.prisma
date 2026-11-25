@@ -41,6 +41,7 @@ enum LedgerReferenceType {
   CASHBACK
   REFERRAL_REWARD
   WALLET_TOPUP
+  SURCHARGE
 }
 
 enum TransactionStatus {
@@ -67,6 +68,13 @@ enum TransactionType {
 enum CommissionType {
   PERCENT
   FLAT
+}
+
+// COMMISSION = paid to the user on success. SURCHARGE = charged to the user on top of
+// the amount (typical for DMT/BBPS), taken at debit time and refunded if it fails.
+enum ChargeType {
+  COMMISSION
+  SURCHARGE
 }
 
 enum FundTransferStatus {
@@ -138,6 +146,7 @@ model User {
   balanceRequests   BalanceRequest[]
   queuedRecharges   QueuedRecharge[]
   notifications     UserNotification[]
+  commissionPayouts CommissionPayout[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -257,6 +266,10 @@ model OperatorApiMapping {
   apiProvider   ApiProvider @relation(fields: [apiProviderId], references: [id])
   priority      Int // 1 = primary, 2 = fallback, etc.
   isActive      Boolean     @default(true)
+  // What this vendor pays the platform for this operator (e.g. 3.2% on Jio). The vendor
+  // debits its float by amount − margin, and it is the top of the commission chain.
+  vendorCommissionType  CommissionType?
+  vendorCommissionValue Decimal?        @db.Decimal(8, 2)
   // This vendor's own code for the operator (vendors rarely agree: Jio may be "JIO", "RJ"
   // or "11"). Sent as {opcode}; falls back to Operator.code when empty.
   providerOperatorCode String?
@@ -280,23 +293,46 @@ model CommissionPack {
   updatedAt DateTime @updatedAt
 }
 
+// One rate for one operator in one pack, optionally limited to an amount range — so DMT
+// can be "₹100–1000: ₹10 surcharge, ₹1001–5000: 1%". An operator may have several slabs
+// in a pack; the one whose range contains the amount applies (narrowest range wins).
 model CommissionSlab {
   id             String         @id @default(uuid())
   packId         String
   pack           CommissionPack @relation(fields: [packId], references: [id])
   operatorId     String
   operator       Operator       @relation(fields: [operatorId], references: [id])
+  chargeType     ChargeType     @default(COMMISSION)
   commissionType CommissionType
-  value          Decimal        @db.Decimal(6, 2)
+  value          Decimal        @db.Decimal(8, 2)
   minAmount      Decimal?       @db.Decimal(14, 2)
   maxAmount      Decimal?       @db.Decimal(14, 2)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([packId, operatorId])
+  @@index([packId, operatorId])
   @@index([operatorId])
-  @@index([packId])
+}
+
+// Who earned what on a successful transaction: level 0 is the user who transacted, 1
+// their parent, and so on up the chain. Each upline earns the difference between its own
+// pack rate and the best rate below it. The platform keeps vendor margin − all payouts.
+model CommissionPayout {
+  id            String   @id @default(uuid())
+  transactionId String
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  level         Int
+  role          Role
+  gross         Decimal  @db.Decimal(14, 2)
+  tds           Decimal  @default(0) @db.Decimal(14, 2)
+  net           Decimal  @db.Decimal(14, 2)
+  reversed      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([transactionId])
+  @@index([userId, createdAt])
 }
 
 model Transaction {
@@ -312,6 +348,10 @@ model Transaction {
   identifier     String // mobile number for RECHARGE, consumer/account number for BBPS
   amount         Decimal @db.Decimal(14, 2)
   commission     Decimal @default(0) @db.Decimal(14, 2)
+  // Charged to the user on top of amount (deduction = amount + surcharge).
+  surcharge      Decimal @default(0) @db.Decimal(14, 2)
+  // Margin the vendor gave the platform on this transaction (set on success).
+  vendorCommission Decimal @default(0) @db.Decimal(14, 2)
   deduction      Decimal @db.Decimal(14, 2)
 
   status        TransactionStatus @default(PENDING)

@@ -186,6 +186,8 @@ adminTransactionsRouter.get("/export", async (req, res) => {
     amount: t.amount.toString(),
     deduction: t.deduction.toString(),
     commission: t.commission.toString(),
+    surcharge: t.surcharge.toString(),
+    vendorMargin: t.vendorCommission.toString(),
     status: t.status,
     api: t.apiProvider.name,
     opRefId: t.providerRefId ?? "",

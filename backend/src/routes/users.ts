@@ -125,6 +125,28 @@ usersRouter.post(
 );
 
 // "Refer Friends" screen: my code, who I've referred, and total reward earned so far.
+// "My Commission": the caller's own pack, so every user (retailers included) can see the
+// rates they earn or pay per operator.
+usersRouter.get("/my-commission", async (req, res) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: req.user!.userId },
+    select: {
+      commissionPack: {
+        select: {
+          name: true,
+          globalCommissionType: true,
+          globalValue: true,
+          slabs: {
+            select: { chargeType: true, commissionType: true, value: true, minAmount: true, maxAmount: true, operator: { select: { name: true, code: true, type: true } } },
+            orderBy: [{ operator: { name: "asc" } }, { minAmount: "asc" }],
+          },
+        },
+      },
+    },
+  });
+  res.json({ pack: user.commissionPack });
+});
+
 usersRouter.get("/my-referrals", async (req, res) => {
   const [me, referredUsers, wallet] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: req.user!.userId }, select: { referralCode: true } }),

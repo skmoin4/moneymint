@@ -255,8 +255,15 @@ const toggleMappingSchema = z
     isActive: z.boolean().optional(),
     // The vendor's own code for this operator; empty string clears it.
     providerOperatorCode: z.string().max(50).nullable().optional(),
+    // What the vendor pays us for this operator; null clears it.
+    vendorCommissionType: z.enum(["PERCENT", "FLAT"]).nullable().optional(),
+    vendorCommissionValue: z.number().min(0).max(100000).nullable().optional(),
   })
-  .refine((v) => v.isActive !== undefined || v.providerOperatorCode !== undefined, "Nothing to update");
+  .refine(
+    (v) => v.isActive !== undefined || v.providerOperatorCode !== undefined || v.vendorCommissionType !== undefined,
+    "Nothing to update"
+  )
+  .refine((v) => v.vendorCommissionType !== "PERCENT" || (v.vendorCommissionValue ?? 0) <= 100, "A percentage can't exceed 100");
 
 operatorsRouter.patch("/mappings/:mappingId", authorize("ADMIN"), async (req, res) => {
   const parsed = toggleMappingSchema.safeParse(req.body);
@@ -270,6 +277,12 @@ operatorsRouter.patch("/mappings/:mappingId", authorize("ADMIN"), async (req, re
         ...(parsed.data.isActive !== undefined ? { isActive: parsed.data.isActive } : {}),
         ...(parsed.data.providerOperatorCode !== undefined
           ? { providerOperatorCode: parsed.data.providerOperatorCode?.trim() || null }
+          : {}),
+        ...(parsed.data.vendorCommissionType !== undefined
+          ? {
+              vendorCommissionType: parsed.data.vendorCommissionType,
+              vendorCommissionValue: parsed.data.vendorCommissionType ? (parsed.data.vendorCommissionValue ?? 0) : null,
+            }
           : {}),
       },
       include: { apiProvider: { select: PROVIDER_PUBLIC_SELECT } },
