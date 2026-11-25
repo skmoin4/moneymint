@@ -1,6 +1,6 @@
 import { prisma } from "../config/prisma";
 import { HttpError } from "../utils/httpError";
-import { callProvider, ProviderDownError, ProviderResult } from "./mockProviderService";
+import { sendRecharge, checkStatus, ProviderDownError, type ProviderResult, type ProviderTarget } from "./providerClient";
 import { sendSms } from "./smsService";
 import type { Prisma } from "../generated/prisma/client";
 
@@ -252,112 +252,198 @@ export async function processProviderTransaction({
     return txn;
   });
 
-  let result: ProviderResult | null = null;
-  let usedProviderId = mappings[0].apiProviderId;
-  let usedProvider = mappings[0].apiProvider;
-
-  outer: for (const mapping of mappings) {
-    // A provider with insufficient operational (Wallet 1) float can't actually fulfill the
-    // transaction with the real vendor — skip it in the failover chain, same as if it were down.
-    if (Number(mapping.apiProvider.walletBalance) < amount) {
-      continue;
-    }
-    const attempts = Math.max(1, mapping.apiProvider.retryCount);
-    for (let attempt = 0; attempt < attempts; attempt++) {
-      try {
-        result = await callProvider(mapping.apiProvider.code, {
-          mobileNumber: identifier,
-          amount,
-          operatorCode,
-        });
-        usedProviderId = mapping.apiProviderId;
-        usedProvider = mapping.apiProvider;
-        break outer;
-      } catch (err) {
-        if (err instanceof ProviderDownError) {
-          continue;
-        }
-        throw err;
-      }
-    }
-  }
-
-  const settled = result
-    ? await settleTransaction(transaction.id, userId, descriptionLabel, result, usedProviderId)
-    : await settleTransaction(transaction.id, userId, descriptionLabel, {
-        success: false,
+  const dispatched = await dispatchToProviders(transaction.id, identifier, amount, operatorCode, mappings);
+  if (!dispatched) {
+    // No vendor ever received it (all unreachable, disabled or out of float): safe to refund.
+    return applyProviderResult(
+      transaction.id,
+      {
+        status: "FAILED",
         providerRefId: null,
+        vendorRefId: null,
+        message: "All configured providers were unreachable",
         rawResponse: { error: "All configured providers were unreachable" },
-      });
-
-  const shouldAlert = settled.status === "SUCCESS" ? usedProvider.smsAlertOnSuccess : usedProvider.smsAlertOnFailure;
-  const user = shouldAlert
-    ? await prisma.user.findUnique({ where: { id: userId }, select: { phone: true } })
-    : null;
-  if (user) {
-    const statusText = settled.status === "SUCCESS" ? "successful" : "failed and refunded";
-    await sendSms(
-      user.phone,
-      `${descriptionLabel} of Rs.${amount} for ${identifier} was ${statusText}. Ref: ${settled.providerRefId ?? "-"}`,
-      "TRANSACTION_ALERT"
+      },
+      mappings[0].apiProviderId
     );
   }
+  return applyProviderResult(transaction.id, dispatched.result, dispatched.apiProviderId);
+}
 
-  return settled;
+type MappingWithProvider = {
+  apiProviderId: string;
+  providerOperatorCode: string | null;
+  apiProvider: ProviderTarget & { isActive: boolean; walletBalance: Prisma.Decimal; retryCount: number };
+};
+
+/**
+ * Walks the operator's API 1→5 chain. Moves to the next API only when the vendor provably
+ * never received the request (unreachable, disabled, out of float) — or, if the
+ * "failoverOnFailure" setting is on, when a vendor answered with a definite FAILED.
+ * A PENDING answer always stops here: sending it elsewhere could recharge twice.
+ */
+async function dispatchToProviders(
+  transactionId: string,
+  identifier: string,
+  amount: number,
+  operatorCode: string,
+  mappings: MappingWithProvider[]
+): Promise<{ result: ProviderResult; apiProviderId: string } | null> {
+  const failoverSetting = await prisma.systemSetting.findUnique({ where: { key: "failoverOnFailure" } });
+  const failoverOnFailure = failoverSetting?.value === "true";
+
+  let last: { result: ProviderResult; apiProviderId: string } | null = null;
+  for (const mapping of mappings) {
+    const provider = mapping.apiProvider;
+    if (!provider.isActive) continue;
+    if (Number(provider.walletBalance) < amount) continue;
+
+    let result: ProviderResult | null = null;
+    const attempts = Math.max(1, provider.retryCount);
+    for (let attempt = 0; attempt < attempts && !result; attempt++) {
+      try {
+        result = await sendRecharge(provider, {
+          transactionId,
+          mobile: identifier,
+          amount,
+          opcode: mapping.providerOperatorCode?.trim() || operatorCode,
+        });
+      } catch (err) {
+        if (!(err instanceof ProviderDownError)) throw err;
+      }
+    }
+    if (!result) continue;
+
+    last = { result, apiProviderId: mapping.apiProviderId };
+    if (result.status === "FAILED" && failoverOnFailure) continue;
+    break;
+  }
+  return last;
+}
+
+/**
+ * Records a vendor's answer, from whichever path it arrived (initial reply, callback,
+ * status check, Send to API). PENDING just stores the references; SUCCESS/FAILED settle
+ * the money. If another path already settled the transaction, this is a no-op that
+ * returns the current state — callbacks routinely race the original HTTP reply.
+ */
+export async function applyProviderResult(transactionId: string, result: ProviderResult, apiProviderId: string) {
+  if (result.status === "PENDING") {
+    await prisma.transaction.updateMany({
+      where: { id: transactionId, status: "PENDING" },
+      data: {
+        apiProviderId,
+        vendorRefId: result.vendorRefId ?? undefined,
+        providerRefId: result.providerRefId ?? undefined,
+        statusMessage: result.message ?? undefined,
+        apiResponse: result.rawResponse as Prisma.InputJsonValue,
+      },
+    });
+    return prisma.transaction.findUniqueOrThrow({ where: { id: transactionId } });
+  }
+
+  const txn = await prisma.transaction.findUniqueOrThrow({ where: { id: transactionId } });
+  try {
+    const settled = await settleTransaction(
+      transactionId,
+      txn.userId,
+      labelFor(txn.type),
+      {
+        success: result.status === "SUCCESS",
+        providerRefId: result.providerRefId,
+        vendorRefId: result.vendorRefId,
+        message: result.message,
+        rawResponse: result.rawResponse,
+      },
+      apiProviderId
+    );
+    await notifyOutcome(settled.id);
+    return settled;
+  } catch (err) {
+    if (err instanceof HttpError && err.status === 409) {
+      return prisma.transaction.findUniqueOrThrow({ where: { id: transactionId } });
+    }
+    throw err;
+  }
+}
+
+/** Transaction alert SMS, honouring the settling provider's success/failure alert switches. */
+async function notifyOutcome(transactionId: string) {
+  const txn = await prisma.transaction.findUnique({
+    where: { id: transactionId },
+    include: { apiProvider: true, user: { select: { phone: true } } },
+  });
+  if (!txn || (txn.status !== "SUCCESS" && txn.status !== "FAILED")) return;
+  const shouldAlert = txn.status === "SUCCESS" ? txn.apiProvider.smsAlertOnSuccess : txn.apiProvider.smsAlertOnFailure;
+  if (!shouldAlert) return;
+  const statusText = txn.status === "SUCCESS" ? "successful" : "failed and refunded";
+  await sendSms(
+    txn.user.phone,
+    `${labelFor(txn.type)} of Rs.${txn.amount} for ${txn.identifier} was ${statusText}. Ref: ${txn.providerRefId ?? "-"}`,
+    "TRANSACTION_ALERT"
+  ).catch((err) => console.error("transaction SMS failed", err));
 }
 
 export async function settleTransaction(
   transactionId: string,
   userId: string,
   descriptionLabel: string,
-  result: { success: boolean; providerRefId: string | null; rawResponse: Record<string, unknown> },
+  result: {
+    success: boolean;
+    providerRefId: string | null;
+    rawResponse: Record<string, unknown>;
+    vendorRefId?: string | null;
+    message?: string | null;
+  },
   apiProviderId?: string
 ) {
   return prisma.$transaction(async (tx) => {
+    // Atomic claim: only one settler (reply, callback, status check, admin) can move a
+    // transaction out of PENDING. A plain read-then-write would let two of them both pay
+    // out commission or both refund.
+    const claimed = await tx.transaction.updateMany({
+      where: { id: transactionId, status: "PENDING" },
+      data: { status: result.success ? "SUCCESS" : "FAILED" },
+    });
     const txn = await tx.transaction.findUniqueOrThrow({ where: { id: transactionId } });
-    if (txn.status !== "PENDING") {
+    if (claimed.count === 0) {
       throw new HttpError(409, `Transaction is already ${txn.status}`);
     }
 
-    if (!result.success) {
-      const updated = await tx.transaction.update({
-        where: { id: transactionId },
-        data: {
-          status: "FAILED",
-          providerRefId: result.providerRefId,
-          apiResponse: result.rawResponse as Prisma.InputJsonValue,
-          ...(apiProviderId ? { apiProviderId } : {}),
-        },
-      });
+    const common = {
+      providerRefId: result.providerRefId ?? txn.providerRefId,
+      vendorRefId: result.vendorRefId ?? txn.vendorRefId,
+      statusMessage: result.message ?? null,
+      apiResponse: result.rawResponse as Prisma.InputJsonValue,
+      ...(apiProviderId ? { apiProviderId } : {}),
+    };
 
-      const wallet = await tx.wallet.update({
-        where: { userId },
-        data: { balance: { increment: txn.amount } },
-      });
-      await tx.ledgerEntry.create({
-        data: {
-          walletId: wallet.id,
-          type: "CREDIT",
-          amount: txn.amount,
-          balanceAfter: wallet.balance,
-          referenceType: "REFUND",
-          referenceId: transactionId,
-          description: `Refund for failed ${descriptionLabel.toLowerCase()} (${txn.identifier})`,
-        },
-      });
+    if (!result.success) {
+      const updated = await tx.transaction.update({ where: { id: transactionId }, data: common });
+
+      // Refund exactly what was taken — AEPS never debits the wallet (deduction 0).
+      if (Number(txn.deduction) > 0) {
+        const wallet = await tx.wallet.update({
+          where: { userId },
+          data: { balance: { increment: txn.deduction } },
+        });
+        await tx.ledgerEntry.create({
+          data: {
+            walletId: wallet.id,
+            type: "CREDIT",
+            amount: txn.deduction,
+            balanceAfter: wallet.balance,
+            referenceType: "REFUND",
+            referenceId: transactionId,
+            description: `Refund for failed ${descriptionLabel.toLowerCase()} (${txn.identifier})`,
+          },
+        });
+      }
 
       return updated;
     }
 
-    const updated = await tx.transaction.update({
-      where: { id: transactionId },
-      data: {
-        status: "SUCCESS",
-        providerRefId: result.providerRefId,
-        apiResponse: result.rawResponse as Prisma.InputJsonValue,
-        ...(apiProviderId ? { apiProviderId } : {}),
-      },
-    });
+    const updated = await tx.transaction.update({ where: { id: transactionId }, data: common });
 
     const settledProviderId = apiProviderId ?? txn.apiProviderId;
     const commission = await applySuccessRewards(tx, {
@@ -368,6 +454,8 @@ export async function settleTransaction(
       amount: Number(txn.amount),
       descriptionLabel,
       identifier: txn.identifier,
+      // AEPS dispenses the customer's own bank money; no platform float is spent.
+      depleteProviderWallet: txn.type !== "AEPS",
     });
 
     return commission > 0
@@ -398,14 +486,20 @@ export async function resendToProvider(transactionId: string, apiProviderId: str
     throw new HttpError(400, `${provider.name} has insufficient Wallet 1 balance`);
   }
 
+  const mapping = await prisma.operatorApiMapping.findFirst({
+    where: { operatorId: txn.operatorId, apiProviderId },
+    select: { providerOperatorCode: true },
+  });
+
   let result: ProviderResult | null = null;
   const attempts = Math.max(1, provider.retryCount);
   for (let attempt = 0; attempt < attempts && !result; attempt++) {
     try {
-      result = await callProvider(provider.code, {
-        mobileNumber: txn.identifier,
+      result = await sendRecharge(provider, {
+        transactionId,
+        mobile: txn.identifier,
         amount: Number(txn.amount),
-        operatorCode: txn.operator.code,
+        opcode: mapping?.providerOperatorCode?.trim() || txn.operator.code,
       });
     } catch (err) {
       if (!(err instanceof ProviderDownError)) throw err;
@@ -417,7 +511,38 @@ export async function resendToProvider(transactionId: string, apiProviderId: str
     throw new HttpError(502, `${provider.name} is unreachable — transaction left pending`);
   }
 
-  return settleTransaction(transactionId, txn.userId, labelFor(txn.type), result, apiProviderId);
+  return applyProviderResult(transactionId, result, apiProviderId);
+}
+
+/**
+ * Asks the vendor holding a PENDING transaction for its outcome and applies it. Used by
+ * the background poller, the admin "Check Status" button and the app's status screen.
+ */
+export async function checkPendingTransaction(transactionId: string) {
+  const txn = await prisma.transaction.findUnique({ where: { id: transactionId }, include: { apiProvider: true } });
+  if (!txn) throw new HttpError(404, "Transaction not found");
+  if (txn.status !== "PENDING") return { transaction: txn, checked: false, reason: `Already ${txn.status}` };
+  if (txn.type === "AEPS") return { transaction: txn, checked: false, reason: "AEPS has no status check" };
+
+  await prisma.transaction.update({
+    where: { id: transactionId },
+    data: { statusCheckCount: { increment: 1 }, lastStatusCheckAt: new Date() },
+  });
+
+  const result = await checkStatus(txn.apiProvider, {
+    transactionId,
+    vendorRefId: txn.vendorRefId,
+    mobile: txn.identifier,
+    amount: Number(txn.amount),
+    createdAt: txn.createdAt,
+  });
+  if (!result) {
+    return { transaction: txn, checked: false, reason: `${txn.apiProvider.name} has no status-check URL configured` };
+  }
+  if (result.status === "PENDING") {
+    return { transaction: await prisma.transaction.findUniqueOrThrow({ where: { id: transactionId } }), checked: true, reason: result.message ?? "Still pending at vendor" };
+  }
+  return { transaction: await applyProviderResult(transactionId, result, txn.apiProviderId), checked: true, reason: null };
 }
 
 function labelFor(type: string) {

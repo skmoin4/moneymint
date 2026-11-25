@@ -41,11 +41,11 @@ a config change, not a rebuild.
   Mobile prepaid, DTH — the core product.
   **Credentials needed:** API Key/Token, Member ID or Partner ID (most vendors require
   this alongside the key), and often a static outbound IP to whitelist with them.
-  **Where it goes:** the Providers admin page already has `baseUrl`/`apiKey`/`apiSecret`
-  fields — enter real credentials there, no new UI needed. The one code change left is
-  swapping `mockProviderService.ts`'s simulated response for a real HTTP call using
-  those stored credentials (the request/response shape is vendor-specific, so this
-  can't be written until a vendor is picked).
+  **Where it goes:** no code change needed any more. Add the vendor on the APIs page
+  (API key/secret), then fill in its request URL, reply fields, status-check URL and
+  callback params on **API Parsing Setting** from the vendor's API document, give the
+  vendor the callback URL shown there, set each operator's vendor code, and switch the
+  API to "Live vendor API". Test with "Preview request" / "Test a sample reply" first.
 
 - ⬜ **BBPS partner (BBPOU-affiliated)** — *Launch-blocking* — Setu, Cashfree BBPS, PaySprint, in.mobiswitch
   NPCI's Bharat Bill Payment System can't be reached directly — has to go through an
@@ -156,3 +156,9 @@ is already logged, just not actually sent anywhere real yet.
 - **2026-08-27** — Added exact credential lists (which keys, where they plug in) under
   the Recharge API aggregator, Payment gateway, and SMS gateway items, so whoever opens
   those vendor accounts knows precisely what to bring back.
+- **2026-11-25** — Recharge engine made vendor-ready: any HTTP recharge vendor can be
+  configured from the panel (API Parsing Setting) without code; PENDING replies are now
+  held and settled by vendor callback or automatic status check; API logs per
+  transaction; mock payments and webhook secret locked down; suspended users blocked.
+  Tested end to end against a local fake vendor. Recharge aggregator item still ⬜ — it
+  needs a real vendor account, not code.

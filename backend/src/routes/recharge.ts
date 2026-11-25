@@ -7,7 +7,7 @@ import { prisma } from "../config/prisma";
 import { toCsv } from "../utils/csv";
 import { transactionLimiter } from "../middleware/rateLimiters";
 import { getDescendantUserIds } from "../utils/hierarchy";
-import { settleTransaction } from "../services/transactionEngine";
+import { settleTransaction, checkPendingTransaction } from "../services/transactionEngine";
 import { requirePinIfEnabled } from "../middleware/requirePin";
 import { PROVIDER_PUBLIC_SELECT, PROVIDER_ADMIN_SELECT } from "../utils/providerSelect";
 import { requestSource } from "../utils/requestSource";
@@ -30,6 +30,28 @@ rechargeRouter.post("/", transactionLimiter, requirePinIfEnabled, async (req, re
   const { operatorCode, mobileNumber, amount } = parsed.data;
   const transaction = await initiateRecharge(req.user!.userId, operatorCode, mobileNumber, amount, requestSource(req));
   res.status(201).json({ transaction });
+});
+
+// The app's "transaction status" screen. Polled after a PENDING reply; if the vendor has
+// been quiet for a while it also triggers a live status check (at most every 30s).
+rechargeRouter.get("/status/:id", async (req, res) => {
+  const txn = await prisma.transaction.findUnique({ where: { id: String(req.params.id) } });
+  if (!txn || txn.userId !== req.user!.userId) {
+    throw new HttpError(404, "Transaction not found");
+  }
+  const stale = !txn.lastStatusCheckAt || Date.now() - txn.lastStatusCheckAt.getTime() > 30_000;
+  if (txn.status === "PENDING" && stale && Date.now() - txn.createdAt.getTime() > 30_000) {
+    await checkPendingTransaction(txn.id).catch(() => null);
+  }
+  const fresh = await prisma.transaction.findUniqueOrThrow({
+    where: { id: txn.id },
+    select: {
+      id: true, type: true, identifier: true, amount: true, commission: true, status: true,
+      providerRefId: true, statusMessage: true, createdAt: true, updatedAt: true,
+      operator: { select: { name: true, code: true } },
+    },
+  });
+  res.json({ transaction: fresh });
 });
 
 const STATUS_VALUES = ["PENDING", "SUCCESS", "FAILED", "REFUNDED"];

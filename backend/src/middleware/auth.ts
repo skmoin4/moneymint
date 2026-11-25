@@ -26,9 +26,16 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
   // tokenVersion lets "Logout All Devices" invalidate every previously issued JWT at once,
   // even though JWTs are otherwise stateless.
-  const user = await prisma.user.findUnique({ where: { id: payload.userId }, select: { tokenVersion: true } });
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { tokenVersion: true, status: true },
+  });
   if (!user || user.tokenVersion !== payload.tokenVersion) {
     return res.status(401).json({ error: "Session expired. Please log in again." });
+  }
+  // Suspending/deactivating an account takes effect immediately, even for live sessions.
+  if (user.status !== "ACTIVE") {
+    return res.status(403).json({ error: `Your account is ${user.status.toLowerCase()}. Contact your distributor.` });
   }
 
   req.user = payload;

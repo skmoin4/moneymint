@@ -87,6 +87,7 @@ export function ProviderApiSettingPage() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [stopAll, setStopAll] = useState(false);
+  const [failover, setFailover] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   const [globalProviderId, setGlobalProviderId] = useState("");
@@ -106,11 +107,17 @@ export function ProviderApiSettingPage() {
   const [adding, setAdding] = useState(false);
 
   function load() {
-    Promise.all([api.get("/operators", { params: { withMappings: 1 } }), api.get("/providers"), api.get("/settings/stopAllApiUsers")]).then(
-      ([opRes, provRes, settingRes]) => {
+    Promise.all([
+      api.get("/operators", { params: { withMappings: 1 } }),
+      api.get("/providers"),
+      api.get("/settings/stopAllApiUsers"),
+      api.get("/settings/failoverOnFailure"),
+    ]).then(
+      ([opRes, provRes, settingRes, failoverRes]) => {
         setOperators(opRes.data.operators);
         setProviders(provRes.data.providers);
         setStopAll(settingRes.data.value === "true");
+        setFailover(failoverRes.data.value === "true");
         setLoading(false);
       }
     );
@@ -145,6 +152,12 @@ export function ProviderApiSettingPage() {
     if (next && !window.confirm("Stop ALL transactions platform-wide? Every recharge, bill payment, DMT and AEPS request will be rejected.")) return;
     setStopAll(next);
     await api.put("/settings/stopAllApiUsers", { value: next ? "true" : "false" });
+  }
+
+  async function toggleFailover() {
+    const next = !failover;
+    setFailover(next);
+    await api.put("/settings/failoverOnFailure", { value: next ? "true" : "false" });
   }
 
   async function globalUpdate(slot: number) {
@@ -219,11 +232,16 @@ export function ProviderApiSettingPage() {
     <div>
       <PageHeader title="Provider API Setting" />
 
-      <Panel title="Stop All Api Users" bodyClassName="px-3 py-2.5">
+      <Panel title="Stop All Api Users" bodyClassName="flex flex-col gap-1.5 px-3 py-2.5">
         <label className="flex items-center gap-1.5 text-[12.5px]">
           <input type="checkbox" checked={stopAll} onChange={toggleStopAll} />
           Stop All Api Users
           {stopAll && <span className="ml-2 font-bold text-[#ed5565]">— all transactions are currently being rejected</span>}
+        </label>
+        <label className="flex items-center gap-1.5 text-[12.5px]">
+          <input type="checkbox" checked={failover} onChange={toggleFailover} />
+          When an API replies FAILED, try the next API (2, 3…) before refunding
+          <span className="text-ink-400">— PENDING replies are never re-sent, to avoid double recharges</span>
         </label>
       </Panel>
 

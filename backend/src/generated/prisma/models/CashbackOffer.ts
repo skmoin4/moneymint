@@ -547,10 +547,6 @@ export type CashbackOfferUncheckedUpdateManyWithoutOperatorNestedInput = {
   deleteMany?: Prisma.CashbackOfferScalarWhereInput | Prisma.CashbackOfferScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type CashbackOfferCreateWithoutOperatorInput = {
   id?: string
   name: string

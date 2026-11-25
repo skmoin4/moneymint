@@ -90,6 +90,11 @@ export type CommissionSlab = Prisma.CommissionSlabModel
  */
 export type Transaction = Prisma.TransactionModel
 /**
+ * Model ProviderCallLog
+ * 
+ */
+export type ProviderCallLog = Prisma.ProviderCallLogModel
+/**
  * Model FundTransfer
  * 
  */

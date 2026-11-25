@@ -12,6 +12,7 @@ import {
   settleTransaction,
   resendToProvider,
   refundSuccessfulTransaction,
+  checkPendingTransaction,
 } from "../services/transactionEngine";
 
 // Admin "Transaction History" / "Pendings" screens: every transaction across the caller's
@@ -207,6 +208,22 @@ async function assertInScope(req: Request, ids: string[]) {
   }
   return txns;
 }
+
+// "Check Status" — ask the vendor now instead of waiting for the poller.
+adminTransactionsRouter.post("/:id/check-status", async (req, res) => {
+  const [txn] = await assertInScope(req, [String(req.params.id)]);
+  res.json(await checkPendingTransaction(txn.id));
+});
+
+// Every request/status-check/callback exchanged with vendors for this transaction
+// (credentials masked). ADMIN only: it exposes vendor endpoints.
+adminTransactionsRouter.get("/:id/logs", authorize("ADMIN"), async (req, res) => {
+  const logs = await prisma.providerCallLog.findMany({
+    where: { transactionId: String(req.params.id) },
+    orderBy: { createdAt: "asc" },
+  });
+  res.json({ logs });
+});
 
 const actionSchema = z.object({
   outcome: z.enum(["SUCCESS", "FAILED", "REFUND"]),

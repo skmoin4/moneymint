@@ -407,6 +407,67 @@ needs a file-upload endpoint + storage that doesn't exist yet. Flag if needed.)*
 
 ---
 
+## Recharge lifecycle: SUCCESS, FAILED or PENDING
+
+`POST /recharge` (and `/bbps/pay`, `/dmt/transfer`) can return a transaction in any of
+three states — the app must handle all three:
+
+- `SUCCESS` — done. Commission/cashback already credited.
+- `FAILED` — the amount is already refunded to the wallet.
+- `PENDING` — the vendor accepted it but hasn't confirmed yet (common with real vendors).
+  The wallet stays debited. Show "Processing" and poll
+  `GET /recharge/status/:id` every ~10s (it returns `{ transaction }` with `status`,
+  `providerRefId`, `statusMessage`). The server settles it when the vendor's callback
+  arrives, or by asking the vendor (status check) — automatically every 2 minutes in the
+  background, and on demand when this endpoint is polled after 30s.
+
+## Vendor integration (API Parsing Setting) — ADMIN
+
+Each API provider is either `MOCK` (built-in simulator) or `HTTP` (a real vendor described
+by configuration — no code per vendor).
+
+- `GET /providers/:id/integration` → `{ integrationType, httpConfig, callbackUrl, mappings }`
+- `PUT /providers/:id/integration` `{ integrationType, httpConfig }` — see
+  `src/services/providerConfig.ts` for every field. Creates the callback URL on first save.
+- `POST /providers/:id/callback-token` — rotate the callback URL.
+- `POST /providers/:id/preview-request` `{ httpConfig }` — the rendered request with sample values.
+- `POST /providers/:id/test-parse` `{ httpConfig, kind: REQUEST|STATUS_CHECK|CALLBACK, sample }`.
+- `GET /providers/:id/logs?kind=&limit=` — recent requests, status checks and callbacks
+  (credentials masked).
+- `PATCH /operators/mappings/:id` `{ providerOperatorCode }` — the vendor's code for an operator.
+- `GET /providers` never returns `apiKey`/`apiSecret` in full (key is masked, secret hidden).
+
+Routing rules: API 1→5 in priority order. The next API is tried only when the vendor was
+unreachable, disabled or out of Wallet 1 float — or, if the `failoverOnFailure` setting is
+`"true"`, when a vendor replied FAILED. A PENDING reply is never re-sent elsewhere.
+A request that times out after being sent stays PENDING (it may still go through).
+
+Callback endpoint (public, for vendors): `GET|POST /callback/provider/:code?token=…` plus
+the vendor's params. Authenticated by the token (and optional IP allowlist). Callbacks for
+transactions that are already settled, or that an admin re-sent to a different API, are
+logged and ignored — a vendor reporting FAILED for a SUCCESS transaction is flagged in the
+log for manual refund.
+
+Admin: `POST /admin/transactions/:id/check-status`, `GET /admin/transactions/:id/logs`.
+
+### Testing with the fake vendor
+
+`npm run fake-vendor` starts a stand-in vendor on port 4100 (see `scripts/fake-vendor.ts`;
+outcome depends on the amount's last digit: 1 fail, 3 pending→success callback, 5 pending
+→ status check, 7 pending→failure callback, else success). Configure a provider with API key
+`fake-token-123`, member id `M1001`, recharge URL
+`http://localhost:4100/api/recharge?member_id={memberid}&token={apikey}&number={mobile}&amount={amount}&op={opcode}&txnid={txnid}`,
+status field `status`, success `SUCCESS`, failure `FAILURE`, op ref `opid`, vendor ref `txid`,
+status URL `http://localhost:4100/api/status?member_id={memberid}&token={apikey}&txnid={txnid}`,
+callback params `txnid` / `status` / `opref` / `vendor_txid`. Then restart the fake vendor
+with `FAKE_VENDOR_CALLBACK="<callback URL shown on the page>"`.
+
+## Users: status (MASTER_DISTRIBUTOR/DISTRIBUTOR/ADMIN)
+
+`PATCH /users/:id/status` `{ status: ACTIVE | INACTIVE | SUSPENDED }` for anyone in the
+caller's downline. A non-ACTIVE user can't log in and every request from an existing
+session gets `403`.
+
 ## Admin: Transaction History & Pendings (MASTER_DISTRIBUTOR/DISTRIBUTOR/ADMIN)
 
 Powers the panel's Transaction History and Pendings screens. Scope is the caller's whole

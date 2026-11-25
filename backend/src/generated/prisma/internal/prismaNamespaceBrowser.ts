@@ -61,6 +61,7 @@ export const ModelName = {
   CommissionPack: 'CommissionPack',
   CommissionSlab: 'CommissionSlab',
   Transaction: 'Transaction',
+  ProviderCallLog: 'ProviderCallLog',
   FundTransfer: 'FundTransfer',
   Remitter: 'Remitter',
   Beneficiary: 'Beneficiary',
@@ -167,6 +168,9 @@ export const ApiProviderScalarFieldEnum = {
   walletBalance: 'walletBalance',
   secondaryWalletBalance: 'secondaryWalletBalance',
   secondaryWalletLabel: 'secondaryWalletLabel',
+  integrationType: 'integrationType',
+  httpConfig: 'httpConfig',
+  callbackToken: 'callbackToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -207,7 +211,8 @@ export const OperatorApiMappingScalarFieldEnum = {
   operatorId: 'operatorId',
   apiProviderId: 'apiProviderId',
   priority: 'priority',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  providerOperatorCode: 'providerOperatorCode'
 } as const
 
 export type OperatorApiMappingScalarFieldEnum = (typeof OperatorApiMappingScalarFieldEnum)[keyof typeof OperatorApiMappingScalarFieldEnum]
@@ -254,11 +259,33 @@ export const TransactionScalarFieldEnum = {
   providerRefId: 'providerRefId',
   apiResponse: 'apiResponse',
   source: 'source',
+  vendorRefId: 'vendorRefId',
+  statusMessage: 'statusMessage',
+  statusCheckCount: 'statusCheckCount',
+  lastStatusCheckAt: 'lastStatusCheckAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const ProviderCallLogScalarFieldEnum = {
+  id: 'id',
+  apiProviderId: 'apiProviderId',
+  transactionId: 'transactionId',
+  kind: 'kind',
+  method: 'method',
+  url: 'url',
+  requestBody: 'requestBody',
+  httpStatus: 'httpStatus',
+  responseBody: 'responseBody',
+  parsedStatus: 'parsedStatus',
+  durationMs: 'durationMs',
+  createdAt: 'createdAt'
+} as const
+
+export type ProviderCallLogScalarFieldEnum = (typeof ProviderCallLogScalarFieldEnum)[keyof typeof ProviderCallLogScalarFieldEnum]
 
 
 export const FundTransferScalarFieldEnum = {

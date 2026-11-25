@@ -407,6 +407,7 @@ export const ModelName = {
   CommissionPack: 'CommissionPack',
   CommissionSlab: 'CommissionSlab',
   Transaction: 'Transaction',
+  ProviderCallLog: 'ProviderCallLog',
   FundTransfer: 'FundTransfer',
   Remitter: 'Remitter',
   Beneficiary: 'Beneficiary',
@@ -445,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "transaction" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder"
+    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1186,6 +1187,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TransactionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProviderCallLog: {
+      payload: Prisma.$ProviderCallLogPayload<ExtArgs>
+      fields: Prisma.ProviderCallLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProviderCallLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProviderCallLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>
+        }
+        findFirst: {
+          args: Prisma.ProviderCallLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProviderCallLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>
+        }
+        findMany: {
+          args: Prisma.ProviderCallLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>[]
+        }
+        create: {
+          args: Prisma.ProviderCallLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>
+        }
+        createMany: {
+          args: Prisma.ProviderCallLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProviderCallLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>[]
+        }
+        delete: {
+          args: Prisma.ProviderCallLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>
+        }
+        update: {
+          args: Prisma.ProviderCallLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProviderCallLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProviderCallLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProviderCallLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProviderCallLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProviderCallLogPayload>
+        }
+        aggregate: {
+          args: Prisma.ProviderCallLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProviderCallLog>
+        }
+        groupBy: {
+          args: Prisma.ProviderCallLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProviderCallLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProviderCallLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProviderCallLogCountAggregateOutputType> | number
         }
       }
     }
@@ -2995,6 +3070,9 @@ export const ApiProviderScalarFieldEnum = {
   walletBalance: 'walletBalance',
   secondaryWalletBalance: 'secondaryWalletBalance',
   secondaryWalletLabel: 'secondaryWalletLabel',
+  integrationType: 'integrationType',
+  httpConfig: 'httpConfig',
+  callbackToken: 'callbackToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3035,7 +3113,8 @@ export const OperatorApiMappingScalarFieldEnum = {
   operatorId: 'operatorId',
   apiProviderId: 'apiProviderId',
   priority: 'priority',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  providerOperatorCode: 'providerOperatorCode'
 } as const
 
 export type OperatorApiMappingScalarFieldEnum = (typeof OperatorApiMappingScalarFieldEnum)[keyof typeof OperatorApiMappingScalarFieldEnum]
@@ -3082,11 +3161,33 @@ export const TransactionScalarFieldEnum = {
   providerRefId: 'providerRefId',
   apiResponse: 'apiResponse',
   source: 'source',
+  vendorRefId: 'vendorRefId',
+  statusMessage: 'statusMessage',
+  statusCheckCount: 'statusCheckCount',
+  lastStatusCheckAt: 'lastStatusCheckAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const ProviderCallLogScalarFieldEnum = {
+  id: 'id',
+  apiProviderId: 'apiProviderId',
+  transactionId: 'transactionId',
+  kind: 'kind',
+  method: 'method',
+  url: 'url',
+  requestBody: 'requestBody',
+  httpStatus: 'httpStatus',
+  responseBody: 'responseBody',
+  parsedStatus: 'parsedStatus',
+  durationMs: 'durationMs',
+  createdAt: 'createdAt'
+} as const
+
+export type ProviderCallLogScalarFieldEnum = (typeof ProviderCallLogScalarFieldEnum)[keyof typeof ProviderCallLogScalarFieldEnum]
 
 
 export const FundTransferScalarFieldEnum = {
@@ -3591,6 +3692,20 @@ export type ListEnumProviderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'CommissionType'
  */
 export type EnumCommissionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionType'>
@@ -3629,20 +3744,6 @@ export type EnumTransactionStatusFieldRefInput<$PrismaModel> = FieldRefInputType
  * Reference to a field of type 'TransactionStatus[]'
  */
 export type ListEnumTransactionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -3876,6 +3977,7 @@ export type GlobalOmitConfig = {
   commissionPack?: Prisma.CommissionPackOmit
   commissionSlab?: Prisma.CommissionSlabOmit
   transaction?: Prisma.TransactionOmit
+  providerCallLog?: Prisma.ProviderCallLogOmit
   fundTransfer?: Prisma.FundTransferOmit
   remitter?: Prisma.RemitterOmit
   beneficiary?: Prisma.BeneficiaryOmit

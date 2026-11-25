@@ -59,6 +59,8 @@ export type ApiProviderMinAggregateOutputType = {
   walletBalance: runtime.Decimal | null
   secondaryWalletBalance: runtime.Decimal | null
   secondaryWalletLabel: string | null
+  integrationType: string | null
+  callbackToken: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -80,6 +82,8 @@ export type ApiProviderMaxAggregateOutputType = {
   walletBalance: runtime.Decimal | null
   secondaryWalletBalance: runtime.Decimal | null
   secondaryWalletLabel: string | null
+  integrationType: string | null
+  callbackToken: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -101,6 +105,9 @@ export type ApiProviderCountAggregateOutputType = {
   walletBalance: number
   secondaryWalletBalance: number
   secondaryWalletLabel: number
+  integrationType: number
+  httpConfig: number
+  callbackToken: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -140,6 +147,8 @@ export type ApiProviderMinAggregateInputType = {
   walletBalance?: true
   secondaryWalletBalance?: true
   secondaryWalletLabel?: true
+  integrationType?: true
+  callbackToken?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -161,6 +170,8 @@ export type ApiProviderMaxAggregateInputType = {
   walletBalance?: true
   secondaryWalletBalance?: true
   secondaryWalletLabel?: true
+  integrationType?: true
+  callbackToken?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -182,6 +193,9 @@ export type ApiProviderCountAggregateInputType = {
   walletBalance?: true
   secondaryWalletBalance?: true
   secondaryWalletLabel?: true
+  integrationType?: true
+  httpConfig?: true
+  callbackToken?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -290,6 +304,9 @@ export type ApiProviderGroupByOutputType = {
   walletBalance: runtime.Decimal
   secondaryWalletBalance: runtime.Decimal
   secondaryWalletLabel: string
+  integrationType: string
+  httpConfig: runtime.JsonValue | null
+  callbackToken: string | null
   createdAt: Date
   updatedAt: Date
   _count: ApiProviderCountAggregateOutputType | null
@@ -334,6 +351,9 @@ export type ApiProviderWhereInput = {
   walletBalance?: Prisma.DecimalFilter<"ApiProvider"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFilter<"ApiProvider"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFilter<"ApiProvider"> | string
+  integrationType?: Prisma.StringFilter<"ApiProvider"> | string
+  httpConfig?: Prisma.JsonNullableFilter<"ApiProvider">
+  callbackToken?: Prisma.StringNullableFilter<"ApiProvider"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ApiProvider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApiProvider"> | Date | string
   operatorMappings?: Prisma.OperatorApiMappingListRelationFilter
@@ -358,6 +378,9 @@ export type ApiProviderOrderByWithRelationInput = {
   walletBalance?: Prisma.SortOrder
   secondaryWalletBalance?: Prisma.SortOrder
   secondaryWalletLabel?: Prisma.SortOrder
+  integrationType?: Prisma.SortOrder
+  httpConfig?: Prisma.SortOrderInput | Prisma.SortOrder
+  callbackToken?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   operatorMappings?: Prisma.OperatorApiMappingOrderByRelationAggregateInput
@@ -368,6 +391,7 @@ export type ApiProviderOrderByWithRelationInput = {
 export type ApiProviderWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   code?: string
+  callbackToken?: string
   AND?: Prisma.ApiProviderWhereInput | Prisma.ApiProviderWhereInput[]
   OR?: Prisma.ApiProviderWhereInput[]
   NOT?: Prisma.ApiProviderWhereInput | Prisma.ApiProviderWhereInput[]
@@ -385,12 +409,14 @@ export type ApiProviderWhereUniqueInput = Prisma.AtLeast<{
   walletBalance?: Prisma.DecimalFilter<"ApiProvider"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFilter<"ApiProvider"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFilter<"ApiProvider"> | string
+  integrationType?: Prisma.StringFilter<"ApiProvider"> | string
+  httpConfig?: Prisma.JsonNullableFilter<"ApiProvider">
   createdAt?: Prisma.DateTimeFilter<"ApiProvider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ApiProvider"> | Date | string
   operatorMappings?: Prisma.OperatorApiMappingListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   walletEntries?: Prisma.ProviderWalletEntryListRelationFilter
-}, "id" | "code">
+}, "id" | "code" | "callbackToken">
 
 export type ApiProviderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -409,6 +435,9 @@ export type ApiProviderOrderByWithAggregationInput = {
   walletBalance?: Prisma.SortOrder
   secondaryWalletBalance?: Prisma.SortOrder
   secondaryWalletLabel?: Prisma.SortOrder
+  integrationType?: Prisma.SortOrder
+  httpConfig?: Prisma.SortOrderInput | Prisma.SortOrder
+  callbackToken?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ApiProviderCountOrderByAggregateInput
@@ -438,6 +467,9 @@ export type ApiProviderScalarWhereWithAggregatesInput = {
   walletBalance?: Prisma.DecimalWithAggregatesFilter<"ApiProvider"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalWithAggregatesFilter<"ApiProvider"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringWithAggregatesFilter<"ApiProvider"> | string
+  integrationType?: Prisma.StringWithAggregatesFilter<"ApiProvider"> | string
+  httpConfig?: Prisma.JsonNullableWithAggregatesFilter<"ApiProvider">
+  callbackToken?: Prisma.StringNullableWithAggregatesFilter<"ApiProvider"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ApiProvider"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ApiProvider"> | Date | string
 }
@@ -459,6 +491,9 @@ export type ApiProviderCreateInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   operatorMappings?: Prisma.OperatorApiMappingCreateNestedManyWithoutApiProviderInput
@@ -483,6 +518,9 @@ export type ApiProviderUncheckedCreateInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   operatorMappings?: Prisma.OperatorApiMappingUncheckedCreateNestedManyWithoutApiProviderInput
@@ -507,6 +545,9 @@ export type ApiProviderUpdateInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operatorMappings?: Prisma.OperatorApiMappingUpdateManyWithoutApiProviderNestedInput
@@ -531,6 +572,9 @@ export type ApiProviderUncheckedUpdateInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operatorMappings?: Prisma.OperatorApiMappingUncheckedUpdateManyWithoutApiProviderNestedInput
@@ -555,6 +599,9 @@ export type ApiProviderCreateManyInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -576,6 +623,9 @@ export type ApiProviderUpdateManyMutationInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -597,6 +647,9 @@ export type ApiProviderUncheckedUpdateManyInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -618,6 +671,9 @@ export type ApiProviderCountOrderByAggregateInput = {
   walletBalance?: Prisma.SortOrder
   secondaryWalletBalance?: Prisma.SortOrder
   secondaryWalletLabel?: Prisma.SortOrder
+  integrationType?: Prisma.SortOrder
+  httpConfig?: Prisma.SortOrder
+  callbackToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -647,6 +703,8 @@ export type ApiProviderMaxOrderByAggregateInput = {
   walletBalance?: Prisma.SortOrder
   secondaryWalletBalance?: Prisma.SortOrder
   secondaryWalletLabel?: Prisma.SortOrder
+  integrationType?: Prisma.SortOrder
+  callbackToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -668,6 +726,8 @@ export type ApiProviderMinOrderByAggregateInput = {
   walletBalance?: Prisma.SortOrder
   secondaryWalletBalance?: Prisma.SortOrder
   secondaryWalletLabel?: Prisma.SortOrder
+  integrationType?: Prisma.SortOrder
+  callbackToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -748,6 +808,9 @@ export type ApiProviderCreateWithoutWalletEntriesInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   operatorMappings?: Prisma.OperatorApiMappingCreateNestedManyWithoutApiProviderInput
@@ -771,6 +834,9 @@ export type ApiProviderUncheckedCreateWithoutWalletEntriesInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   operatorMappings?: Prisma.OperatorApiMappingUncheckedCreateNestedManyWithoutApiProviderInput
@@ -810,6 +876,9 @@ export type ApiProviderUpdateWithoutWalletEntriesInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operatorMappings?: Prisma.OperatorApiMappingUpdateManyWithoutApiProviderNestedInput
@@ -833,6 +902,9 @@ export type ApiProviderUncheckedUpdateWithoutWalletEntriesInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operatorMappings?: Prisma.OperatorApiMappingUncheckedUpdateManyWithoutApiProviderNestedInput
@@ -856,6 +928,9 @@ export type ApiProviderCreateWithoutOperatorMappingsInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionCreateNestedManyWithoutApiProviderInput
@@ -879,6 +954,9 @@ export type ApiProviderUncheckedCreateWithoutOperatorMappingsInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutApiProviderInput
@@ -918,6 +996,9 @@ export type ApiProviderUpdateWithoutOperatorMappingsInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUpdateManyWithoutApiProviderNestedInput
@@ -941,6 +1022,9 @@ export type ApiProviderUncheckedUpdateWithoutOperatorMappingsInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutApiProviderNestedInput
@@ -964,6 +1048,9 @@ export type ApiProviderCreateWithoutTransactionsInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   operatorMappings?: Prisma.OperatorApiMappingCreateNestedManyWithoutApiProviderInput
@@ -987,6 +1074,9 @@ export type ApiProviderUncheckedCreateWithoutTransactionsInput = {
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: string
+  integrationType?: string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   operatorMappings?: Prisma.OperatorApiMappingUncheckedCreateNestedManyWithoutApiProviderInput
@@ -1026,6 +1116,9 @@ export type ApiProviderUpdateWithoutTransactionsInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operatorMappings?: Prisma.OperatorApiMappingUpdateManyWithoutApiProviderNestedInput
@@ -1049,6 +1142,9 @@ export type ApiProviderUncheckedUpdateWithoutTransactionsInput = {
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   secondaryWalletLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  integrationType?: Prisma.StringFieldUpdateOperationsInput | string
+  httpConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  callbackToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   operatorMappings?: Prisma.OperatorApiMappingUncheckedUpdateManyWithoutApiProviderNestedInput
@@ -1121,6 +1217,9 @@ export type ApiProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   walletBalance?: boolean
   secondaryWalletBalance?: boolean
   secondaryWalletLabel?: boolean
+  integrationType?: boolean
+  httpConfig?: boolean
+  callbackToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   operatorMappings?: boolean | Prisma.ApiProvider$operatorMappingsArgs<ExtArgs>
@@ -1146,6 +1245,9 @@ export type ApiProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   walletBalance?: boolean
   secondaryWalletBalance?: boolean
   secondaryWalletLabel?: boolean
+  integrationType?: boolean
+  httpConfig?: boolean
+  callbackToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["apiProvider"]>
@@ -1167,6 +1269,9 @@ export type ApiProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   walletBalance?: boolean
   secondaryWalletBalance?: boolean
   secondaryWalletLabel?: boolean
+  integrationType?: boolean
+  httpConfig?: boolean
+  callbackToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["apiProvider"]>
@@ -1188,11 +1293,14 @@ export type ApiProviderSelectScalar = {
   walletBalance?: boolean
   secondaryWalletBalance?: boolean
   secondaryWalletLabel?: boolean
+  integrationType?: boolean
+  httpConfig?: boolean
+  callbackToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ApiProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "providerType" | "baseUrl" | "apiKey" | "apiSecret" | "isActive" | "rentAmount" | "smsAlertOnSuccess" | "smsAlertOnFailure" | "retryCount" | "gstPercent" | "walletBalance" | "secondaryWalletBalance" | "secondaryWalletLabel" | "createdAt" | "updatedAt", ExtArgs["result"]["apiProvider"]>
+export type ApiProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "providerType" | "baseUrl" | "apiKey" | "apiSecret" | "isActive" | "rentAmount" | "smsAlertOnSuccess" | "smsAlertOnFailure" | "retryCount" | "gstPercent" | "walletBalance" | "secondaryWalletBalance" | "secondaryWalletLabel" | "integrationType" | "httpConfig" | "callbackToken" | "createdAt" | "updatedAt", ExtArgs["result"]["apiProvider"]>
 export type ApiProviderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   operatorMappings?: boolean | Prisma.ApiProvider$operatorMappingsArgs<ExtArgs>
   transactions?: boolean | Prisma.ApiProvider$transactionsArgs<ExtArgs>
@@ -1226,6 +1334,9 @@ export type $ApiProviderPayload<ExtArgs extends runtime.Types.Extensions.Interna
     walletBalance: runtime.Decimal
     secondaryWalletBalance: runtime.Decimal
     secondaryWalletLabel: string
+    integrationType: string
+    httpConfig: runtime.JsonValue | null
+    callbackToken: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["apiProvider"]>
@@ -1670,6 +1781,9 @@ export interface ApiProviderFieldRefs {
   readonly walletBalance: Prisma.FieldRef<"ApiProvider", 'Decimal'>
   readonly secondaryWalletBalance: Prisma.FieldRef<"ApiProvider", 'Decimal'>
   readonly secondaryWalletLabel: Prisma.FieldRef<"ApiProvider", 'String'>
+  readonly integrationType: Prisma.FieldRef<"ApiProvider", 'String'>
+  readonly httpConfig: Prisma.FieldRef<"ApiProvider", 'Json'>
+  readonly callbackToken: Prisma.FieldRef<"ApiProvider", 'String'>
   readonly createdAt: Prisma.FieldRef<"ApiProvider", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ApiProvider", 'DateTime'>
 }

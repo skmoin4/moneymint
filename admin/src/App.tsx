@@ -33,6 +33,7 @@ import { ManualTxnPage } from "./pages/ManualTxnPage";
 import { OperatorPrefixesPage } from "./pages/OperatorPrefixesPage";
 import { RechargePlansPage } from "./pages/RechargePlansPage";
 import { CashbackOffersPage } from "./pages/CashbackOffersPage";
+import { ApiParsingSettingPage } from "./pages/ApiParsingSettingPage";
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
               <Route path="/security" element={<SecurityPage />} />
               <Route path="/circles" element={<CirclesPage />} />
               <Route path="/provider-api-setting" element={<ProviderApiSettingPage />} />
+              <Route path="/api-parsing-setting" element={<ApiParsingSettingPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/payment-modes" element={<PaymentModesPage />} />
               <Route path="/broadcast" element={<BroadcastPage />} />

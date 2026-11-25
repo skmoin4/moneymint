@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../../api/client";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
@@ -21,6 +21,29 @@ export function TxnActionModal({ txn, onClose, onDone }: { txn: AdminTxn; onClos
   const [remark, setRemark] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
+
+  const [checkNote, setCheckNote] = useState("");
+
+  async function checkStatus() {
+    setBusy("CHECK");
+    setError("");
+    setCheckNote("");
+    try {
+      const res = await api.post(`/admin/transactions/${txn.id}/check-status`);
+      const status = res.data.transaction.status;
+      if (status !== "PENDING") {
+        onDone();
+        onClose();
+        return;
+      }
+      setCheckNote(res.data.reason ?? "Still pending at the vendor.");
+      onDone();
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setBusy(null);
+    }
+  }
 
   async function run(outcome: "SUCCESS" | "FAILED" | "REFUND") {
     if (outcome !== "SUCCESS") {
@@ -69,10 +92,14 @@ export function TxnActionModal({ txn, onClose, onDone }: { txn: AdminTxn; onClos
       )}
 
       {error && <div className="mb-3 rounded-sm bg-row-failed px-3 py-2 text-[12.5px] text-[#a94442]">{error}</div>}
+      {checkNote && <div className="mb-3 rounded-sm bg-row-pending px-3 py-2 text-[12.5px] text-[#8a6d3b]">{checkNote}</div>}
 
       <div className="flex flex-wrap gap-2">
         {txn.status === "PENDING" && (
           <>
+            <Button variant="info" loading={busy === "CHECK"} disabled={!!busy} onClick={checkStatus}>
+              Check Status
+            </Button>
             <Button loading={busy === "SUCCESS"} disabled={!!busy} onClick={() => run("SUCCESS")}>
               Mark Success
             </Button>
@@ -94,16 +121,63 @@ export function TxnActionModal({ txn, onClose, onDone }: { txn: AdminTxn; onClos
   );
 }
 
-export function TxnResponseModal({ txn, onClose }: { txn: AdminTxn; onClose: () => void }) {
+interface CallLog {
+  id: string;
+  kind: string;
+  method: string | null;
+  url: string | null;
+  requestBody: string | null;
+  httpStatus: number | null;
+  responseBody: string | null;
+  parsedStatus: string | null;
+  durationMs: number | null;
+  createdAt: string;
+}
+
+export function TxnResponseModal({ txn, onClose, showLogs }: { txn: AdminTxn; onClose: () => void; showLogs?: boolean }) {
+  const [logs, setLogs] = useState<CallLog[] | null>(null);
+  useEffect(() => {
+    if (showLogs) api.get(`/admin/transactions/${txn.id}/logs`).then((res) => setLogs(res.data.logs)).catch(() => setLogs([]));
+  }, [txn.id, showLogs]);
   return (
     <Modal title={`Response — ${txn.identifier}`} onClose={onClose} wide>
       <div className="mb-3 text-[12.5px] text-ink-500">
-        Op Txn: <span className="font-mono text-ink-800">{txn.providerRefId ?? "—"}</span> · API:{" "}
-        <span className="text-ink-800">{txn.apiProvider.name}</span>
+        Op Txn: <span className="font-mono text-ink-800">{txn.providerRefId ?? "—"}</span> · Vendor txn:{" "}
+        <span className="font-mono text-ink-800">{txn.vendorRefId ?? "—"}</span> · API: <span className="text-ink-800">{txn.apiProvider.name}</span>
+        {txn.statusMessage && <div className="mt-1">Message: <span className="text-ink-800">{txn.statusMessage}</span></div>}
       </div>
       <pre className="overflow-x-auto rounded-sm border border-ink-200 bg-ink-50 p-3 text-[12px] text-ink-800">
         {txn.apiResponse ? JSON.stringify(txn.apiResponse, null, 2) : "No response recorded yet — the provider hasn't answered."}
       </pre>
+      {showLogs && (
+        <div className="mt-4">
+          <div className="mb-2 text-[13px] font-bold">API log</div>
+          {logs === null ? (
+            <div className="text-ink-400">Loading…</div>
+          ) : logs.length === 0 ? (
+            <div className="text-ink-400">No vendor traffic recorded for this transaction.</div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {logs.map((l) => (
+                <div key={l.id} className="rounded-sm border border-ink-200 p-2 text-[11.5px]">
+                  <div className="mb-1 flex flex-wrap gap-x-3 font-semibold">
+                    <span>{formatStamp(l.createdAt)}</span>
+                    <span>{l.kind}</span>
+                    <span>{l.parsedStatus}</span>
+                    {l.httpStatus !== null && <span>HTTP {l.httpStatus}</span>}
+                    {l.durationMs !== null && <span>{l.durationMs} ms</span>}
+                  </div>
+                  <div className="break-all font-mono text-ink-600">
+                    {l.method} {l.url}
+                  </div>
+                  {l.requestBody && <pre className="mt-1 whitespace-pre-wrap break-all text-ink-600">{l.requestBody}</pre>}
+                  <pre className="mt-1 whitespace-pre-wrap break-all text-ink-800">{l.responseBody}</pre>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </Modal>
   );
 }

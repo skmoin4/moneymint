@@ -359,7 +359,7 @@ export function TransactionHistoryAdmin() {
       )}
 
       {acting && <TxnActionModal txn={acting} onClose={() => setActing(null)} onDone={load} />}
-      {viewing && <TxnResponseModal txn={viewing} onClose={() => setViewing(null)} />}
+      {viewing && <TxnResponseModal txn={viewing} onClose={() => setViewing(null)} showLogs={isAdmin} />}
     </div>
   );
 }

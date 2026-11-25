@@ -6,6 +6,7 @@ import { authenticate, authorize } from "../middleware/auth";
 import { HttpError } from "../utils/httpError";
 import { logActivity } from "../utils/activityLog";
 import { generateReferralCode } from "../utils/referral";
+import { getDescendantUserIds } from "../utils/hierarchy";
 
 export const usersRouter = Router();
 
@@ -173,5 +174,36 @@ usersRouter.patch(
     });
 
     res.json({ user: { id: updated.id, commissionPackId: updated.commissionPackId } });
+  }
+);
+
+const statusSchema = z.object({
+  status: z.enum(["ACTIVE", "INACTIVE", "SUSPENDED"]),
+});
+
+// Activate / deactivate / suspend an account anywhere in the caller's downline. Takes
+// effect immediately: the auth middleware rejects every request from a non-ACTIVE user.
+usersRouter.patch(
+  "/:id/status",
+  authorize("ADMIN", "MASTER_DISTRIBUTOR", "DISTRIBUTOR"),
+  async (req, res) => {
+    const parsed = statusSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
+    }
+    const targetId = String(req.params.id);
+    if (targetId === req.user!.userId) {
+      throw new HttpError(400, "You can't change your own status");
+    }
+    const descendants = await getDescendantUserIds(req.user!.userId);
+    if (!descendants.includes(targetId)) {
+      throw new HttpError(403, "You can only manage users in your own downline");
+    }
+    const updated = await prisma.user.update({ where: { id: targetId }, data: { status: parsed.data.status } });
+    await logActivity(req, "USER_STATUS_CHANGED", {
+      userId: req.user!.userId,
+      details: `${updated.name} (${updated.phone}) → ${updated.status}`,
+    });
+    res.json({ user: { id: updated.id, status: updated.status } });
   }
 );

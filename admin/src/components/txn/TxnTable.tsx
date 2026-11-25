@@ -96,7 +96,10 @@ export function TxnTable({
               <Td className="font-mono">{t.identifier}</Td>
               <Td className="whitespace-nowrap text-right">{inr(t.amount)}</Td>
               <Td className="whitespace-nowrap text-right">{inr(t.deduction)}</Td>
-              <Td className="font-semibold">{t.status}</Td>
+              <Td className="font-semibold" title={t.statusMessage ?? undefined}>
+                {t.status}
+                {t.statusMessage && <div className="max-w-40 truncate text-[11px] font-normal text-ink-500">{t.statusMessage}</div>}
+              </Td>
               <Td className="whitespace-nowrap uppercase">{t.apiProvider.name}</Td>
               {showApiBalance && (
                 <Td className="whitespace-nowrap text-right">

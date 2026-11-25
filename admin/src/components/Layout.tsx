@@ -65,6 +65,7 @@ const MENU: MenuItem[] = [
     children: [
       { to: "/providers", label: "Add API / APIs", roles: ADMIN },
       { to: "/provider-api-setting", label: "Provider API Setting", roles: ADMIN },
+      { to: "/api-parsing-setting", label: "API Parsing Setting", roles: ADMIN },
       { to: "/operators", label: "Operators", roles: ADMIN },
       { to: "/operator-prefixes", label: "Operator Series", roles: ADMIN },
       { to: "/recharge-plans", label: "Recharge Plans", roles: ADMIN },

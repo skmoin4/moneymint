@@ -87,6 +87,18 @@ export function UsersPage() {
     loadUsers();
   }
 
+  async function changeStatus(userId: string, name: string, status: string) {
+    if (status !== "ACTIVE" && !window.confirm(`${status === "SUSPENDED" ? "Suspend" : "Deactivate"} ${name}? They will be logged out and blocked immediately.`)) {
+      return;
+    }
+    try {
+      await api.patch(`/users/${userId}/status`, { status });
+    } catch (err: any) {
+      window.alert(err.response?.data?.error || "Could not change status.");
+    }
+    loadUsers();
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
@@ -228,7 +240,24 @@ export function UsersPage() {
                     <Td>{u.phone}</Td>
                     <Td className="text-ink-500">{u.role.replace("_", " ")}</Td>
                     <Td>
-                      <Badge>{u.status}</Badge>
+                      <div className="flex items-center gap-1.5">
+                        <Badge>{u.status}</Badge>
+                        <select
+                          value=""
+                          onChange={(e) => e.target.value && changeStatus(u.id, u.name, e.target.value)}
+                          className="rounded-[2px] border border-ink-200 bg-white px-1 py-0.5 text-[11px] text-ink-600"
+                          aria-label={`Change status of ${u.name}`}
+                        >
+                          <option value="">Change…</option>
+                          {["ACTIVE", "INACTIVE", "SUSPENDED"]
+                            .filter((st) => st !== u.status)
+                            .map((st) => (
+                              <option key={st} value={st}>
+                                {st === "ACTIVE" ? "Activate" : st === "INACTIVE" ? "Deactivate" : "Suspend"}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
                     </Td>
                     <Td>₹{u.walletBalance}</Td>
                     <Td>

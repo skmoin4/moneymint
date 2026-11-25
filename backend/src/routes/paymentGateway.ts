@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { authenticate } from "../middleware/auth";
 import { HttpError } from "../utils/httpError";
-import { createMockOrder, signPayload, verifySignature } from "../services/mockPaymentGatewayService";
+import { createMockOrder, signPayload, verifySignature, webhookConfigured, MOCK_PAYMENTS_ENABLED } from "../services/mockPaymentGatewayService";
 
 export const paymentGatewayRouter = Router();
 
@@ -90,6 +90,9 @@ const webhookSchema = z.object({
 // different one) but the verify-then-trust shape is identical, so this doesn't change
 // when a real gateway replaces the mock — only the header name and secret do.
 paymentGatewayRouter.post("/webhook", async (req, res) => {
+  if (!webhookConfigured()) {
+    throw new HttpError(503, "Payment webhook is not configured on this server");
+  }
   const signature = req.header("X-Signature");
   const rawBody = JSON.stringify(req.body);
   if (!signature || !verifySignature(rawBody, signature)) {
@@ -111,6 +114,9 @@ paymentGatewayRouter.post("/webhook", async (req, res) => {
 // it once a real gateway is wired in. It still goes through the same signature-verified
 // webhook path everything else does, so it's proving that path works, not bypassing it.
 paymentGatewayRouter.post("/mock-pay", authenticate, async (req, res) => {
+  if (!MOCK_PAYMENTS_ENABLED) {
+    throw new HttpError(404, "Not found");
+  }
   const { gatewayOrderId } = req.body as { gatewayOrderId?: string };
   if (typeof gatewayOrderId !== "string") {
     throw new HttpError(400, "gatewayOrderId is required");

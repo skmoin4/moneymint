@@ -40,6 +40,7 @@ export type OperatorApiMappingMinAggregateOutputType = {
   apiProviderId: string | null
   priority: number | null
   isActive: boolean | null
+  providerOperatorCode: string | null
 }
 
 export type OperatorApiMappingMaxAggregateOutputType = {
@@ -48,6 +49,7 @@ export type OperatorApiMappingMaxAggregateOutputType = {
   apiProviderId: string | null
   priority: number | null
   isActive: boolean | null
+  providerOperatorCode: string | null
 }
 
 export type OperatorApiMappingCountAggregateOutputType = {
@@ -56,6 +58,7 @@ export type OperatorApiMappingCountAggregateOutputType = {
   apiProviderId: number
   priority: number
   isActive: number
+  providerOperatorCode: number
   _all: number
 }
 
@@ -74,6 +77,7 @@ export type OperatorApiMappingMinAggregateInputType = {
   apiProviderId?: true
   priority?: true
   isActive?: true
+  providerOperatorCode?: true
 }
 
 export type OperatorApiMappingMaxAggregateInputType = {
@@ -82,6 +86,7 @@ export type OperatorApiMappingMaxAggregateInputType = {
   apiProviderId?: true
   priority?: true
   isActive?: true
+  providerOperatorCode?: true
 }
 
 export type OperatorApiMappingCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type OperatorApiMappingCountAggregateInputType = {
   apiProviderId?: true
   priority?: true
   isActive?: true
+  providerOperatorCode?: true
   _all?: true
 }
 
@@ -185,6 +191,7 @@ export type OperatorApiMappingGroupByOutputType = {
   apiProviderId: string
   priority: number
   isActive: boolean
+  providerOperatorCode: string | null
   _count: OperatorApiMappingCountAggregateOutputType | null
   _avg: OperatorApiMappingAvgAggregateOutputType | null
   _sum: OperatorApiMappingSumAggregateOutputType | null
@@ -216,6 +223,7 @@ export type OperatorApiMappingWhereInput = {
   apiProviderId?: Prisma.StringFilter<"OperatorApiMapping"> | string
   priority?: Prisma.IntFilter<"OperatorApiMapping"> | number
   isActive?: Prisma.BoolFilter<"OperatorApiMapping"> | boolean
+  providerOperatorCode?: Prisma.StringNullableFilter<"OperatorApiMapping"> | string | null
   operator?: Prisma.XOR<Prisma.OperatorScalarRelationFilter, Prisma.OperatorWhereInput>
   apiProvider?: Prisma.XOR<Prisma.ApiProviderScalarRelationFilter, Prisma.ApiProviderWhereInput>
 }
@@ -226,6 +234,7 @@ export type OperatorApiMappingOrderByWithRelationInput = {
   apiProviderId?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  providerOperatorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   operator?: Prisma.OperatorOrderByWithRelationInput
   apiProvider?: Prisma.ApiProviderOrderByWithRelationInput
 }
@@ -240,6 +249,7 @@ export type OperatorApiMappingWhereUniqueInput = Prisma.AtLeast<{
   apiProviderId?: Prisma.StringFilter<"OperatorApiMapping"> | string
   priority?: Prisma.IntFilter<"OperatorApiMapping"> | number
   isActive?: Prisma.BoolFilter<"OperatorApiMapping"> | boolean
+  providerOperatorCode?: Prisma.StringNullableFilter<"OperatorApiMapping"> | string | null
   operator?: Prisma.XOR<Prisma.OperatorScalarRelationFilter, Prisma.OperatorWhereInput>
   apiProvider?: Prisma.XOR<Prisma.ApiProviderScalarRelationFilter, Prisma.ApiProviderWhereInput>
 }, "id" | "operatorId_priority">
@@ -250,6 +260,7 @@ export type OperatorApiMappingOrderByWithAggregationInput = {
   apiProviderId?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  providerOperatorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.OperatorApiMappingCountOrderByAggregateInput
   _avg?: Prisma.OperatorApiMappingAvgOrderByAggregateInput
   _max?: Prisma.OperatorApiMappingMaxOrderByAggregateInput
@@ -266,12 +277,14 @@ export type OperatorApiMappingScalarWhereWithAggregatesInput = {
   apiProviderId?: Prisma.StringWithAggregatesFilter<"OperatorApiMapping"> | string
   priority?: Prisma.IntWithAggregatesFilter<"OperatorApiMapping"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"OperatorApiMapping"> | boolean
+  providerOperatorCode?: Prisma.StringNullableWithAggregatesFilter<"OperatorApiMapping"> | string | null
 }
 
 export type OperatorApiMappingCreateInput = {
   id?: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
   operator: Prisma.OperatorCreateNestedOneWithoutApiMappingsInput
   apiProvider: Prisma.ApiProviderCreateNestedOneWithoutOperatorMappingsInput
 }
@@ -282,12 +295,14 @@ export type OperatorApiMappingUncheckedCreateInput = {
   apiProviderId: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
 }
 
 export type OperatorApiMappingUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operator?: Prisma.OperatorUpdateOneRequiredWithoutApiMappingsNestedInput
   apiProvider?: Prisma.ApiProviderUpdateOneRequiredWithoutOperatorMappingsNestedInput
 }
@@ -298,6 +313,7 @@ export type OperatorApiMappingUncheckedUpdateInput = {
   apiProviderId?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type OperatorApiMappingCreateManyInput = {
@@ -306,12 +322,14 @@ export type OperatorApiMappingCreateManyInput = {
   apiProviderId: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
 }
 
 export type OperatorApiMappingUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type OperatorApiMappingUncheckedUpdateManyInput = {
@@ -320,6 +338,7 @@ export type OperatorApiMappingUncheckedUpdateManyInput = {
   apiProviderId?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type OperatorApiMappingListRelationFilter = {
@@ -343,6 +362,7 @@ export type OperatorApiMappingCountOrderByAggregateInput = {
   apiProviderId?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  providerOperatorCode?: Prisma.SortOrder
 }
 
 export type OperatorApiMappingAvgOrderByAggregateInput = {
@@ -355,6 +375,7 @@ export type OperatorApiMappingMaxOrderByAggregateInput = {
   apiProviderId?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  providerOperatorCode?: Prisma.SortOrder
 }
 
 export type OperatorApiMappingMinOrderByAggregateInput = {
@@ -363,6 +384,7 @@ export type OperatorApiMappingMinOrderByAggregateInput = {
   apiProviderId?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  providerOperatorCode?: Prisma.SortOrder
 }
 
 export type OperatorApiMappingSumOrderByAggregateInput = {
@@ -457,6 +479,7 @@ export type OperatorApiMappingCreateWithoutApiProviderInput = {
   id?: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
   operator: Prisma.OperatorCreateNestedOneWithoutApiMappingsInput
 }
 
@@ -465,6 +488,7 @@ export type OperatorApiMappingUncheckedCreateWithoutApiProviderInput = {
   operatorId: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
 }
 
 export type OperatorApiMappingCreateOrConnectWithoutApiProviderInput = {
@@ -502,12 +526,14 @@ export type OperatorApiMappingScalarWhereInput = {
   apiProviderId?: Prisma.StringFilter<"OperatorApiMapping"> | string
   priority?: Prisma.IntFilter<"OperatorApiMapping"> | number
   isActive?: Prisma.BoolFilter<"OperatorApiMapping"> | boolean
+  providerOperatorCode?: Prisma.StringNullableFilter<"OperatorApiMapping"> | string | null
 }
 
 export type OperatorApiMappingCreateWithoutOperatorInput = {
   id?: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
   apiProvider: Prisma.ApiProviderCreateNestedOneWithoutOperatorMappingsInput
 }
 
@@ -516,6 +542,7 @@ export type OperatorApiMappingUncheckedCreateWithoutOperatorInput = {
   apiProviderId: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
 }
 
 export type OperatorApiMappingCreateOrConnectWithoutOperatorInput = {
@@ -549,12 +576,14 @@ export type OperatorApiMappingCreateManyApiProviderInput = {
   operatorId: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
 }
 
 export type OperatorApiMappingUpdateWithoutApiProviderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operator?: Prisma.OperatorUpdateOneRequiredWithoutApiMappingsNestedInput
 }
 
@@ -563,6 +592,7 @@ export type OperatorApiMappingUncheckedUpdateWithoutApiProviderInput = {
   operatorId?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type OperatorApiMappingUncheckedUpdateManyWithoutApiProviderInput = {
@@ -570,6 +600,7 @@ export type OperatorApiMappingUncheckedUpdateManyWithoutApiProviderInput = {
   operatorId?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type OperatorApiMappingCreateManyOperatorInput = {
@@ -577,12 +608,14 @@ export type OperatorApiMappingCreateManyOperatorInput = {
   apiProviderId: string
   priority: number
   isActive?: boolean
+  providerOperatorCode?: string | null
 }
 
 export type OperatorApiMappingUpdateWithoutOperatorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   apiProvider?: Prisma.ApiProviderUpdateOneRequiredWithoutOperatorMappingsNestedInput
 }
 
@@ -591,6 +624,7 @@ export type OperatorApiMappingUncheckedUpdateWithoutOperatorInput = {
   apiProviderId?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type OperatorApiMappingUncheckedUpdateManyWithoutOperatorInput = {
@@ -598,6 +632,7 @@ export type OperatorApiMappingUncheckedUpdateManyWithoutOperatorInput = {
   apiProviderId?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  providerOperatorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -608,6 +643,7 @@ export type OperatorApiMappingSelect<ExtArgs extends runtime.Types.Extensions.In
   apiProviderId?: boolean
   priority?: boolean
   isActive?: boolean
+  providerOperatorCode?: boolean
   operator?: boolean | Prisma.OperatorDefaultArgs<ExtArgs>
   apiProvider?: boolean | Prisma.ApiProviderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["operatorApiMapping"]>
@@ -618,6 +654,7 @@ export type OperatorApiMappingSelectCreateManyAndReturn<ExtArgs extends runtime.
   apiProviderId?: boolean
   priority?: boolean
   isActive?: boolean
+  providerOperatorCode?: boolean
   operator?: boolean | Prisma.OperatorDefaultArgs<ExtArgs>
   apiProvider?: boolean | Prisma.ApiProviderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["operatorApiMapping"]>
@@ -628,6 +665,7 @@ export type OperatorApiMappingSelectUpdateManyAndReturn<ExtArgs extends runtime.
   apiProviderId?: boolean
   priority?: boolean
   isActive?: boolean
+  providerOperatorCode?: boolean
   operator?: boolean | Prisma.OperatorDefaultArgs<ExtArgs>
   apiProvider?: boolean | Prisma.ApiProviderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["operatorApiMapping"]>
@@ -638,9 +676,10 @@ export type OperatorApiMappingSelectScalar = {
   apiProviderId?: boolean
   priority?: boolean
   isActive?: boolean
+  providerOperatorCode?: boolean
 }
 
-export type OperatorApiMappingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "operatorId" | "apiProviderId" | "priority" | "isActive", ExtArgs["result"]["operatorApiMapping"]>
+export type OperatorApiMappingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "operatorId" | "apiProviderId" | "priority" | "isActive" | "providerOperatorCode", ExtArgs["result"]["operatorApiMapping"]>
 export type OperatorApiMappingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   operator?: boolean | Prisma.OperatorDefaultArgs<ExtArgs>
   apiProvider?: boolean | Prisma.ApiProviderDefaultArgs<ExtArgs>
@@ -666,6 +705,7 @@ export type $OperatorApiMappingPayload<ExtArgs extends runtime.Types.Extensions.
     apiProviderId: string
     priority: number
     isActive: boolean
+    providerOperatorCode: string | null
   }, ExtArgs["result"]["operatorApiMapping"]>
   composites: {}
 }
@@ -1096,6 +1136,7 @@ export interface OperatorApiMappingFieldRefs {
   readonly apiProviderId: Prisma.FieldRef<"OperatorApiMapping", 'String'>
   readonly priority: Prisma.FieldRef<"OperatorApiMapping", 'Int'>
   readonly isActive: Prisma.FieldRef<"OperatorApiMapping", 'Boolean'>
+  readonly providerOperatorCode: Prisma.FieldRef<"OperatorApiMapping", 'String'>
 }
     
 

@@ -250,9 +250,13 @@ operatorsRouter.put("/:id/mappings", authorize("ADMIN"), async (req, res) => {
   res.status(201).json({ mapping });
 });
 
-const toggleMappingSchema = z.object({
-  isActive: z.boolean(),
-});
+const toggleMappingSchema = z
+  .object({
+    isActive: z.boolean().optional(),
+    // The vendor's own code for this operator; empty string clears it.
+    providerOperatorCode: z.string().max(50).nullable().optional(),
+  })
+  .refine((v) => v.isActive !== undefined || v.providerOperatorCode !== undefined, "Nothing to update");
 
 operatorsRouter.patch("/mappings/:mappingId", authorize("ADMIN"), async (req, res) => {
   const parsed = toggleMappingSchema.safeParse(req.body);
@@ -262,7 +266,12 @@ operatorsRouter.patch("/mappings/:mappingId", authorize("ADMIN"), async (req, re
   const mapping = await prisma.operatorApiMapping
     .update({
       where: { id: String(req.params.mappingId) },
-      data: { isActive: parsed.data.isActive },
+      data: {
+        ...(parsed.data.isActive !== undefined ? { isActive: parsed.data.isActive } : {}),
+        ...(parsed.data.providerOperatorCode !== undefined
+          ? { providerOperatorCode: parsed.data.providerOperatorCode?.trim() || null }
+          : {}),
+      },
       include: { apiProvider: { select: PROVIDER_PUBLIC_SELECT } },
     })
     .catch(() => null);

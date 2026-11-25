@@ -10,6 +10,7 @@ import { isIpAllowedForAdmin } from "../middleware/ipWhitelist";
 import { sendSms } from "../services/smsService";
 import { HttpError } from "../utils/httpError";
 import { generateReferralCode } from "../utils/referral";
+import { authLimiter } from "../middleware/rateLimiters";
 
 export const authRouter = Router();
 
@@ -23,7 +24,7 @@ const registerSchema = z.object({
 // Bootstrap-only: creates the very first ADMIN account for a fresh deployment.
 // Once an ADMIN exists, this closes — all further users must be created via
 // the authenticated, hierarchy-checked POST /users endpoint.
-authRouter.post("/register", async (req, res) => {
+authRouter.post("/register", authLimiter, async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: parsed.error.flatten() });
@@ -67,7 +68,7 @@ const loginSchema = z.object({
   password: z.string().min(6),
 });
 
-authRouter.post("/login", async (req, res) => {
+authRouter.post("/login", authLimiter, async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: parsed.error.flatten() });
@@ -84,6 +85,10 @@ authRouter.post("/login", async (req, res) => {
   if (!valid) {
     await logActivity(req, "LOGIN_FAILED", { userId: user.id, details: "Wrong password" });
     return res.status(401).json({ error: "Invalid phone or password" });
+  }
+  if (user.status !== "ACTIVE") {
+    await logActivity(req, "LOGIN_FAILED", { userId: user.id, details: `Account ${user.status}` });
+    return res.status(403).json({ error: `Your account is ${user.status.toLowerCase()}. Contact your distributor.` });
   }
 
   // Only the admin-panel login is ever subject to IP restriction — the retailer/consumer
@@ -118,7 +123,7 @@ const otpRequestSchema = z.object({ phone: z.string().min(10).max(15) });
 // Consumer-app login channel: mobile number + OTP, no password. Distinct from the
 // admin panel's phone+password login, but issues the same kind of session token —
 // the app and the admin panel are two clients of the same account system.
-authRouter.post("/otp/request", async (req, res) => {
+authRouter.post("/otp/request", authLimiter, async (req, res) => {
   const parsed = otpRequestSchema.safeParse(req.body);
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
@@ -128,6 +133,9 @@ authRouter.post("/otp/request", async (req, res) => {
   const user = await prisma.user.findUnique({ where: { phone } });
   if (!user) {
     throw new HttpError(404, "This phone number isn't registered. Contact your distributor for an account.");
+  }
+  if (user.status !== "ACTIVE") {
+    throw new HttpError(403, `Your account is ${user.status.toLowerCase()}. Contact your distributor.`);
   }
 
   const recent = await prisma.otpRequest.findFirst({
@@ -156,7 +164,7 @@ authRouter.post("/otp/request", async (req, res) => {
 
 const otpVerifySchema = z.object({ phone: z.string().min(10).max(15), otp: z.string().length(6) });
 
-authRouter.post("/otp/verify", async (req, res) => {
+authRouter.post("/otp/verify", authLimiter, async (req, res) => {
   const parsed = otpVerifySchema.safeParse(req.body);
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
@@ -205,7 +213,7 @@ authRouter.post("/otp/verify", async (req, res) => {
 // Forgot Password — same OTP machinery as login, just a different `purpose` so a
 // password-reset OTP can never be replayed to log in (or vice versa) and doesn't
 // share the 45s cooldown/attempt-counter with an in-flight login OTP.
-authRouter.post("/password/reset-request", async (req, res) => {
+authRouter.post("/password/reset-request", authLimiter, async (req, res) => {
   const parsed = otpRequestSchema.safeParse(req.body);
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
@@ -251,7 +259,7 @@ const passwordResetSchema = z.object({
   newPassword: z.string().min(6),
 });
 
-authRouter.post("/password/reset", async (req, res) => {
+authRouter.post("/password/reset", authLimiter, async (req, res) => {
   const parsed = passwordResetSchema.safeParse(req.body);
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));

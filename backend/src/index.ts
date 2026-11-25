@@ -30,8 +30,10 @@ import { plansRouter } from "./routes/plans";
 import { cashbackRouter } from "./routes/cashback";
 import { paymentGatewayRouter } from "./routes/paymentGateway";
 import { adminTransactionsRouter } from "./routes/adminTransactions";
+import { providerCallbackRouter } from "./routes/providerCallback";
+import { startStatusPoller } from "./services/statusPoller";
 import { errorHandler } from "./middleware/errorHandler";
-import { authLimiter, apiLimiter } from "./middleware/rateLimiters";
+import { apiLimiter } from "./middleware/rateLimiters";
 
 const app = express();
 
@@ -42,10 +44,15 @@ app.use(
   })
 );
 app.use(express.json());
+// Vendor callbacks arrive in bursts from a few vendor IPs; they authenticate with a
+// per-provider token, so they sit outside the per-IP API rate limit.
+app.use("/callback", providerCallbackRouter);
 app.use(apiLimiter);
 
 app.use("/health", healthRouter);
-app.use("/auth", authLimiter, authRouter);
+// The strict auth limiter is applied per-route inside authRouter (login, OTP, password
+// reset) — not to /auth/me or PIN endpoints the app calls routinely.
+app.use("/auth", authRouter);
 // Must be registered before "/wallet" — walletRouter runs `authenticate` unconditionally
 // on every path under /wallet, which would 401 the gateway's unauthenticated webhook
 // call before it ever reached paymentGatewayRouter's own (signature-based) auth.
@@ -81,4 +88,5 @@ app.use(errorHandler);
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+  startStatusPoller();
 });

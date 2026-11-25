@@ -199,6 +199,14 @@ model ApiProvider {
   secondaryWalletBalance Decimal @default(0) @db.Decimal(14, 2)
   secondaryWalletLabel   String  @default("Wallet 2")
 
+  // How requests reach this vendor. MOCK = built-in simulator (dev/testing). HTTP = a real
+  // vendor described entirely by httpConfig (request template + response parsing rules,
+  // the "API Parsing Setting" screen), so a new vendor needs configuration, not code.
+  integrationType String  @default("MOCK")
+  httpConfig      Json?
+  // Secret embedded in the callback URL handed to the vendor; proves a callback is genuine.
+  callbackToken   String? @unique
+
   operatorMappings OperatorApiMapping[]
   transactions     Transaction[]
   walletEntries    ProviderWalletEntry[]
@@ -249,6 +257,9 @@ model OperatorApiMapping {
   apiProvider   ApiProvider @relation(fields: [apiProviderId], references: [id])
   priority      Int // 1 = primary, 2 = fallback, etc.
   isActive      Boolean     @default(true)
+  // This vendor's own code for the operator (vendors rarely agree: Jio may be "JIO", "RJ"
+  // or "11"). Sent as {opcode}; falls back to Operator.code when empty.
+  providerOperatorCode String?
 
   @@unique([operatorId, priority])
   @@index([apiProviderId])
@@ -310,6 +321,12 @@ model Transaction {
   // panel), API (an API user's server), MANUAL (admin "Add Transaction"), QUEUE
   // (a scheduled Q-Recharge). Shown as the "Source" column in Transaction History.
   source        String            @default("APP")
+  // The vendor's own id for this transaction (distinct from the operator ref above);
+  // used to match callbacks and run status checks.
+  vendorRefId       String?
+  statusMessage     String?
+  statusCheckCount  Int       @default(0)
+  lastStatusCheckAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -318,6 +335,27 @@ model Transaction {
   @@index([status])
   @@index([identifier])
   @@index([createdAt])
+  @@index([vendorRefId])
+}
+
+// Every request we send to a vendor and every callback a vendor sends us, with secrets
+// masked. This is the first place to look when a vendor disputes a transaction.
+model ProviderCallLog {
+  id             String   @id @default(uuid())
+  apiProviderId  String
+  transactionId  String?
+  kind           String // REQUEST, STATUS_CHECK, CALLBACK
+  method         String?
+  url            String?
+  requestBody    String?
+  httpStatus     Int?
+  responseBody   String?
+  parsedStatus   String? // SUCCESS, FAILED, PENDING, ERROR
+  durationMs     Int?
+  createdAt      DateTime @default(now())
+
+  @@index([transactionId])
+  @@index([apiProviderId, createdAt])
 }
 
 model FundTransfer {

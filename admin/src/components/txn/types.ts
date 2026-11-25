@@ -9,6 +9,8 @@ export interface AdminTxn {
   providerRefId: string | null;
   apiResponse: Record<string, unknown> | null;
   source: string;
+  vendorRefId: string | null;
+  statusMessage: string | null;
   createdAt: string;
   updatedAt: string;
   operator: { id: string; name: string; code: string; type: string };

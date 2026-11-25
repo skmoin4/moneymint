@@ -1,6 +1,6 @@
 import { prisma } from "../config/prisma";
 import { HttpError } from "../utils/httpError";
-import { callProvider, ProviderDownError, ProviderResult } from "./mockProviderService";
+import { sendRecharge, ProviderDownError, type ProviderResult } from "./providerClient";
 import { applySuccessRewards } from "./transactionEngine";
 import type { Prisma } from "../generated/prisma/client";
 
@@ -47,10 +47,11 @@ export async function performAepsTransaction(
 
   for (const mapping of mappings) {
     try {
-      result = await callProvider(mapping.apiProvider.code, {
-        mobileNumber: aadhaarNumber,
+      result = await sendRecharge(mapping.apiProvider, {
+        transactionId: txn.id,
+        mobile: aadhaarNumber,
         amount,
-        operatorCode: AEPS_OPERATOR_CODE,
+        opcode: mapping.providerOperatorCode?.trim() || AEPS_OPERATOR_CODE,
       });
       usedProviderId = mapping.apiProviderId;
       break;
@@ -60,7 +61,23 @@ export async function performAepsTransaction(
     }
   }
 
-  const success = result?.success ?? false;
+  // A biometric withdrawal the switch hasn't confirmed stays PENDING (no money has
+  // moved on our side: AEPS never debits the retailer), to be settled by callback,
+  // status check or an admin.
+  if (result?.status === "PENDING") {
+    return prisma.transaction.update({
+      where: { id: txn.id },
+      data: {
+        apiProviderId: usedProviderId,
+        vendorRefId: result.vendorRefId,
+        providerRefId: result.providerRefId,
+        statusMessage: result.message,
+        apiResponse: { ...result.rawResponse, bankName, aepsType } as Prisma.InputJsonValue,
+      },
+    });
+  }
+
+  const success = result?.status === "SUCCESS";
   const rawResponse: Record<string, unknown> = result
     ? { ...result.rawResponse }
     : { error: "All configured AEPS providers were unreachable" };
