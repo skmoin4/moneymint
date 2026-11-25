@@ -88,7 +88,8 @@ export const ModelName = {
   PaymentOrder: 'PaymentOrder',
   UserPaymentQr: 'UserPaymentQr',
   ApiCredential: 'ApiCredential',
-  PartnerCallback: 'PartnerCallback'
+  PartnerCallback: 'PartnerCallback',
+  DeviceToken: 'DeviceToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -118,6 +119,8 @@ export const UserScalarFieldEnum = {
   kycStatus: 'kycStatus',
   transactionPinHash: 'transactionPinHash',
   pinEnabled: 'pinEnabled',
+  pinFailedAttempts: 'pinFailedAttempts',
+  pinLockedUntil: 'pinLockedUntil',
   tokenVersion: 'tokenVersion',
   referralCode: 'referralCode',
   referredById: 'referredById',
@@ -682,6 +685,19 @@ export const PartnerCallbackScalarFieldEnum = {
 } as const
 
 export type PartnerCallbackScalarFieldEnum = (typeof PartnerCallbackScalarFieldEnum)[keyof typeof PartnerCallbackScalarFieldEnum]
+
+
+export const DeviceTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  appVersion: 'appVersion',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt'
+} as const
+
+export type DeviceTokenScalarFieldEnum = (typeof DeviceTokenScalarFieldEnum)[keyof typeof DeviceTokenScalarFieldEnum]
 
 
 export const SortOrder = {

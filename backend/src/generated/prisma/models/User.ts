@@ -27,10 +27,12 @@ export type AggregateUser = {
 }
 
 export type UserAvgAggregateOutputType = {
+  pinFailedAttempts: number | null
   tokenVersion: number | null
 }
 
 export type UserSumAggregateOutputType = {
+  pinFailedAttempts: number | null
   tokenVersion: number | null
 }
 
@@ -45,6 +47,8 @@ export type UserMinAggregateOutputType = {
   kycStatus: $Enums.KycStatus | null
   transactionPinHash: string | null
   pinEnabled: boolean | null
+  pinFailedAttempts: number | null
+  pinLockedUntil: Date | null
   tokenVersion: number | null
   referralCode: string | null
   referredById: string | null
@@ -65,6 +69,8 @@ export type UserMaxAggregateOutputType = {
   kycStatus: $Enums.KycStatus | null
   transactionPinHash: string | null
   pinEnabled: boolean | null
+  pinFailedAttempts: number | null
+  pinLockedUntil: Date | null
   tokenVersion: number | null
   referralCode: string | null
   referredById: string | null
@@ -85,6 +91,8 @@ export type UserCountAggregateOutputType = {
   kycStatus: number
   transactionPinHash: number
   pinEnabled: number
+  pinFailedAttempts: number
+  pinLockedUntil: number
   tokenVersion: number
   referralCode: number
   referredById: number
@@ -97,10 +105,12 @@ export type UserCountAggregateOutputType = {
 
 
 export type UserAvgAggregateInputType = {
+  pinFailedAttempts?: true
   tokenVersion?: true
 }
 
 export type UserSumAggregateInputType = {
+  pinFailedAttempts?: true
   tokenVersion?: true
 }
 
@@ -115,6 +125,8 @@ export type UserMinAggregateInputType = {
   kycStatus?: true
   transactionPinHash?: true
   pinEnabled?: true
+  pinFailedAttempts?: true
+  pinLockedUntil?: true
   tokenVersion?: true
   referralCode?: true
   referredById?: true
@@ -135,6 +147,8 @@ export type UserMaxAggregateInputType = {
   kycStatus?: true
   transactionPinHash?: true
   pinEnabled?: true
+  pinFailedAttempts?: true
+  pinLockedUntil?: true
   tokenVersion?: true
   referralCode?: true
   referredById?: true
@@ -155,6 +169,8 @@ export type UserCountAggregateInputType = {
   kycStatus?: true
   transactionPinHash?: true
   pinEnabled?: true
+  pinFailedAttempts?: true
+  pinLockedUntil?: true
   tokenVersion?: true
   referralCode?: true
   referredById?: true
@@ -262,6 +278,8 @@ export type UserGroupByOutputType = {
   kycStatus: $Enums.KycStatus
   transactionPinHash: string | null
   pinEnabled: boolean
+  pinFailedAttempts: number
+  pinLockedUntil: Date | null
   tokenVersion: number
   referralCode: string | null
   referredById: string | null
@@ -305,6 +323,8 @@ export type UserWhereInput = {
   kycStatus?: Prisma.EnumKycStatusFilter<"User"> | $Enums.KycStatus
   transactionPinHash?: Prisma.StringNullableFilter<"User"> | string | null
   pinEnabled?: Prisma.BoolFilter<"User"> | boolean
+  pinFailedAttempts?: Prisma.IntFilter<"User"> | number
+  pinLockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   tokenVersion?: Prisma.IntFilter<"User"> | number
   referralCode?: Prisma.StringNullableFilter<"User"> | string | null
   referredById?: Prisma.StringNullableFilter<"User"> | string | null
@@ -343,6 +363,8 @@ export type UserOrderByWithRelationInput = {
   kycStatus?: Prisma.SortOrder
   transactionPinHash?: Prisma.SortOrderInput | Prisma.SortOrder
   pinEnabled?: Prisma.SortOrder
+  pinFailedAttempts?: Prisma.SortOrder
+  pinLockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   referredById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -385,6 +407,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   kycStatus?: Prisma.EnumKycStatusFilter<"User"> | $Enums.KycStatus
   transactionPinHash?: Prisma.StringNullableFilter<"User"> | string | null
   pinEnabled?: Prisma.BoolFilter<"User"> | boolean
+  pinFailedAttempts?: Prisma.IntFilter<"User"> | number
+  pinLockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   tokenVersion?: Prisma.IntFilter<"User"> | number
   referredById?: Prisma.StringNullableFilter<"User"> | string | null
   parentId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -422,6 +446,8 @@ export type UserOrderByWithAggregationInput = {
   kycStatus?: Prisma.SortOrder
   transactionPinHash?: Prisma.SortOrderInput | Prisma.SortOrder
   pinEnabled?: Prisma.SortOrder
+  pinFailedAttempts?: Prisma.SortOrder
+  pinLockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   referredById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -450,6 +476,8 @@ export type UserScalarWhereWithAggregatesInput = {
   kycStatus?: Prisma.EnumKycStatusWithAggregatesFilter<"User"> | $Enums.KycStatus
   transactionPinHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   pinEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  pinFailedAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
+  pinLockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   tokenVersion?: Prisma.IntWithAggregatesFilter<"User"> | number
   referralCode?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   referredById?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -470,6 +498,8 @@ export type UserCreateInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -505,6 +535,8 @@ export type UserUncheckedCreateInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -540,6 +572,8 @@ export type UserUpdateInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -575,6 +609,8 @@ export type UserUncheckedUpdateInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -610,6 +646,8 @@ export type UserCreateManyInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -630,6 +668,8 @@ export type UserUpdateManyMutationInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -647,6 +687,8 @@ export type UserUncheckedUpdateManyInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -682,6 +724,8 @@ export type UserCountOrderByAggregateInput = {
   kycStatus?: Prisma.SortOrder
   transactionPinHash?: Prisma.SortOrder
   pinEnabled?: Prisma.SortOrder
+  pinFailedAttempts?: Prisma.SortOrder
+  pinLockedUntil?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   referredById?: Prisma.SortOrder
@@ -692,6 +736,7 @@ export type UserCountOrderByAggregateInput = {
 }
 
 export type UserAvgOrderByAggregateInput = {
+  pinFailedAttempts?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
 }
 
@@ -706,6 +751,8 @@ export type UserMaxOrderByAggregateInput = {
   kycStatus?: Prisma.SortOrder
   transactionPinHash?: Prisma.SortOrder
   pinEnabled?: Prisma.SortOrder
+  pinFailedAttempts?: Prisma.SortOrder
+  pinLockedUntil?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   referredById?: Prisma.SortOrder
@@ -726,6 +773,8 @@ export type UserMinOrderByAggregateInput = {
   kycStatus?: Prisma.SortOrder
   transactionPinHash?: Prisma.SortOrder
   pinEnabled?: Prisma.SortOrder
+  pinFailedAttempts?: Prisma.SortOrder
+  pinLockedUntil?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   referredById?: Prisma.SortOrder
@@ -736,6 +785,7 @@ export type UserMinOrderByAggregateInput = {
 }
 
 export type UserSumOrderByAggregateInput = {
+  pinFailedAttempts?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
 }
 
@@ -814,6 +864,10 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -1131,6 +1185,8 @@ export type UserCreateWithoutReferredUsersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -1165,6 +1221,8 @@ export type UserUncheckedCreateWithoutReferredUsersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -1204,6 +1262,8 @@ export type UserCreateWithoutReferredByInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -1238,6 +1298,8 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   parentId?: string | null
@@ -1282,6 +1344,8 @@ export type UserCreateWithoutChildrenInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -1316,6 +1380,8 @@ export type UserUncheckedCreateWithoutChildrenInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -1355,6 +1421,8 @@ export type UserCreateWithoutParentInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -1389,6 +1457,8 @@ export type UserUncheckedCreateWithoutParentInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -1444,6 +1514,8 @@ export type UserUpdateWithoutReferredUsersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1478,6 +1550,8 @@ export type UserUncheckedUpdateWithoutReferredUsersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1531,6 +1605,8 @@ export type UserScalarWhereInput = {
   kycStatus?: Prisma.EnumKycStatusFilter<"User"> | $Enums.KycStatus
   transactionPinHash?: Prisma.StringNullableFilter<"User"> | string | null
   pinEnabled?: Prisma.BoolFilter<"User"> | boolean
+  pinFailedAttempts?: Prisma.IntFilter<"User"> | number
+  pinLockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   tokenVersion?: Prisma.IntFilter<"User"> | number
   referralCode?: Prisma.StringNullableFilter<"User"> | string | null
   referredById?: Prisma.StringNullableFilter<"User"> | string | null
@@ -1562,6 +1638,8 @@ export type UserUpdateWithoutChildrenInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1596,6 +1674,8 @@ export type UserUncheckedUpdateWithoutChildrenInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1646,6 +1726,8 @@ export type UserCreateWithoutWalletInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -1680,6 +1762,8 @@ export type UserUncheckedCreateWithoutWalletInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -1730,6 +1814,8 @@ export type UserUpdateWithoutWalletInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1764,6 +1850,8 @@ export type UserUncheckedUpdateWithoutWalletInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1798,6 +1886,8 @@ export type UserCreateWithoutCommissionPackInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -1832,6 +1922,8 @@ export type UserUncheckedCreateWithoutCommissionPackInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -1892,6 +1984,8 @@ export type UserCreateWithoutCommissionPayoutsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -1926,6 +2020,8 @@ export type UserUncheckedCreateWithoutCommissionPayoutsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -1976,6 +2072,8 @@ export type UserUpdateWithoutCommissionPayoutsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2010,6 +2108,8 @@ export type UserUncheckedUpdateWithoutCommissionPayoutsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2044,6 +2144,8 @@ export type UserCreateWithoutTransactionsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -2078,6 +2180,8 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -2128,6 +2232,8 @@ export type UserUpdateWithoutTransactionsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2162,6 +2268,8 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2196,6 +2304,8 @@ export type UserCreateWithoutSentTransfersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -2230,6 +2340,8 @@ export type UserUncheckedCreateWithoutSentTransfersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -2269,6 +2381,8 @@ export type UserCreateWithoutReceivedTransfersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -2303,6 +2417,8 @@ export type UserUncheckedCreateWithoutReceivedTransfersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -2353,6 +2469,8 @@ export type UserUpdateWithoutSentTransfersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2387,6 +2505,8 @@ export type UserUncheckedUpdateWithoutSentTransfersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2432,6 +2552,8 @@ export type UserUpdateWithoutReceivedTransfersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2466,6 +2588,8 @@ export type UserUncheckedUpdateWithoutReceivedTransfersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2500,6 +2624,8 @@ export type UserCreateWithoutRemittersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -2534,6 +2660,8 @@ export type UserUncheckedCreateWithoutRemittersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -2584,6 +2712,8 @@ export type UserUpdateWithoutRemittersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2618,6 +2748,8 @@ export type UserUncheckedUpdateWithoutRemittersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2652,6 +2784,8 @@ export type UserCreateWithoutKycRequestsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -2686,6 +2820,8 @@ export type UserUncheckedCreateWithoutKycRequestsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -2736,6 +2872,8 @@ export type UserUpdateWithoutKycRequestsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2770,6 +2908,8 @@ export type UserUncheckedUpdateWithoutKycRequestsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2804,6 +2944,8 @@ export type UserCreateWithoutComplaintsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -2838,6 +2980,8 @@ export type UserUncheckedCreateWithoutComplaintsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -2888,6 +3032,8 @@ export type UserUpdateWithoutComplaintsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2922,6 +3068,8 @@ export type UserUncheckedUpdateWithoutComplaintsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2956,6 +3104,8 @@ export type UserCreateWithoutBalanceRequestsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -2990,6 +3140,8 @@ export type UserUncheckedCreateWithoutBalanceRequestsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -3040,6 +3192,8 @@ export type UserUpdateWithoutBalanceRequestsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3074,6 +3228,8 @@ export type UserUncheckedUpdateWithoutBalanceRequestsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3108,6 +3264,8 @@ export type UserCreateWithoutQueuedRechargesInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -3142,6 +3300,8 @@ export type UserUncheckedCreateWithoutQueuedRechargesInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -3192,6 +3352,8 @@ export type UserUpdateWithoutQueuedRechargesInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3226,6 +3388,8 @@ export type UserUncheckedUpdateWithoutQueuedRechargesInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3260,6 +3424,8 @@ export type UserCreateWithoutNotificationsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -3294,6 +3460,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -3344,6 +3512,8 @@ export type UserUpdateWithoutNotificationsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3378,6 +3548,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3412,6 +3584,8 @@ export type UserCreateWithoutPaymentOrdersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -3446,6 +3620,8 @@ export type UserUncheckedCreateWithoutPaymentOrdersInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -3496,6 +3672,8 @@ export type UserUpdateWithoutPaymentOrdersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3530,6 +3708,8 @@ export type UserUncheckedUpdateWithoutPaymentOrdersInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3564,6 +3744,8 @@ export type UserCreateWithoutApiCredentialInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   createdAt?: Date | string
@@ -3598,6 +3780,8 @@ export type UserUncheckedCreateWithoutApiCredentialInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -3648,6 +3832,8 @@ export type UserUpdateWithoutApiCredentialInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3682,6 +3868,8 @@ export type UserUncheckedUpdateWithoutApiCredentialInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3716,6 +3904,8 @@ export type UserCreateManyReferredByInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   parentId?: string | null
@@ -3735,6 +3925,8 @@ export type UserCreateManyParentInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -3754,6 +3946,8 @@ export type UserUpdateWithoutReferredByInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3788,6 +3982,8 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3822,6 +4018,8 @@ export type UserUncheckedUpdateManyWithoutReferredByInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3841,6 +4039,8 @@ export type UserUpdateWithoutParentInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3875,6 +4075,8 @@ export type UserUncheckedUpdateWithoutParentInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3909,6 +4111,8 @@ export type UserUncheckedUpdateManyWithoutParentInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3928,6 +4132,8 @@ export type UserCreateManyCommissionPackInput = {
   kycStatus?: $Enums.KycStatus
   transactionPinHash?: string | null
   pinEnabled?: boolean
+  pinFailedAttempts?: number
+  pinLockedUntil?: Date | string | null
   tokenVersion?: number
   referralCode?: string | null
   referredById?: string | null
@@ -3947,6 +4153,8 @@ export type UserUpdateWithoutCommissionPackInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3981,6 +4189,8 @@ export type UserUncheckedUpdateWithoutCommissionPackInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4015,6 +4225,8 @@ export type UserUncheckedUpdateManyWithoutCommissionPackInput = {
   kycStatus?: Prisma.EnumKycStatusFieldUpdateOperationsInput | $Enums.KycStatus
   transactionPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pinFailedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pinLockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referredById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4173,6 +4385,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   kycStatus?: boolean
   transactionPinHash?: boolean
   pinEnabled?: boolean
+  pinFailedAttempts?: boolean
+  pinLockedUntil?: boolean
   tokenVersion?: boolean
   referralCode?: boolean
   referredById?: boolean
@@ -4212,6 +4426,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   kycStatus?: boolean
   transactionPinHash?: boolean
   pinEnabled?: boolean
+  pinFailedAttempts?: boolean
+  pinLockedUntil?: boolean
   tokenVersion?: boolean
   referralCode?: boolean
   referredById?: boolean
@@ -4235,6 +4451,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   kycStatus?: boolean
   transactionPinHash?: boolean
   pinEnabled?: boolean
+  pinFailedAttempts?: boolean
+  pinLockedUntil?: boolean
   tokenVersion?: boolean
   referralCode?: boolean
   referredById?: boolean
@@ -4258,6 +4476,8 @@ export type UserSelectScalar = {
   kycStatus?: boolean
   transactionPinHash?: boolean
   pinEnabled?: boolean
+  pinFailedAttempts?: boolean
+  pinLockedUntil?: boolean
   tokenVersion?: boolean
   referralCode?: boolean
   referredById?: boolean
@@ -4267,7 +4487,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "phone" | "passwordHash" | "role" | "status" | "kycStatus" | "transactionPinHash" | "pinEnabled" | "tokenVersion" | "referralCode" | "referredById" | "parentId" | "commissionPackId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "phone" | "passwordHash" | "role" | "status" | "kycStatus" | "transactionPinHash" | "pinEnabled" | "pinFailedAttempts" | "pinLockedUntil" | "tokenVersion" | "referralCode" | "referredById" | "parentId" | "commissionPackId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   referredBy?: boolean | Prisma.User$referredByArgs<ExtArgs>
   referredUsers?: boolean | Prisma.User$referredUsersArgs<ExtArgs>
@@ -4333,6 +4553,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     kycStatus: $Enums.KycStatus
     transactionPinHash: string | null
     pinEnabled: boolean
+    pinFailedAttempts: number
+    pinLockedUntil: Date | null
     tokenVersion: number
     referralCode: string | null
     referredById: string | null
@@ -4791,6 +5013,8 @@ export interface UserFieldRefs {
   readonly kycStatus: Prisma.FieldRef<"User", 'KycStatus'>
   readonly transactionPinHash: Prisma.FieldRef<"User", 'String'>
   readonly pinEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly pinFailedAttempts: Prisma.FieldRef<"User", 'Int'>
+  readonly pinLockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly tokenVersion: Prisma.FieldRef<"User", 'Int'>
   readonly referralCode: Prisma.FieldRef<"User", 'String'>
   readonly referredById: Prisma.FieldRef<"User", 'String'>

@@ -9,6 +9,13 @@ import { FormField, inputClasses } from "../components/ui/FormField";
 const KNOWN_SETTINGS = [
   { key: "transferCommissionPercent", label: "Transfer Auto-Commission (%)", hint: "Used when 'Auto Calculate Flat Commission' is checked on a fund transfer.", defaultValue: "0.5" },
   { key: "stopAllApiUsers", label: "Stop All API Users", hint: "Manage this from Provider API Setting instead — shown here for visibility.", defaultValue: "false", readOnly: true },
+  { key: "appMinVersion", label: "App: minimum version", hint: "Mobile app versions below this must update before they can be used (e.g. 1.0.0).", defaultValue: "1.0.0" },
+  { key: "appLatestVersion", label: "App: latest version", hint: "Older versions see an optional 'update available' message.", defaultValue: "1.0.0" },
+  { key: "appUpdateUrl", label: "App: update link", hint: "Play Store / App Store link opened by the update button.", defaultValue: "" },
+  { key: "maintenanceMessage", label: "App: maintenance message", hint: "Leave blank normally. When set, the app shows this message (e.g. during planned downtime).", defaultValue: "" },
+  { key: "supportPhone", label: "Support phone", hint: "Shown in the app's help section.", defaultValue: "" },
+  { key: "supportEmail", label: "Support email", hint: "Shown in the app's help section.", defaultValue: "" },
+  { key: "supportHours", label: "Support hours", hint: "e.g. 9 am to 9 pm", defaultValue: "9 am to 9 pm" },
   { key: "referralRewardPercent", label: "Referral Reward (%)", hint: "Percent of every successful transaction credited to the referrer's wallet when a referred user transacts.", defaultValue: "0" },
 ];
 

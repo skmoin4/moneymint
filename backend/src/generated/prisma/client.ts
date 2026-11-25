@@ -229,3 +229,8 @@ export type ApiCredential = Prisma.ApiCredentialModel
  * 
  */
 export type PartnerCallback = Prisma.PartnerCallbackModel
+/**
+ * Model DeviceToken
+ * 
+ */
+export type DeviceToken = Prisma.DeviceTokenModel

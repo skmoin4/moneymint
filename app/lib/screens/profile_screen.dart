@@ -252,9 +252,12 @@ class PinScreen extends StatefulWidget {
   State<PinScreen> createState() => _PinScreenState();
 }
 
+/// Set / change / disable the transaction PIN. Changing or disabling needs the current
+/// PIN; "Forgot PIN" resets it with an OTP sent to the account's mobile.
 class _PinScreenState extends State<PinScreen> {
   bool? _hasPin;
   bool _enabled = false;
+  final _current = TextEditingController();
   final _pin = TextEditingController();
   String? _message;
   String? _error;
@@ -275,32 +278,86 @@ class _PinScreenState extends State<PinScreen> {
     }
   }
 
+  void _show({String? message, String? error}) => setState(() {
+    _message = message;
+    _error = error;
+  });
+
   Future<void> _setPin() async {
-    setState(() {
-      _error = null;
-      _message = null;
-    });
+    _show();
     try {
-      await context.read<Session>().api.post('/auth/pin/set', {'pin': _pin.text});
+      await context.read<Session>().api.post('/auth/pin/set', {'pin': _pin.text, if (_hasPin!) 'currentPin': _current.text});
       _pin.clear();
-      setState(() => _message = 'PIN saved.');
+      _current.clear();
+      _show(message: 'PIN saved.');
       await _load();
     } catch (e) {
-      setState(() => _error = errorOf(e));
+      _show(error: errorOf(e));
     }
   }
 
   Future<void> _toggle(bool v) async {
+    _show();
+    String? pin;
+    if (!v) {
+      pin = await _askText('Enter your PIN to turn it off', obscure: true);
+      if (pin == null) return;
+    }
+    if (!mounted) return;
     try {
-      await context.read<Session>().api.post('/auth/pin/toggle', {'enabled': v});
+      await context.read<Session>().api.post('/auth/pin/toggle', {'enabled': v, 'pin': ?pin});
       setState(() => _enabled = v);
     } catch (e) {
-      setState(() => _error = errorOf(e));
+      _show(error: errorOf(e));
     }
+  }
+
+  Future<void> _forgot() async {
+    _show();
+    final api = context.read<Session>().api;
+    try {
+      await api.post('/auth/pin/reset-request');
+    } catch (e) {
+      return _show(error: errorOf(e));
+    }
+    final otp = await _askText('Enter the OTP sent to your mobile');
+    if (otp == null) return;
+    final newPin = await _askText('Choose a new PIN (4–6 digits)', obscure: true);
+    if (newPin == null) return;
+    try {
+      await api.post('/auth/pin/reset', {'otp': otp, 'newPin': newPin});
+      _show(message: 'New PIN set.');
+      await _load();
+    } catch (e) {
+      _show(error: errorOf(e));
+    }
+  }
+
+  Future<String?> _askText(String title, {bool obscure = false}) {
+    final c = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: c,
+          autofocus: true,
+          obscureText: obscure,
+          keyboardType: TextInputType.number,
+          maxLength: 6,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, c.text.isEmpty ? null : c.text), child: const Text('OK')),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final digits = [FilteringTextInputFormatter.digitsOnly];
     return Scaffold(
       appBar: AppBar(title: const Text('Transaction PIN')),
       body: _hasPin == null
@@ -310,7 +367,9 @@ class _PinScreenState extends State<PinScreen> {
               children: [
                 if (_error != null) ErrorBanner(_error!),
                 if (_message != null) InfoBanner(_message!),
-                const Text('When enabled, every recharge, bill payment and money transfer asks for this PIN.'),
+                const Text(
+                  'When enabled, every recharge, bill payment and money transfer asks for this PIN. Five wrong tries lock it for 15 minutes.',
+                ),
                 const SizedBox(height: 16),
                 Card(
                   child: SwitchListTile(
@@ -321,17 +380,33 @@ class _PinScreenState extends State<PinScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                if (_hasPin!) ...[
+                  TextField(
+                    controller: _current,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    inputFormatters: digits,
+                    decoration: const InputDecoration(labelText: 'Current PIN'),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 TextField(
                   controller: _pin,
                   obscureText: true,
                   keyboardType: TextInputType.number,
                   maxLength: 6,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: digits,
                   decoration: InputDecoration(labelText: _hasPin! ? 'New PIN (4–6 digits)' : 'Choose a PIN (4–6 digits)'),
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 8),
-                PrimaryButton(label: _hasPin! ? 'Change PIN' : 'Set PIN', onPressed: _pin.text.length >= 4 ? _setPin : null),
+                PrimaryButton(
+                  label: _hasPin! ? 'Change PIN' : 'Set PIN',
+                  onPressed: _pin.text.length >= 4 && (!_hasPin! || _current.text.length >= 4) ? _setPin : null,
+                ),
+                if (_hasPin!) TextButton(onPressed: _forgot, child: const Text('Forgot PIN?')),
               ],
             ),
     );

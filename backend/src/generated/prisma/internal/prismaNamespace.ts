@@ -434,7 +434,8 @@ export const ModelName = {
   PaymentOrder: 'PaymentOrder',
   UserPaymentQr: 'UserPaymentQr',
   ApiCredential: 'ApiCredential',
-  PartnerCallback: 'PartnerCallback'
+  PartnerCallback: 'PartnerCallback',
+  DeviceToken: 'DeviceToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -450,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "commissionPayout" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder" | "userPaymentQr" | "apiCredential" | "partnerCallback"
+    modelProps: "user" | "wallet" | "ledgerEntry" | "apiProvider" | "providerWalletEntry" | "operator" | "operatorApiMapping" | "commissionPack" | "commissionSlab" | "commissionPayout" | "transaction" | "providerCallLog" | "fundTransfer" | "remitter" | "beneficiary" | "kycRequest" | "complaint" | "bankAccount" | "notice" | "balanceRequest" | "activityLog" | "ipWhitelistEntry" | "smsLog" | "circle" | "systemSetting" | "paymentMode" | "whatsappLog" | "emailLog" | "otpRequest" | "queuedRecharge" | "userNotification" | "operatorPrefix" | "rechargePlan" | "cashbackOffer" | "paymentOrder" | "userPaymentQr" | "apiCredential" | "partnerCallback" | "deviceToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3266,6 +3267,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DeviceToken: {
+      payload: Prisma.$DeviceTokenPayload<ExtArgs>
+      fields: Prisma.DeviceTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DeviceTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DeviceTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.DeviceTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DeviceTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+        }
+        findMany: {
+          args: Prisma.DeviceTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>[]
+        }
+        create: {
+          args: Prisma.DeviceTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+        }
+        createMany: {
+          args: Prisma.DeviceTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DeviceTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.DeviceTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+        }
+        update: {
+          args: Prisma.DeviceTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.DeviceTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DeviceTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DeviceTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.DeviceTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.DeviceTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDeviceToken>
+        }
+        groupBy: {
+          args: Prisma.DeviceTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeviceTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DeviceTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeviceTokenCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3316,6 +3391,8 @@ export const UserScalarFieldEnum = {
   kycStatus: 'kycStatus',
   transactionPinHash: 'transactionPinHash',
   pinEnabled: 'pinEnabled',
+  pinFailedAttempts: 'pinFailedAttempts',
+  pinLockedUntil: 'pinLockedUntil',
   tokenVersion: 'tokenVersion',
   referralCode: 'referralCode',
   referredById: 'referredById',
@@ -3882,6 +3959,19 @@ export const PartnerCallbackScalarFieldEnum = {
 export type PartnerCallbackScalarFieldEnum = (typeof PartnerCallbackScalarFieldEnum)[keyof typeof PartnerCallbackScalarFieldEnum]
 
 
+export const DeviceTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  appVersion: 'appVersion',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt'
+} as const
+
+export type DeviceTokenScalarFieldEnum = (typeof DeviceTokenScalarFieldEnum)[keyof typeof DeviceTokenScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -4404,6 +4494,7 @@ export type GlobalOmitConfig = {
   userPaymentQr?: Prisma.UserPaymentQrOmit
   apiCredential?: Prisma.ApiCredentialOmit
   partnerCallback?: Prisma.PartnerCallbackOmit
+  deviceToken?: Prisma.DeviceTokenOmit
 }
 
 /* Types for Logging */

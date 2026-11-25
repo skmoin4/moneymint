@@ -5,6 +5,20 @@ and what the owner must do. Update together with "Current status" in `CLAUDE.md`
 
 ---
 
+## 2026-11-26 — Handover package (in progress): missing app APIs + PIN hardening
+
+- New app APIs: `GET /app/config` (public: min/latest app version, update URL, maintenance
+  message, support contacts — set from admin Settings), `POST/DELETE /app/devices` (FCM tokens,
+  `DeviceToken` table; sending pushes still needs Firebase credentials), `PATCH /auth/me`
+  (email). `GET /auth/me` now also returns `email` and `kycStatus`.
+- PIN fixes found while documenting: a wrong PIN returned 401 (clients treat 401 as "logged
+  out") → now 400 `PIN_INCORRECT`; 5 wrong PINs lock PIN actions for 15 min (423 `PIN_LOCKED`);
+  changing/disabling an existing PIN needs the current PIN; forgot PIN = `POST /auth/pin/reset-request`
+  + `POST /auth/pin/reset {otp,newPin}`. PIN errors carry a `code`. Reference app PIN screen updated.
+- Tested: config/devices/profile endpoints; full PIN flow (required, 4 wrong → lock on 5th,
+  lock blocks correct PIN, session stays valid, OTP reset, change with current PIN, disable).
+- Remaining for the package: OpenAPI spec, Postman collection, integration guide.
+
 ## 2026-11-25 — Session notes set up; app ownership decided
 
 - Owner: a separate Flutter developer will build the mobile app; we provide APIs and handle

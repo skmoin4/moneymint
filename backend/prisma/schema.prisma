@@ -119,6 +119,9 @@ model User {
   // distinct from the login credential. Opt-in: enforced only when pinEnabled is true.
   transactionPinHash String?
   pinEnabled         Boolean @default(false)
+  // Wrong-PIN lockout: 5 failures lock PIN-protected actions for 15 minutes.
+  pinFailedAttempts  Int       @default(0)
+  pinLockedUntil     DateTime?
   tokenVersion       Int     @default(0) // bumped on "Logout All Devices" to invalidate every previously issued JWT
 
   // Referral program: whoever referred this user earns a reward whenever this user
@@ -812,4 +815,18 @@ model PartnerCallback {
   @@index([status, nextAttemptAt])
   @@index([userId, createdAt])
   @@index([transactionId])
+}
+
+// Push-notification tokens (FCM) registered by the mobile app, one row per device.
+// Sending pushes needs Firebase credentials (not configured yet); tokens are collected now.
+model DeviceToken {
+  id         String   @id @default(uuid())
+  userId     String
+  token      String   @unique
+  platform   String // android, ios, web
+  appVersion String?
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
 }

@@ -124,9 +124,10 @@ Done (steps 1–4, plus admin redesign):
   APK build were not finished — the owner then decided an external developer builds the app).
 
 Next (agreed order):
-1. **API handover package for the Flutter developer** — OpenAPI spec of the app-facing APIs,
-   Postman collection, app integration guide (auth/OTP, PIN, pending polling, Razorpay,
-   errors); add missing app APIs (FCM device token, app version/force-update, profile edit).
+1. **API handover package for the Flutter developer** — IN PROGRESS. Done: missing app APIs
+   (`/app/config`, `/app/devices`, `PATCH /auth/me`) and PIN hardening. Remaining: OpenAPI spec
+   of the app-facing APIs (`docs/app-api/`), Postman collection, app integration guide
+   (auth/OTP, PIN, pending polling, Razorpay, errors; money values are decimal strings).
 2. Step 6 — remaining reports (Account Summary, Activation report, etc.), admin complaints
    workflow, real SMS (DLT).
 3. Step 7 — production: hosting, backups, monitoring, deployment.

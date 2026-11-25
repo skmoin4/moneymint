@@ -33,6 +33,7 @@ import { adminTransactionsRouter } from "./routes/adminTransactions";
 import { adminPaymentsRouter } from "./routes/adminPayments";
 import { partnerApiRouter } from "./routes/partnerApi";
 import { apiAccessRouter } from "./routes/apiAccess";
+import { appMetaRouter } from "./routes/appMeta";
 import { startPartnerCallbackWorker } from "./services/partnerCallbacks";
 import { providerCallbackRouter } from "./routes/providerCallback";
 import { startStatusPoller } from "./services/statusPoller";
@@ -105,6 +106,7 @@ app.use("/cashback-offers", cashbackRouter);
 app.use("/admin/transactions", adminTransactionsRouter);
 app.use("/admin/payments", adminPaymentsRouter);
 app.use("/api-access", apiAccessRouter);
+app.use("/app", appMetaRouter);
 
 app.use(errorHandler);
 

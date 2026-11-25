@@ -11,6 +11,7 @@ import { sendSms } from "../services/smsService";
 import { HttpError } from "../utils/httpError";
 import { generateReferralCode } from "../utils/referral";
 import { authLimiter } from "../middleware/rateLimiters";
+import { checkPin } from "../middleware/requirePin";
 
 export const authRouter = Router();
 
@@ -335,21 +336,30 @@ authRouter.get("/pin/status", authenticate, async (req, res) => {
   res.json({ hasPin: user.transactionPinHash !== null, pinEnabled: user.pinEnabled });
 });
 
-const setPinSchema = z.object({ pin: z.string().regex(/^\d{4,6}$/, "PIN must be 4-6 digits") });
+const pinValue = z.string().regex(/^\d{4,6}$/, "PIN must be 4-6 digits");
+const setPinSchema = z.object({ pin: pinValue, currentPin: z.string().optional() });
 
+// First PIN: just set it. Changing an existing PIN needs the current one (an unlocked
+// phone in the wrong hands must not be able to replace the PIN); forgot it → OTP reset.
 authRouter.post("/pin/set", authenticate, async (req, res) => {
   const parsed = setPinSchema.safeParse(req.body);
   if (!parsed.success) {
     throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
   }
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.userId }, select: { transactionPinHash: true } });
+  if (user.transactionPinHash) {
+    const failure = await checkPin(req.user!.userId, parsed.data.currentPin);
+    if (failure) return res.status(failure.status).json(failure.body);
+  }
   const transactionPinHash = await bcrypt.hash(parsed.data.pin, 10);
-  await prisma.user.update({ where: { id: req.user!.userId }, data: { transactionPinHash } });
-  await logActivity(req, "PIN_SET", { userId: req.user!.userId });
+  await prisma.user.update({ where: { id: req.user!.userId }, data: { transactionPinHash, pinFailedAttempts: 0, pinLockedUntil: null } });
+  await logActivity(req, user.transactionPinHash ? "PIN_CHANGED" : "PIN_SET", { userId: req.user!.userId });
   res.json({ ok: true });
 });
 
-const togglePinSchema = z.object({ enabled: z.boolean() });
+const togglePinSchema = z.object({ enabled: z.boolean(), pin: z.string().optional() });
 
+// Turning the PIN on is always allowed; turning it off needs the PIN.
 authRouter.post("/pin/toggle", authenticate, async (req, res) => {
   const parsed = togglePinSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -359,8 +369,79 @@ authRouter.post("/pin/toggle", authenticate, async (req, res) => {
   if (parsed.data.enabled && !user.transactionPinHash) {
     throw new HttpError(400, "Set a PIN before enabling it");
   }
+  if (!parsed.data.enabled && user.pinEnabled) {
+    const failure = await checkPin(user.id, parsed.data.pin);
+    if (failure) return res.status(failure.status).json(failure.body);
+  }
   await prisma.user.update({ where: { id: user.id }, data: { pinEnabled: parsed.data.enabled } });
+  await logActivity(req, parsed.data.enabled ? "PIN_ENABLED" : "PIN_DISABLED", { userId: user.id });
   res.json({ pinEnabled: parsed.data.enabled });
+});
+
+// Forgot PIN: an OTP to the account's own mobile, then a new PIN. Separate OTP purpose,
+// so a PIN-reset OTP can't be used to log in and vice versa.
+authRouter.post("/pin/reset-request", authLimiter, authenticate, async (req, res) => {
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.userId }, select: { phone: true } });
+  const recent = await prisma.otpRequest.findFirst({
+    where: { phone: user.phone, purpose: "PIN_RESET", createdAt: { gte: new Date(Date.now() - OTP_REQUEST_COOLDOWN_SECONDS * 1000) } },
+  });
+  if (recent) throw new HttpError(429, "Please wait before requesting another OTP.");
+  const otp = generateOtp();
+  await prisma.otpRequest.create({
+    data: { phone: user.phone, otpHash: await bcrypt.hash(otp, 10), purpose: "PIN_RESET", expiresAt: new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000) },
+  });
+  await sendSms(user.phone, `Your MoneyMint PIN reset OTP is ${otp}. Valid for ${OTP_TTL_MINUTES} minutes. Do not share this with anyone.`, "OTP");
+  res.json({ sent: true, expiresInSeconds: OTP_TTL_MINUTES * 60 });
+});
+
+const pinResetSchema = z.object({ otp: z.string().length(6), newPin: pinValue });
+
+authRouter.post("/pin/reset", authLimiter, authenticate, async (req, res) => {
+  const parsed = pinResetSchema.safeParse(req.body);
+  if (!parsed.success) {
+    throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
+  }
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.userId }, select: { id: true, phone: true } });
+  const otpRequest = await prisma.otpRequest.findFirst({
+    where: { phone: user.phone, purpose: "PIN_RESET", consumed: false, expiresAt: { gte: new Date() } },
+    orderBy: { createdAt: "desc" },
+  });
+  if (!otpRequest || otpRequest.attempts >= OTP_MAX_ATTEMPTS) {
+    throw new HttpError(400, "OTP expired or invalid. Please request a new one.");
+  }
+  if (!(await bcrypt.compare(parsed.data.otp, otpRequest.otpHash))) {
+    await prisma.otpRequest.update({ where: { id: otpRequest.id }, data: { attempts: { increment: 1 } } });
+    throw new HttpError(400, "Incorrect OTP");
+  }
+  await prisma.$transaction([
+    prisma.otpRequest.update({ where: { id: otpRequest.id }, data: { consumed: true } }),
+    prisma.user.update({
+      where: { id: user.id },
+      data: { transactionPinHash: await bcrypt.hash(parsed.data.newPin, 10), pinFailedAttempts: 0, pinLockedUntil: null },
+    }),
+  ]);
+  await logActivity(req, "PIN_RESET", { userId: user.id });
+  res.json({ ok: true });
+});
+
+const profileSchema = z.object({
+  email: z.string().trim().email().max(120).nullable(),
+});
+
+// Profile edit from the app. Name and mobile are KYC/identity fields changed only by the
+// distributor/admin; the user can maintain their email.
+authRouter.patch("/me", authenticate, async (req, res) => {
+  const parsed = profileSchema.safeParse(req.body);
+  if (!parsed.success) {
+    throw new HttpError(400, JSON.stringify(parsed.error.flatten()));
+  }
+  const email = parsed.data.email?.toLowerCase() || null;
+  if (email) {
+    const taken = await prisma.user.findFirst({ where: { email, id: { not: req.user!.userId } }, select: { id: true } });
+    if (taken) throw new HttpError(409, "This email is already used by another account");
+  }
+  const user = await prisma.user.update({ where: { id: req.user!.userId }, data: { email } });
+  res.json({ ...(await sessionUser(user)), email: user.email });
 });
 
 authRouter.get("/me", authenticate, async (req, res) => {
@@ -373,6 +454,8 @@ authRouter.get("/me", authenticate, async (req, res) => {
   }
   res.json({
     ...(await sessionUser(user)),
+    email: user.email,
+    kycStatus: user.kycStatus,
     walletBalance: user.wallet?.balance,
   });
 });
